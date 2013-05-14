@@ -570,3 +570,15 @@ service bt-sap /system/bin/sapd 15
     class late_start
     disabled
     oneshot
+
+service camera-perm /system/bin/sh /system/etc/camera-permission.sh
+    class late_start
+    user root
+    disabled
+    oneshot
+
+on property:media.camera_init=1
+    start camera-perm
+
+on property:media.camera_init=0
+    stop camera-perm

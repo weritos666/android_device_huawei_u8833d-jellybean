@@ -29,6 +29,7 @@
 on early-boot
     start comp-set
     start rendering-set
+    start qcamerasvr
 
 on emmc-fs:
     mount ext4 /dev/block/mmcblk0p12 /system ro remount barrier=1

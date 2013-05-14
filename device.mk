@@ -76,10 +76,11 @@ PRODUCT_COPY_FILES += \
     
 PRODUCT_COPY_FILES += \
     device/huawei/u8825d/ramdisk/init.huawei.rc:root/init.huawei.rc \
-	device/huawei/u8825d/ramdisk/init.target.rc:root/init.target.rc \
+    device/huawei/u8825d/ramdisk/init.target.rc:root/init.target.rc \
     device/huawei/u8825d/ramdisk/ueventd.huawei.rc:root/ueventd.huawei.rc \
     device/huawei/u8825d/ramdisk/init.qcom.sh:root/init.qcom.sh \
-    device/huawei/u8825d/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc
+    device/huawei/u8825d/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc \
+    device/huawei/u8825d/ramdisk/init:root/init
 
 PRODUCT_COPY_FILES += \
     device/huawei/u8825d/prebuilt/system/wifi/ath6k/athtcmd_ram.bin:system/etc/firmware/ath6k/athtcmd_ram.bin \
@@ -94,7 +95,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     device/huawei/u8825d/prebuilt/system/etc/wifi/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf \
     device/huawei/u8825d/prebuilt/system/etc/audio_policy.conf:system/etc/audio_policy.conf \
-    device/huawei/u8825d/apns-conf.xml:system/etc/apns-conf.xml
+    device/huawei/u8825d/apns-conf.xml:system/etc/apns-conf.xml \
+    device/huawei/u8825d/prebuilt/system/etc/camera-permission.sh:system/etc/camera-permission.sh \
+    device/huawei/u8825d/prebuilt/system/lib/libcameraservice.so:system/lib/libcameraservice.so \
+    device/huawei/u8825d/prebuilt/system/lib/libcamera_client.so:system/lib/libcamera_client.so
 
 PRODUCT_COPY_FILES += \
     device/huawei/u8825d/prebuilt/system/etc/dhcpcd/dhcpcd.conf:system/etc/dhcpcd/dhcpcd.conf \
