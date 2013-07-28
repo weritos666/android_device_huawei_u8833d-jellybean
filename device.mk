@@ -82,6 +82,12 @@ PRODUCT_COPY_FILES += \
     device/huawei/u8833d/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc \
     device/huawei/u8833d/ramdisk/init:root/init
 
+# xjljian 07.28
+PRODUCT_COPY_FILES += \
+    device/huawei/u8833d/ramdisk/tp/1191601.img:root/tp/1191601.img \
+    device/huawei/u8833d/ramdisk/tp/1294018.img:root/tp/1294018.img
+# xjljian end
+
 PRODUCT_COPY_FILES += \
     device/huawei/u8833d/prebuilt/system/wifi/ath6k/athtcmd_ram.bin:system/etc/firmware/ath6k/athtcmd_ram.bin \
     device/huawei/u8833d/prebuilt/system/wifi/ath6k/caldata_MSM8X25_C8825D.bin:system/etc/firmware/load/caldata.bin \

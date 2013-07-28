@@ -78,16 +78,35 @@ ENABLE_WEBGL := true
 
 BOARD_HAVE_BLUETOOTH := true
 
+# xjljian 07.28
+# Wi-Fi
+#BOARD_WLAN_DEVICE					:= ath6kl
+#WPA_SUPPLICANT_VERSION				:= VER_0_8_X
+#BOARD_WPA_SUPPLICANT_DRIVER 		:= NL80211
+#BOARD_WPA_SUPPLICANT_PRIVATE_LIB 	:= lib_driver_cmd_ath6kl
+#WIFI_EXT_MODULE_PATH				:= "/system/lib/modules/cfg80211.ko"
+#WIFI_EXT_MODULE_NAME				:= "cfg80211"
+#WIFI_DRIVER_MODULE_PATH				:= "/system/lib/modules/ar6000.ko"
+#WIFI_DRIVER_MODULE_NAME				:= "ar6000"
+
 
 # Wi-Fi
-BOARD_WLAN_DEVICE					:= ath6kl
-WPA_SUPPLICANT_VERSION				:= VER_0_8_X
-BOARD_WPA_SUPPLICANT_DRIVER 		:= NL80211
-BOARD_WPA_SUPPLICANT_PRIVATE_LIB 	:= lib_driver_cmd_ath6kl
-WIFI_EXT_MODULE_PATH				:= "/system/lib/modules/cfg80211.ko"
-WIFI_EXT_MODULE_NAME				:= "cfg80211"
-WIFI_DRIVER_MODULE_PATH				:= "/system/lib/modules/ar6000.ko"
-WIFI_DRIVER_MODULE_NAME				:= "ar6000"
+BOARD_WLAN_DEVICE                := ath6kl
+BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_ath6kl
+BOARD_HOSTAPD_DRIVER             := NL80211
+BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_ath6kl
+WPA_SUPPLICANT_VERSION           := VER_0_8_X
+WIFI_DRIVER_MODULE_PATH          := "/system/lib/modules/ar6000.ko"
+WIFI_DRIVER_MODULE_NAME          := "ar6000"
+WIFI_EXT_MODULE_PATH             := "/system/lib/modules/cfg80211.ko"
+WIFI_EXT_MODULE_NAME             := "cfg80211"
+WIFI_TEST_INTERFACE              := "sta"
+WIFI_DRIVER_FW_PATH_STA          := "sta"
+WIFI_DRIVER_FW_PATH_AP           := "ap"
+WIFI_DRIVER_FW_PATH_P2P          := "p2p"
+# xjljian end
+
 
 TARGET_USERIMAGES_USE_EXT4 := true
 BOARD_BOOTIMAGE_PARTITION_SIZE := 0x00C00000
@@ -99,11 +118,15 @@ BOARD_FLASH_BLOCK_SIZE := 131072
 # Kernel 
 #TARGET_KERNEL_SOURCE := kernel/huawei/msm8x25
 #TARGET_KERNEL_CONFIG := cm_u8833d_defconfig
-TARGET_PREBUILT_KERNEL := device/huawei/u8833d/kernel
+# xjljian 07.26
+TARGET_KERNEL_SOURCE := kernel/huawei/msm8x25
+TARGET_KERNEL_CONFIG := cm_msm8x25_defconfig
+#TARGET_PREBUILT_KERNEL := device/huawei/u8833d/kernel
 BOARD_KERNEL_CMDLINE := androidboot.hardware=huawei loglevel=1
 BOARD_KERNEL_BASE := 0x00200000
 BOARD_PAGE_SIZE := 2048
-BOARD_FORCE_RAMDISK_ADDRESS := 0x01508000
+#BOARD_FORCE_RAMDISK_ADDRESS := 0x01508000
+# xjljian end
 
 BOARD_USE_USB_MASS_STORAGE_SWITCH := true
 TARGET_USE_CUSTOM_SECOND_LUN_NUM := 1
