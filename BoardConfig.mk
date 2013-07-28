@@ -1,7 +1,7 @@
 USE_CAMERA_STUB := false
 
 # inherit from the proprietary version
--include vendor/huawei/u8825d/BoardConfigVendor.mk
+-include vendor/huawei/u8833d/BoardConfigVendor.mk
 
 TARGET_BOARD_PLATFORM := msm7x27a
 TARGET_BOARD_PLATFORM_GPU := qcom-adreno200
@@ -30,8 +30,8 @@ TARGET_USES_16BPPSURFACE_FOR_OPAQUE := true
 TARGET_GLOBAL_CFLAGS += -mfpu=neon -mfloat-abi=softfp
 TARGET_GLOBAL_CPPFLAGS += -mfpu=neon -mfloat-abi=softfp
 
-TARGET_BOOTLOADER_BOARD_NAME := u8825d
-TARGET_OTA_ASSERT_DEVICE := u8825d,U8825D,hwu8825d,msm7627a
+TARGET_BOOTLOADER_BOARD_NAME := u8833d
+TARGET_OTA_ASSERT_DEVICE := u8833d,U8833D,hwu8833d,msm7627a,u8951d,U8951D,hwu8951d
 
 # Camera
 BOARD_NEEDS_MEMORYHEAPPMEM := true
@@ -42,13 +42,13 @@ BOARD_USES_QCOM_GPS := true
 BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := msm7x27a
 BOARD_VENDOR_QCOM_GPS_LOC_API_AMSS_VERSION := 50000
 
-TARGET_SPECIFIC_HEADER_PATH := device/huawei/u8825d/include
+TARGET_SPECIFIC_HEADER_PATH := device/huawei/u8833d/include
 
 BOARD_NEEDS_MEMORYHEAPPMEM := true
 COMMON_GLOBAL_CFLAGS += -DICS_CAMERA_BLOB
 
 # OpenGL drivers config file path
-BOARD_EGL_CFG := device/huawei/u8825d/prebuilt/system/lib/egl/egl.cfg
+BOARD_EGL_CFG := device/huawei/u8833d/prebuilt/system/lib/egl/egl.cfg
 BOARD_USES_QCOM_HARDWARE := true
 COMMON_GLOBAL_CFLAGS += -DREFRESH_RATE=60
 COMMON_GLOBAL_CFLAGS += -DQCOM_HARDWARE
@@ -98,8 +98,8 @@ BOARD_FLASH_BLOCK_SIZE := 131072
 
 # Kernel 
 #TARGET_KERNEL_SOURCE := kernel/huawei/msm8x25
-#TARGET_KERNEL_CONFIG := cm_u8825d_defconfig
-TARGET_PREBUILT_KERNEL := device/huawei/u8825d/kernel
+#TARGET_KERNEL_CONFIG := cm_u8833d_defconfig
+TARGET_PREBUILT_KERNEL := device/huawei/u8833d/kernel
 BOARD_KERNEL_CMDLINE := androidboot.hardware=huawei loglevel=1
 BOARD_KERNEL_BASE := 0x00200000
 BOARD_PAGE_SIZE := 2048
@@ -113,8 +113,8 @@ TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_stora
 
 # Recovery
 TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
-TARGET_PREBUILT_RECOVERY_KERNEL := device/huawei/u8825d/recovery_kernel
-BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/huawei/u8825d/recovery/recovery-keys.c
-TARGET_RECOVERY_INITRC := device/huawei/u8825d/recovery/etc/init.rc
+TARGET_PREBUILT_RECOVERY_KERNEL := device/huawei/u8833d/recovery_kernel
+BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/huawei/u8833d/recovery/recovery-keys.c
+TARGET_RECOVERY_INITRC := device/huawei/u8833d/recovery/etc/init.rc
 BOARD_UMS_LUNFILE := /sys/class/android_usb/android0/f_mass_storage/lun%d/file
 

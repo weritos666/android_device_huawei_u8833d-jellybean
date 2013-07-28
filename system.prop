@@ -1,5 +1,5 @@
 #
-# system.prop for u8825d
+# system.prop for u8833d
 #
 rild.libpath=/system/lib/libril-qc-1.so
 rild.libargs=-d /dev/smd0
@@ -203,6 +203,6 @@ ro.config.hw_music_dts=false
 ro.config.hw_dtsmode=true
 ro.config.is_cdma_phone=true
 ro.cfg.hw_ctl_cardactive=true
-ro.confg.hw_appsbootversion=U8825DVSHENDUOS_APPSBOOT
-ro.confg.hw_appversion=U8825DVSHENDUOS_KERNEL
-ro.confg.hw_appfsversion=U8825DVSHENDUOS_SYSIMG
+ro.confg.hw_appsbootversion=U8833DVSHENDUOS_APPSBOOT
+ro.confg.hw_appversion=U8833DVSHENDUOS_KERNEL
+ro.confg.hw_appfsversion=U8833DVSHENDUOS_SYSIMG
