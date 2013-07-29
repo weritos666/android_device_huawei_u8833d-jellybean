@@ -185,3 +185,4 @@ lib/libhwdevctlservice.so
 lib/pp_proc_plugin.so
 lib/qnet-plugin.so
 lib/tcp-connections.so
+bin/wlan_detect
