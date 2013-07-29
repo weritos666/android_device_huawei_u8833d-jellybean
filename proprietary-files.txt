@@ -179,3 +179,9 @@ bin/sapd
 lib/liballjoyn.so
 lib/libcneutils.so
 lib/libril.so
+lib/libgetzip.so
+lib/libhwdevctl_client.so
+lib/libhwdevctlservice.so
+lib/pp_proc_plugin.so
+lib/qnet-plugin.so
+lib/tcp-connections.so

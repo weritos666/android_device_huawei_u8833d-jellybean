@@ -1,33 +1,24 @@
 import init.huawei.usb.rc
-import init.target.rc
+
+on early-boot
+    start comp-set
+    start rendering-set
+    start qcamerasvr
+    start gpu_dcvsd
 
 on init
-    mkdir /cust
     mkdir /storage 0775 system sdcard_r
-    mkdir /storage/sdcard0 0000 system system
     mkdir /storage/sdcard1 0000 system system
-    mkdir /internal_sd 0000 system system
-    export EXTERNAL_STORAGE /storage/sdcard0
-    export INTERNAL_STORAGE /storage/sdcard1
+    mkdir /storage/sdcard0 0000 system system
+    export EXTERNAL_STORAGE /storage/sdcard1
 
-    symlink /storage/sdcard0 /sdcard
-    symlink /storage/sdcard1 /emmc
-    symlink /storage/sdcard0 /mnt/sdcard
-    symlink /storage/sdcard1 /mnt/emmc
-    mkdir /dev/bus 0755 root root
-    mkdir /dev/bus/usb 0755 root root
-
-    exec /sbin/e2fsck_s -p /dev/block/mmcblk0p15
-    exec /sbin/resize2fs_s /dev/block/mmcblk0p15
-
-    exec /sbin/e2fsck_s -p /dev/block/mmcblk0p16
-    exec /sbin/resize2fs_s /dev/block/mmcblk0p16
-
-    exec /sbin/e2fsck_s -p /dev/block/mmcblk0p17
-    exec /sbin/resize2fs_s /dev/block/mmcblk0p17
-
-    exec /sbin/e2fsck_s -p /dev/block/mmcblk0p18
-    exec /sbin/resize2fs_s /dev/block/mmcblk0p18
+    symlink /storage/sdcard1 /mnt/sdcard
+    symlink /storage/sdcard1 /sdcard
+    symlink /storage/sdcard0 /mnt/emmc
+    symlink /storage/sdcard0 /HWUserData
+    # can start monitoring.
+    # mkdir /dev/bus 0755 root root
+    # mkdir /dev/bus/usb 0755 root root
 
 on boot
     chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
@@ -72,7 +63,7 @@ on boot
     #BT DUN port-bridge
     chmod 0660 /dev/smd7
     chown bluetooth bluetooth /dev/smd7
-    
+
     chmod 0444 /sys/devices/platform/msm_hsusb/gadget/usb_state
 
     # create symlink for fb1 as HDMI
@@ -106,6 +97,7 @@ on boot
     write /proc/sys/net/ipv6/conf/rmnet_sdio5/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_sdio6/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_sdio7/accept_ra 2
+    setrlimit 7 2048 2048
 
     chmod 0664 /dev/light
     chmod 0664 /dev/proximity
@@ -115,8 +107,10 @@ on boot
     chmod 0664 /dev/compass_dev
     chmod 0664 /dev/gyro
     chmod 0664 /dev/akm8963_dev
-    
+    chown system system /sys/power/autosleep
     chown radio system /sys/class/leds/ptt_led/brightness
+    chmod 0660 /dev/msm_cad
+    chmod 0755 /proc/cmdline
 
     chown system system /sys/kernel/logger/log_main/enable
     chown system system /sys/kernel/logger/log_events/enable
@@ -143,12 +137,52 @@ on boot
     write /proc/sys/net/core/rmem_max  3461120
     write /proc/sys/net/core/wmem_max  3461120
 
+# Allow writing to the kernel trace log.
+    chmod 0222 /sys/kernel/debug/tracing/trace_marker
+
+# Allow the shell group to enable (some) kernel tracing.
+    chown root shell /sys/kernel/debug/tracing/trace_clock
+    chown root shell /sys/kernel/debug/tracing/buffer_size_kb
+    chown root shell /sys/kernel/debug/tracing/options/overwrite
+    chown root shell /sys/kernel/debug/tracing/events/sched/sched_switch/enable
+    chown root shell /sys/kernel/debug/tracing/events/sched/sched_wakeup/enable
+    chown root shell /sys/kernel/debug/tracing/events/power/cpu_frequency/enable
+    chown root shell /sys/kernel/debug/tracing/events/power/cpu_idle/enable
+    chown root shell /sys/kernel/debug/tracing/events/cpufreq_interactive/enable
+    chown root shell /sys/kernel/debug/tracing/tracing_on
+
+    chmod 0664 /sys/kernel/debug/tracing/trace_clock
+    chmod 0664 /sys/kernel/debug/tracing/buffer_size_kb
+    chmod 0664 /sys/kernel/debug/tracing/options/overwrite
+    chmod 0664 /sys/kernel/debug/tracing/events/sched/sched_switch/enable
+    chmod 0664 /sys/kernel/debug/tracing/events/sched/sched_wakeup/enable
+    chmod 0664 /sys/kernel/debug/tracing/events/power/cpu_frequency/enable
+    chmod 0664 /sys/kernel/debug/tracing/events/power/cpu_idle/enable
+    chmod 0664 /sys/kernel/debug/tracing/events/cpufreq_interactive/enable
+    chmod 0664 /sys/kernel/debug/tracing/tracing_on
+
+# Allow only the shell group to read and truncate the kernel trace.
+    chown root shell /sys/kernel/debug/tracing/trace
+    chmod 0660 /sys/kernel/debug/tracing/trace
+
 on emmc-fs
+    wait /dev/block/mmcblk0p15
+    mount ext4 /dev/block/mmcblk0p15 /cache nosuid nodev barrier=1
+
+    wait /dev/block/mmcblk0p16
+    exec /sbin/e2fsck_s -p /dev/block/mmcblk0p16
+    exec /sbin/resize2fs_s /dev/block/mmcblk0p16
+
     wait /dev/block/mmcblk0p17
-    mount ext4 /dev/block/mmcblk0p17 /system ro barrier=1,nodelalloc
+    exec /sbin/e2fsck_s -p /dev/block/mmcblk0p17
+    exec /sbin/resize2fs_s /dev/block/mmcblk0p17
+    mount ext4 /dev/block/mmcblk0p17 /system ro barrier=1
+ 
     wait /dev/block/mmcblk0p18
+    exec /sbin/e2fsck_s -p /dev/block/mmcblk0p18
+    exec /sbin/resize2fs_s /dev/block/mmcblk0p18
     mount ext4 /dev/block/mmcblk0p18 /data nosuid nodev barrier=1 
-    mount ext4 /dev/block/mmcblk0p15 /cache nosuid nodev barrier=1,nodelalloc
+
     exec /system/bin/iqcopy /system/etc/iq.img.vfat /data/iq.img.vfat
     chown system system /data/iq.img.vfat
     mkdir /data/app_iq_archive
@@ -158,7 +192,7 @@ on emmc-fs
     write /sys/module/block2mtd/parameters/block2mtd /dev/block/mmcblk0p14
     
     wait /dev/block/mmcblk0p19
-    mount vfat /dev/block/mmcblk0p19 /internal_sd uid=1000,gid=1015,umask=0002,utf8
+    mount vfat /dev/block/mmcblk0p19 /storage/sdcard0 uid=1000,gid=1015,umask=0002,utf8
     mount ext4 /dev/block/mmcblk0p16 /cust ro
 
 on post-fs
@@ -166,6 +200,12 @@ on post-fs
     chown root log /data/dontpanic/modem_panic
     chmod 0640 /data/dontpanic/modem_panic
     export_rc /persist/init.cne.rc
+    exec /system/bin/sh /system/etc/init.qcom.thermald_conf.sh
+
+service ril-qmi /system/bin/sh /init.qcom.ril.path.sh
+    class main
+    user root
+    oneshot
 
 # msm specific files that need to be created on /data
 on post-fs-data
@@ -197,7 +237,6 @@ on post-fs-data
     mkdir /data/misc/wifi/load
     chmod 0775 /data/misc/wifi/load
     chown system system /data/misc/wifi/load/
-
     mkdir /data/misc/wifi/bin 0775 system system
 
     # Create the directories used by the Wireless subsystem
@@ -214,14 +253,8 @@ on post-fs-data
     
     chown radio system /sys/class/leds/ptt_led/brightness
     
-    chmod 0664 /dev/mtk6252_dev
-    chown system system /dev/mtk6252_dev
-    chown system system /sys/devices/platform/mtk6252/download_mode
-    chown system system /sys/devices/platform/mtk6252/usb_sel
-    chown system system /sys/devices/platform/mtk6252/onoff
-    chown system system /sys/devices/platform/mtk6252/softwarestate
-    chown system system /sys/devices/platform/mtk6252/pwrstat
-    
+    insmod /system/lib/modules/pppoe.ko
+
     # Create directory used by audio subsystem
     mkdir /data/misc/audio 0770 audio audio
 
@@ -244,6 +277,8 @@ on post-fs-data
     mkdir /data/wpstiles/ 0755 shell
     mkdir /data/wiper 0755 gps qcom_oncrpc
 
+    insmod /system/lib/modules/pppoe.ko
+
     chown system system /sys/class/android_usb/android0/f_mass_storage/lun/file
     chmod 0660 /sys/class/android_usb/android0/f_mass_storage/lun/file
     chown system system /sys/class/android_usb/android0/f_rndis/ethaddr
@@ -254,14 +289,6 @@ on post-fs-data
     chmod 0660 /sys/power/touch_event
     chmod 0660 /sys/power/touch_event_timer
     chmod 2770 /data/radio
-
-    chmod 0664 /dev/mtk6252_dev
-    chown system system /dev/mtk6252_dev
-    chown system system /sys/devices/platform/mtk6252/download_mode
-    chown system system /sys/devices/platform/mtk6252/usb_sel
-    chown system system /sys/devices/platform/mtk6252/onoff
-    chown system system /sys/devices/platform/mtk6252/softwarestate
-    chown system system /sys/devices/platform/mtk6252/pwrstat
     chown system system /sys/devices/platform/mmi_key_dev/keytest
 
     #Create directories for gpsone_daemon services
@@ -286,8 +313,12 @@ on post-fs-data
     # Create /data/time folder for time-services
     mkdir /data/time/ 0700 system system
 
-
     setprop vold.post_fs_data_done 1
+
+	start qmuxd
+    start netmgrd
+    start ril-qmi
+    start wlan_detect
 
 on property:init.svc.wpa_supplicant=stopped
     stop dhcpcd
@@ -298,7 +329,10 @@ on property:bluetooth.isEnabled=true
 
 on property:bluetooth.isEnabled=false
     start amp_unload
-    
+  
+on property:vold.decrypt=trigger_restart_framework
+    start qcom-c_main-sh
+  
 service rmt_storage /system/bin/rmt_storage
     class main
     user root
@@ -320,6 +354,11 @@ service bt-dun /system/bin/dun-server /dev/smd7 /dev/rfcomm0
     class late_start
     user bluetooth
     group bluetooth net_bt_admin inet
+    disabled
+    oneshot
+
+service bt-sap /system/bin/sapd 15
+    class late_start
     disabled
     oneshot
 
@@ -370,30 +409,13 @@ on property:ro.use_data_netmgrd=false
     # netmgr not supported on specific target
     stop netmgrd
 
-service wpa_supplicant /system/bin/wpa_supplicant -Dnl80211 -ieth0  -c/data/misc/wifi/wpa_supplicant.conf
+service wpa_supplicant /system/bin/wpa_supplicant -Dnl80211 -ieth0 -puse_p2p_group_interface=1 -W -c/data/misc/wifi/wpa_supplicant.conf
     class main
     group wifi inet
     socket wpa_eth0 dgram 660 wifi wifi
     disabled
     oneshot
 
-service amp_init /system/bin/amploader -i
-    class late_start
-    user root
-    disabled
-    oneshot
-
-service amp_load /system/bin/amploader -l 7000
-    class late_start
-    user root
-    disabled
-    oneshot
-
-service amp_unload /system/bin/amploader -u
-    class late_start
-    user root
-    disabled
-    oneshot
 service dhcpcd_eth0 /system/bin/dhcpcd -BKLG
     class main
     disabled
@@ -444,6 +466,10 @@ on property:drmdiag.load=1
 on property:drmdiag.load=0
     stop drmdiag
 
+service qcom-sh /system/bin/sh /init.qcom.sh
+    class late_start
+    user root
+    oneshot
 service gps_nmea /system/bin/port-bridge /dev/nmea /dev/ttyGS1
     disabled
 
@@ -463,6 +489,18 @@ service qcom-wifi /system/bin/sh /system/etc/init.qcom.wifi.sh
     oneshot
     
 service akm8975 /system/bin/akmd8975
+    class main
+    disabled
+    oneshot
+
+service hostapd /system/bin/hostapd -dddd /data/hostapd/hostapd.conf
+    class late_start
+    user root
+    group root
+    oneshot
+    disabled
+    
+service akm8962 /system/bin/akmd8962
     class main
     disabled
     oneshot
@@ -509,27 +547,15 @@ service map1 /system/bin/sdptool add --channel=17 MAS1
     disabled
     oneshot
 
-service gps_nmea /system/bin/port-bridge /dev/nmea /dev/ttyGS1
-    disabled
-
 service ril-daemon /system/bin/rild
     class main
     socket rild stream 660 root radio
     socket rild-debug stream 660 radio system
     user root
-    disabled
-    group radio cache inet misc audio sdcard_rw qcom_oncrpc diag
+    group radio cache inet misc audio sdcard_rw qcom_oncrpc diag qcom_diag log
 
-service ril-daemon1 /system/bin/rild -c 1
-    class main
-    socket rild1 stream 660 root radio
-    socket rild-debug1 stream 660 radio system
-    user root
+service gps_nmea /system/bin/port-bridge /dev/nmea /dev/ttyGS1
     disabled
-    group radio cache inet misc audio sdcard_rw qcom_oncrpc diag
-
-on property:ro.multi.rild=true
-    start ril-daemon1
 
 service abtfilt /system/bin/abtfilt -a -d -z -n -q -v -s -w eth0
     class late_start
@@ -548,37 +574,70 @@ service akm8962 /system/bin/akmd8962
     disabled
     oneshot
 
-service atfwd /system/bin/ATFWD-daemon
-    class late_start
-    user system
-    group system radio
-    onrestart /system/bin/log -t RIL-ATFWD -p w "ATFWD daemon restarted"
+on property:net.service.pppd.enable=1
+    exec /system/bin/rmmod pppoe.ko    
+    exec /system/bin/netcfg rmnet0 down
+    insmod /system/lib/modules/pppoe_dzc.ko
+    start pppd2
+on property:net.service.pppd.enable=0
+    stop pppd2
+    exec /system/bin/rmmod pppoe_dzc.ko    
+    insmod /system/lib/modules/pppoe.ko
+
+service gps_check /system/bin/gps_check
+    class main
+    user root
+    group root
+    oneshot
     
-service atserver /system/bin/atserver
-    class core
+service pppd-gprs /system/bin/pppd call gprs 
+    class main
+    user root
+    group radio cache inet misc audio sdcard_rw qcom_oncrpc diag
     oneshot
-service ds_fmc_appd /system/bin/ds_fmc_appd -p "rmnet0" -D
-    class late_start
-    group radio
     disabled
-    oneshot
-
-on property:persist.data.ds_fmc_app.mode=1
-    start ds_fmc_appd
-
-service bt-sap /system/bin/sapd 15
-    class late_start
-    disabled
-    oneshot
-
-service camera-perm /system/bin/sh /system/etc/camera-permission.sh
+    
+service comp-set /system/bin/sh /system/etc/init.qcom.composition_type.sh
     class late_start
     user root
+    critical
     disabled
     oneshot
 
-on property:media.camera_init=1
-    start camera-perm
+service rendering-set /system/bin/sh /system/etc/init.qcom.rendering.sh
+    class late_start
+    user root
+    critical
+    disabled
+    oneshot
 
-on property:media.camera_init=0
-    stop camera-perm
+#start camera server as daemon
+service qcamerasvr /system/bin/mm-qcamera-daemon
+        class late_start
+        user media
+        group system camera inet audio
+
+service thermald /system/bin/thermald
+   class late_start
+   user root
+   group root
+   disabled
+
+service mpdecision /system/bin/mpdecision --no_sleep --avg_comp
+    class late_start
+	user root
+	disabled
+
+on property:sys.radio.shutdown=true
+   exec /system/bin/sh /system/etc/init.qcom.efs.sync.sh
+
+service gpu_dcvsd /system/bin/gpu_dcvsd
+    class late_start
+    user root
+    oneshot
+    
+service wlan_detect /system/bin/wlan_detect
+    class main
+    user root
+    group root
+    oneshot

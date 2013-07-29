@@ -76,17 +76,24 @@ PRODUCT_COPY_FILES += \
     
 PRODUCT_COPY_FILES += \
     device/huawei/u8833d/ramdisk/init.huawei.rc:root/init.huawei.rc \
-    device/huawei/u8833d/ramdisk/init.target.rc:root/init.target.rc \
     device/huawei/u8833d/ramdisk/ueventd.huawei.rc:root/ueventd.huawei.rc \
-    device/huawei/u8833d/ramdisk/init.qcom.sh:root/init.qcom.sh \
-    device/huawei/u8833d/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc \
-    device/huawei/u8833d/ramdisk/init:root/init
+    device/huawei/u8833d/ramdisk/init.qcom.ril.path.sh:root/init.qcom.ril.path.sh \
+    device/huawei/u8833d/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc
 
-# xjljian 07.28
+# xjljian 07.28 Copy two tp/*.img, can change to a new kernel.
 PRODUCT_COPY_FILES += \
     device/huawei/u8833d/ramdisk/tp/1191601.img:root/tp/1191601.img \
     device/huawei/u8833d/ramdisk/tp/1294018.img:root/tp/1294018.img
 # xjljian end
+
+# xjljian 07.28
+PRODUCT_COPY_FILES += \
+    device/huawei/u8833d/ramdisk/e2fsck_s:root/sbin/e2fsck_s \
+    device/huawei/u8833d/ramdisk/resize2fs_wrapper:root/sbin/resize2fs_wrapper \
+    device/huawei/u8833d/ramdisk/resize2fs_s:root/sbin/resize2fs_s \
+    device/huawei/u8833d/ramdisk/adbd:root/adbd
+# xjljian end
+
 
 PRODUCT_COPY_FILES += \
     device/huawei/u8833d/prebuilt/system/wifi/ath6k/athtcmd_ram.bin:system/etc/firmware/ath6k/athtcmd_ram.bin \
