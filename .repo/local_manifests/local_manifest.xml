@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- local_manifest.xml for building HuaWei U8833D cm-10 -->
+  <remote name="gh"
+          fetch="git://github.com/" />
+           
+    <!-- CM replacements -->
+  <remove-project path="hardware/qcom/display" name="CyanogenMod/android_hardware_qcom_display" />
+  <remove-project path="device" name="CyanogenMod/device" />
+    
+  <!-- Local projects -->
+  <project path="hardware/atheros/wlan" name="CyanogenMod/android_hardware_atheros_wlan" remote="gh" revision="jellybean" />
+  <project path="hardware/qcom/display" name="xjljian/android_hardware_qcom_display" remote="gh" revision="jellybean" />
+
+
+   <!-- kernel -->
+  <project path="kernel/huawei/msm8x25" name="xjljian/android_kernel_huawei_msm8x25" remote="gh" revision="cm-10.1" />
+
+  <!-- HuaWei u8833d 
+  <project path="device/huawei/u8833d" name="xjljian/android_device_huawei_u8833d" remote="gh" revision="jellybean" />
+ -->
+
+  <!-- Vendor 
+  <project path="vendor/huawei" name="xjljian/android_vendor_huawei_u8833" remote="gh" revision="jellybean" />
+ -->
+</manifest>
