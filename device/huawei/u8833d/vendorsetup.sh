@@ -1,3 +1,0 @@
-add_lunch_combo huawei_u8833d-userdebug
-add_lunch_combo cm_u8833d-userdebug
-add_lunch_combo cm_u8833d-eng
