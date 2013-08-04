@@ -46,10 +46,13 @@ Step 5:
 编译方法:
 
 第一步:
+
 环境变量配置:  http://source.android.com/source/initializing.html
 
 第二步:
+
 下载这个源码树:
+
 mkdir ~/cm
 
 cd ~/cm
@@ -75,6 +78,8 @@ repo sync -j16
 第五步:
 
 编译:
+
 . build/envsetup.sh
+
 brunch u8833d
 
