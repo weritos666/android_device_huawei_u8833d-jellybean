@@ -16,6 +16,7 @@
 
 
 PRODUCT_COPY_FILES += \
+    vendor/huawei/u8833d/proprietary/lib/hw/lights.msm7x27a.so:system/lib/hw/lights.msm7x27a.so \
     vendor/huawei/u8833d/proprietary/bin/abtfilt:system/bin/abtfilt \
     vendor/huawei/u8833d/proprietary/bin/rmt_storage:system/bin/rmt_storage \
     vendor/huawei/u8833d/proprietary/bin/akmd8963:system/bin/akmd8963 \
