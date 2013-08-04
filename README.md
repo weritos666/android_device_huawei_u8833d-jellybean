@@ -31,6 +31,9 @@ Step 3:
 
 repo init -u git://github.com/CyanogenMod/android.git -b jellybean
 
+mkdir ./.repo/local_manifests
+
+curl -L -o .repo/local_manifests/local_manifest.xml -O -L https://raw.github.com/xjljian/android_device_huawei_u8833d/cm-10-test1/.repo/local_manifests/local_manifest.xml
 
 Step 4:
 
@@ -68,6 +71,10 @@ git pull https://github.com/xjljian/android_device_huawei_u8833d.git -t cm-10-te
 初始化repo,将其设置为下载cm源码的jellybean分支:
 
 repo init -u git://github.com/CyanogenMod/android.git -b jellybean
+
+mkdir ./.repo/local_manifests
+
+curl -L -o .repo/local_manifests/local_manifest.xml -O -L https://raw.github.com/xjljian/android_device_huawei_u8833d/cm-10-test1/.repo/local_manifests/local_manifest.xml
 
 第四步:
 
