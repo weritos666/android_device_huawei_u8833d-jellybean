@@ -6,12 +6,12 @@
            
     <!-- CM replacements -->
   <remove-project path="hardware/qcom/display" name="CyanogenMod/android_hardware_qcom_display" />
-  <remove-project path="frameworks/base" name="CyanogenMod/android_frameworks_base" />
-  <remove-project path="packages/apps/Mms" name="CyanogenMod/android_packages_apps_Mms" />
-  <remove-project path="packages/apps/Phone" name="CyanogenMod/android_packages_apps_Phone" />
-  <remove-project path="packages/apps/Settings" name="CyanogenMod/android_packages_apps_Settings" />
-  <remove-project path="packages/apps/Contacts" name="CyanogenMod/android_packages_apps_Contacts" />
-  <remove-project path="packages/providers/TelephonyProvider" name="CyanogenMod/android_packages_providers_TelephonyProvider" />
+  <remove-project name="CyanogenMod/android_frameworks_base" />
+  <remove-project name="CyanogenMod/android_packages_apps_Mms" />
+  <remove-project name="CyanogenMod/android_packages_apps_Phone" />
+  <remove-project name="CyanogenMod/android_packages_apps_Settings" />
+  <remove-project name="CyanogenMod/android_packages_apps_Contacts" />
+  <remove-project name="CyanogenMod/android_packages_providers_TelephonyProvider" />
 
 
     
