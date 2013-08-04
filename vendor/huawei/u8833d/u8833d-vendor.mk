@@ -27,3 +27,4 @@ PRODUCT_COPY_FILES := \
 DEVICE_PACKAGE_OVERLAYS := vendor/huawei/u8833d/overlay
 
 $(call inherit-product, vendor/huawei/u8833d/u8833d-vendor-blobs.mk)
+$(call inherit-product, vendor/huawei/qcom-old/old-vendor.mk)
