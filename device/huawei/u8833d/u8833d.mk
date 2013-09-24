@@ -26,11 +26,11 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 # The GPS configuration appropriate for this device.
 $(call inherit-product, device/common/gps/gps_eu_supl.mk)
 
-$(call inherit-product, vendor/huawei/u8833/u8833-vendor.mk)
+$(call inherit-product, vendor/huawei/u8833d/u8833d-vendor.mk)
 
 FRAMEWORKS_BASE_SUBDIRS += ../../$(LOCAL_PATH)/ril/
 
-DEVICE_PACKAGE_OVERLAYS += device/huawei/u8833/overlay
+DEVICE_PACKAGE_OVERLAYS += device/huawei/u8833d/overlay
 
 PRODUCT_AAPT_CONFIG := normal hdpi
 PRODUCT_AAPT_PREF_CONFIG := hdpi
@@ -53,19 +53,19 @@ PRODUCT_PACKAGES += \
 # Audio
 PRODUCT_PACKAGES += \
     audio.a2dp.default \
-    audio.primary.u8833 \
-    audio_policy.u8833 \
+    audio.primary.u8833d \
+    audio_policy.u8833d \
     audio.usb.default \
     libaudioutils
 
 # GPS
 PRODUCT_PACKAGES += \
-    gps.u8833 \
+    gps.u8833d \
     libloc_api-rpc
 	
-# u8833 specific	
+# u8833d specific	
 PRODUCT_PACKAGES += \
-    lights.u8833
+    lights.u8833d
 
 # Live Wallpapers
 PRODUCT_PACKAGES += \
@@ -81,24 +81,24 @@ PRODUCT_PACKAGES += \
     com.android.future.usb.accessory
 
 PRODUCT_COPY_FILES += \
-    device/huawei/u8833/ramdisk/init.huawei.rc:root/init.huawei.rc \
-    device/huawei/u8833/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc \
-    device/huawei/u8833/ramdisk/fstab.huawei:root/fstab.huawei \
-    device/huawei/u8833/ramdisk/ueventd.huawei.rc:root/ueventd.huawei.rc \
-    device/huawei/u8833/ramdisk/init.qcom.ril.path.sh:root/init.qcom.ril.path.sh \
-    device/huawei/u8833/ramdisk/wifi/ar6000.ko:root/wifi/ar6000.ko \
-    device/huawei/u8833/ramdisk/wifi/cfg80211.ko:root/wifi/cfg80211.ko
+    device/huawei/u8833d/ramdisk/init.huawei.rc:root/init.huawei.rc \
+    device/huawei/u8833d/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc \
+    device/huawei/u8833d/ramdisk/fstab.huawei:root/fstab.huawei \
+    device/huawei/u8833d/ramdisk/ueventd.huawei.rc:root/ueventd.huawei.rc \
+    device/huawei/u8833d/ramdisk/init.qcom.ril.path.sh:root/init.qcom.ril.path.sh \
+    device/huawei/u8833d/ramdisk/wifi/ar6000.ko:root/wifi/ar6000.ko \
+    device/huawei/u8833d/ramdisk/wifi/cfg80211.ko:root/wifi/cfg80211.ko
 	
 PRODUCT_COPY_FILES += \
-  $(call find-copy-subdir-files,*,device/huawei/u8833/prebuilt/system,system)
+  $(call find-copy-subdir-files,*,device/huawei/u8833d/prebuilt/system,system)
 
 # Files needed for recovery image
 PRODUCT_COPY_FILES += \
-    device/huawei/u8833/recovery/sbin/charge_recovery:/recovery/root/sbin/charge_recovery \
-    device/huawei/u8833/recovery/sbin/rmt_storage_recovery:/recovery/root/sbin/rmt_storage_recovery \
-    device/huawei/u8833/recovery/sbin/rmt_oeminfo_recovery:/recovery/root/sbin/rmt_oeminfo_recovery \
-    device/huawei/u8833/recovery/sbin/linker:/recovery/root/sbin/linker \
-    device/huawei/u8833/recovery/sbin/charge.sh:/recovery/root/sbin/charge.sh
+    device/huawei/u8833d/recovery/sbin/charge_recovery:/recovery/root/sbin/charge_recovery \
+    device/huawei/u8833d/recovery/sbin/rmt_storage_recovery:/recovery/root/sbin/rmt_storage_recovery \
+    device/huawei/u8833d/recovery/sbin/rmt_oeminfo_recovery:/recovery/root/sbin/rmt_oeminfo_recovery \
+    device/huawei/u8833d/recovery/sbin/linker:/recovery/root/sbin/linker \
+    device/huawei/u8833d/recovery/sbin/charge.sh:/recovery/root/sbin/charge.sh
 
 # Install the features available on this device.
 PRODUCT_COPY_FILES += \
@@ -125,7 +125,7 @@ PRODUCT_TAGS += dalvik.gc.type-precise
 $(call inherit-product, build/target/product/full.mk)
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
-PRODUCT_NAME := full_u8833
-PRODUCT_DEVICE := u8833
+PRODUCT_NAME := full_u8833d
+PRODUCT_DEVICE := u8833d
 PRODUCT_MANUFACTURER := HUAWEI
-PRODUCT_MODEL := Ascend Y300
+PRODUCT_MODEL := HUAWEI Y300-0000
