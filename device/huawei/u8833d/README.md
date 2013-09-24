@@ -1,5 +1,4 @@
-CM-10 Device source for HuaWei Y300-0000/U8833D,G510-0010/U8951D
+android_device_huawei_u8833
+===========================
 
-Build OK,But the Network does't work
-
-
+CyanogenMod device configuration for the Huawei Ascend Y300 - U8833.

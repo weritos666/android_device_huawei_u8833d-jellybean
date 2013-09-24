@@ -1,156 +1,137 @@
-USE_CAMERA_STUB := false
+#
+# Copyright (C) 2011 The Android Open-Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-# inherit from the proprietary version
--include vendor/huawei/u8833d/BoardConfigVendor.mk
+-include vendor/huawei/u8833/BoardConfigVendor.mk
+
+# Platform
+TARGET_NO_BOOTLOADER := true
+TARGET_NO_RADIOIMAGE := true
 
 TARGET_BOARD_PLATFORM := msm7x27a
 TARGET_BOARD_PLATFORM_GPU := qcom-adreno200
 
-TARGET_NO_BOOTLOADER := true
-TARGET_NO_RADIOIMAGE := true
-
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
+TARGET_ARCH_VARIANT := armv7-a-neon
 TARGET_CPU_SMP := true
 
-TARGET_ARCH := arm
-TARGET_ARCH_VARIANT := armv7-a-neon
+TARGET_GLOBAL_CFLAGS += -mtune=cortex-a5 -mfpu=neon -mfloat-abi=softfp
+TARGET_GLOBAL_CPPFLAGS += -mtune=cortex-a5 -mfpu=neon -mfloat-abi=softfp
 
-ARCH_ARM_HAVE_TLS_REGISTER := true
-
-BOARD_USES_QCOM_HARDWARE := true
-COMMON_GLOBAL_CFLAGS += -DQCOM_HARDWARE -DQCOM_ICS_COMPAT
-
-# Optimisations used by Qualcomm
 TARGET_CORTEX_CACHE_LINE_32 := true
 TARGET_USE_SPARROW_BIONIC_OPTIMIZATION := true
-TARGET_AVOID_DRAW_TEXTURE_EXTENSION := true
-TARGET_USES_16BPPSURFACE_FOR_OPAQUE := true
+ARCH_ARM_HAVE_32_BYTE_CACHE_LINES := true
+ARCH_ARM_HAVE_TLS_REGISTER := true
 
-TARGET_GLOBAL_CFLAGS += -mfpu=neon -mfloat-abi=softfp
-TARGET_GLOBAL_CPPFLAGS += -mfpu=neon -mfloat-abi=softfp
+# Kernel 
+TARGET_KERNEL_SOURCE := kernel/huawei/u8833
+TARGET_KERNEL_CONFIG := cm_msm8x25_defconfig
+TARGET_BOOTLOADER_BOARD_NAME := u8833
+BOARD_KERNEL_CMDLINE := androidboot.hardware=huawei
+BOARD_KERNEL_BASE := 0x00200000
+BOARD_PAGE_SIZE := 2048
+TARGET_USERIMAGES_USE_EXT4 := true
 
-TARGET_BOOTLOADER_BOARD_NAME := u8833d
-TARGET_OTA_ASSERT_DEVICE := u8833d,U8833D,hwu8833d,msm7627a,u8951d,U8951D,hwu8951d
+TARGET_SPECIFIC_HEADER_PATH := device/huawei/u8833/include
 
-# Camera
-BOARD_NEEDS_MEMORYHEAPPMEM := true
-COMMON_GLOBAL_CFLAGS += -DICS_CAMERA_BLOB
-
-# GPS
-BOARD_USES_QCOM_GPS := true
-BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := msm7x27a
-BOARD_VENDOR_QCOM_GPS_LOC_API_AMSS_VERSION := 50000
-
-TARGET_SPECIFIC_HEADER_PATH := device/huawei/u8833d/include
-
-BOARD_NEEDS_MEMORYHEAPPMEM := true
-COMMON_GLOBAL_CFLAGS += -DICS_CAMERA_BLOB
-
-# xjljian 07.29
-############
-# OpenGL drivers config file path
-#BOARD_EGL_CFG := device/huawei/u8833d/prebuilt/system/lib/egl/egl.cfg
-#BOARD_USES_QCOM_HARDWARE := true
-#COMMON_GLOBAL_CFLAGS += -DREFRESH_RATE=60
-#COMMON_GLOBAL_CFLAGS += -DQCOM_HARDWARE
-#BOARD_USES_QCOM_LIBRPC := true
-#BOARD_USES_QCOM_LIBS := true
-#TARGET_GRALLOC_USES_ASHMEM := true
-#COMMON_GLOBAL_CFLAGS += -DTARGET_MSM7x27A
-#TARGET_NO_HW_VSYNC := true
-#COMMON_GLOBAL_CFLAGS += -DGENLOCK_IOC_DREADLOCK -DANCIENT_GL
-
-#DCHECK_FOR_EXTERNAL_FORMAT := true
-#BOARD_USE_SKIA_LCDTEXT := true
-#USE_OPENGL_RENDERER := true
-#TARGET_FORCE_CPU_UPLOAD := true
-#BOARD_AVOID_DRAW_TEXTURE_EXTENSION := true
-#BOARD_ADRENO_DECIDE_TEXTURE_TARGET := true
-#COMMON_GLOBAL_CFLAGS += -DHAVE_ARM_TLS_REGISTER
-##############
-# Copy from c8813.Must be download the new "android_hardware_qcom_display" for jellybean from github,And put it to path "hardware/qcom/display"
-
-BOARD_EGL_CFG := device/huawei/u8833d/prebuilt/system/lib/egl/egl.cfg
-
+# Graphics
+BOARD_EGL_CFG := device/huawei/u8833/prebuilt/system/lib/egl/egl.cfg
 USE_OPENGL_RENDERER := true
-TARGET_USES_OVERLAY := true
 TARGET_USES_ION := true
-TARGET_QCOM_DISPLAY_VARIANT := legacy
-COMMON_GLOBAL_CFLAGS += -DREFRESH_RATE=60
-# xjljian end
+BOARD_ADRENO_DECIDE_TEXTURE_TARGET := true
 
 # Video
-COMMON_GLOBAL_CFLAGS += -DQCOM_ICS_DECODERS -DQCOM_NO_SECURE_PLAYBACK
+COMMON_GLOBAL_CFLAGS += -DQCOM_NO_SECURE_PLAYBACK -DQCOM_BSP
 
-WITH_JIT := true
-ENABLE_JSC_JIT := true
-JS_ENGINE := v8
-HTTP := chrome
-ENABLE_WEBGL := true
-
-BOARD_HAVE_BLUETOOTH := true
-
-# xjljian 07.28
-# Wi-Fi
-#BOARD_WLAN_DEVICE					:= ath6kl
-#WPA_SUPPLICANT_VERSION				:= VER_0_8_X
-#BOARD_WPA_SUPPLICANT_DRIVER 		:= NL80211
-#BOARD_WPA_SUPPLICANT_PRIVATE_LIB 	:= lib_driver_cmd_ath6kl
-#WIFI_EXT_MODULE_PATH				:= "/system/lib/modules/cfg80211.ko"
-#WIFI_EXT_MODULE_NAME				:= "cfg80211"
-#WIFI_DRIVER_MODULE_PATH				:= "/system/lib/modules/ar6000.ko"
-#WIFI_DRIVER_MODULE_NAME				:= "ar6000"
-
+# Qualcomm hardware
+BOARD_USES_QCOM_HARDWARE := true
+BOARD_USES_QCOM_LIBS := true
+COMMON_GLOBAL_CFLAGS += -DQCOM_HARDWARE
 
 # Wi-Fi
 BOARD_WLAN_DEVICE                := ath6kl
 BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
-BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_ath6kl
 BOARD_HOSTAPD_DRIVER             := NL80211
-BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_ath6kl
 WPA_SUPPLICANT_VERSION           := VER_0_8_X
-WIFI_DRIVER_MODULE_PATH          := "/system/lib/modules/ar6000.ko"
+WIFI_DRIVER_MODULE_PATH          := "/data/misc/wifi/load/ar6000.ko"
 WIFI_DRIVER_MODULE_NAME          := "ar6000"
-WIFI_EXT_MODULE_PATH             := "/system/lib/modules/cfg80211.ko"
-WIFI_EXT_MODULE_NAME             := "cfg80211"
 WIFI_TEST_INTERFACE              := "sta"
 WIFI_DRIVER_FW_PATH_STA          := "sta"
 WIFI_DRIVER_FW_PATH_AP           := "ap"
 WIFI_DRIVER_FW_PATH_P2P          := "p2p"
-# xjljian end
 
+# Audio
+TARGET_PROVIDES_LIBAUDIO := true
 
-TARGET_USERIMAGES_USE_EXT4 := true
+# Lights
+TARGET_PROVIDES_LIBLIGHTS := true
+
+# Bluetooth
+BOARD_HAVE_BLUETOOTH := true
+
+# Camera
+USE_CAMERA_STUB := false
+BOARD_NEEDS_MEMORYHEAPPMEM := true
+
+# GPS
+BOARD_USES_QCOM_LIBRPC := true
+BOARD_USES_QCOM_GPS := true
+BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := u8833
+BOARD_VENDOR_QCOM_GPS_LOC_API_AMSS_VERSION := 50000
+
+# Web Rendering
+ENABLE_WEBGL := true
+TARGET_FORCE_CPU_UPLOAD := true
+
+# Recovery
+BOARD_HAS_NO_SELECT_BUTTON := true
+TARGET_RECOVERY_INITRC := device/huawei/u8833/recovery/init.rc
+TARGET_RECOVERY_FSTAB := device/huawei/u8833/recovery/etc/recovery.fstab
+BOARD_HAS_LARGE_FILESYSTEM := true
+BOARD_HAS_NO_MISC_PARTITION := true
+BOARD_USES_MMCUTILS := true
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/huawei/u8833/recovery/recovery-keys.c
+DEVICE_RESOLUTION := 480x800
+TARGET_USE_CUSTOM_LUN_FILE_PATH := /sys/class/android_usb/android0/f_mass_storage/lun%d/file
+BOARD_USE_CUSTOM_RECOVERY_FONT:= \"roboto_10x18.h\"
+
+# USB
+BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun%d/file"
+TARGET_USE_CUSTOM_SECOND_LUN_NUM := 1
+BOARD_USE_USB_MASS_STORAGE_SWITCH := true
+BOARD_VOLD_MAX_PARTITIONS := 19
+BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
+
+# Partitions
+BOARD_CACHE_DEVICE := /dev/block/mmcblk0p15
+BOARD_CACHE_FILESYSTEM := ext4
+BOARD_CACHE_FILESYSTEM_OPTIONS := rw
+BOARD_SYSTEM_DEVICE := /dev/block/mmcblk0p17
+BOARD_SYSTEM_FILESYSTEM := ext4
+BOARD_SYSTEM_FILESYSTEM_OPTIONS := rw
+BOARD_DATA_DEVICE := /dev/block/mmcblk0p18
+BOARD_DATA_FILESYSTEM := ext4
+BOARD_DATA_FILESYSTEM_OPTIONS := rw
+
+# Partition sizes
 BOARD_BOOTIMAGE_PARTITION_SIZE := 0x00C00000
 BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x00C00000
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 314572800
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 183500800
 BOARD_FLASH_BLOCK_SIZE := 131072
 
-# Kernel 
-#TARGET_KERNEL_SOURCE := kernel/huawei/msm8x25
-#TARGET_KERNEL_CONFIG := cm_u8833d_defconfig
-# xjljian 07.26
-TARGET_KERNEL_SOURCE := kernel/huawei/msm8x25
-TARGET_KERNEL_CONFIG := cm_msm8x25_defconfig
-#TARGET_PREBUILT_KERNEL := device/huawei/u8833d/kernel
-BOARD_KERNEL_CMDLINE := androidboot.hardware=huawei loglevel=1
-BOARD_KERNEL_BASE := 0x00200000
-BOARD_PAGE_SIZE := 2048
-#BOARD_FORCE_RAMDISK_ADDRESS := 0x01508000
-# xjljian end
-
-BOARD_USE_USB_MASS_STORAGE_SWITCH := true
-TARGET_USE_CUSTOM_SECOND_LUN_NUM := 1
-BOARD_VOLD_MAX_PARTITIONS := 19
-BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
-TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_storage/lun%d/file"
-
-# Recovery
-TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
-TARGET_PREBUILT_RECOVERY_KERNEL := device/huawei/u8833d/recovery_kernel
-BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/huawei/u8833d/recovery/recovery-keys.c
-TARGET_RECOVERY_INITRC := device/huawei/u8833d/recovery/etc/init.rc
-BOARD_UMS_LUNFILE := /sys/class/android_usb/android0/f_mass_storage/lun%d/file
-
+TARGET_OTA_ASSERT_DEVICE := u8833,u8951,hwY300-0100,hwY300-0151,hwG510-0100,hwG510-0151,hwG510-0200,msm7627a,msm7x27a

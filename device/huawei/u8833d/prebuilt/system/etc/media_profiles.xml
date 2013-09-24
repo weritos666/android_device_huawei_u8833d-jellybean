@@ -136,7 +136,6 @@
                    sampleRate="8000"
                    channels="1" />
         </EncoderProfile>
-
         <EncoderProfile quality="timelapselow" fileFormat="mp4" duration="30">
             <Video codec="h264"
                    bitRate="192000"
@@ -206,7 +205,6 @@
                    sampleRate="8000"
                    channels="1" />
         </EncoderProfile>
-        
         <EncoderProfile quality="low" fileFormat="mp4" duration="30">
             <Video codec="h264"
                    bitRate="192000"
@@ -217,20 +215,20 @@
                    bitRate="12200"
                    sampleRate="8000"
                    channels="1" />
-        </EncoderProfile>
 
+        </EncoderProfile>
         <EncoderProfile quality="timelapselow" fileFormat="mp4" duration="30">
             <Video codec="h264"
                    bitRate="192000"
                    width="176"
                    height="144"
                    frameRate="30" />
+
             <Audio codec="amrnb"
                    bitRate="12200"
                    sampleRate="8000"
                    channels="1" />
         </EncoderProfile>
-        
         <ImageEncoding quality="90" />
         <ImageEncoding quality="80" />
         <ImageEncoding quality="70" />
@@ -263,6 +261,12 @@
         minFrameWidth="176" maxFrameWidth="1280"
         minFrameHeight="144" maxFrameHeight="720"
         minFrameRate="1" maxFrameRate="30" />
+    <!-- add default amr wb encoderCap on msm7627a to solve 
+         android.media.cts.MediaRecorderTest#testRecordingAudioInRawFormats-->
+    <AudioEncoderCap name="amrwb" enabled="true"
+        minBitRate="23850" maxBitRate="23850"
+        minSampleRate="16000" maxSampleRate="16000"
+        minChannels="1" maxChannels="1" />
     <AudioEncoderCap name="amrnb" enabled="true"
         minBitRate="5525" maxBitRate="12200"
         minSampleRate="8000" maxSampleRate="8000"
@@ -271,7 +275,6 @@
         minBitRate="8000" maxBitRate="156000"
         minSampleRate="8000" maxSampleRate="48000"
         minChannels="1" maxChannels="2" />
-
     <!--
         FIXME:
         We do not check decoder capabilities at present
@@ -279,7 +282,6 @@
         for TEST applications. For other applications, we do
         not perform any checks at all.
     -->
-
     <VideoDecoderCap name="wmv" enabled="false"/>
     <AudioDecoderCap name="wma" enabled="false"/>
 </MediaSettings>
