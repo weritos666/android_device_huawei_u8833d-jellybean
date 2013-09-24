@@ -209,4 +209,10 @@ PRODUCT_COPY_FILES += \
 	vendor/huawei/u8833d/proprietary/wifi/ath6k/fw-3.bin:system/wifi/ath6k/fw-3.bin \
 	vendor/huawei/u8833d/proprietary/wifi/ath6k/nullTestFlow.bin:system/wifi/ath6k/nullTestFlow.bin \
 	vendor/huawei/u8833d/proprietary/wifi/ath6k/softmac:system/wifi/ath6k/softmac \
-	vendor/huawei/u8833d/proprietary/wifi/ath6k/utf.bin:system/wifi/ath6k/utf.bin 
+	vendor/huawei/u8833d/proprietary/wifi/ath6k/utf.bin:system/wifi/ath6k/utf.bin \
+    vendor/huawei/u8833d/proprietary/framework/qcnvitems.jar:system/framework/qcnvitems.jar \
+    vendor/huawei/u8833d/proprietary/framework/qcrilhook.jar:system/framework/qcrilhook.jar \
+    vendor/huawei/u8833d/proprietary/framework/org.simalliance.openmobileapi.jar:system/framework/org.simalliance.openmobileapi.jar \
+    vendor/huawei/u8833d/proprietary/etc/permissions/qcnvitems.xml:system/etc/permissions/qcnvitems.xml \
+    vendor/huawei/u8833d/proprietary/etc/permissions/qcrilhook.xml:system/etc/permissions/qcrilhook.xml \
+    vendor/huawei/u8833d/proprietary/etc/permissions/org.simalliance.openmobileapi.xml:system/etc/permissions/org.simalliance.openmobileapi.xml
