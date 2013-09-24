@@ -133,5 +133,8 @@ BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x00C00000
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 314572800
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 183500800
 BOARD_FLASH_BLOCK_SIZE := 131072
-
-TARGET_OTA_ASSERT_DEVICE := hwY300-0000,hwG510-0010,U8833D,U8951D,msm7627a,G510-0010,Y300-0000,u8833d
+#
+# In build/tools/releasetools/edify_generator.py to set this : 
+#\0'.join(['getprop("ro.product.device") == "hwG510-0010" || getprop("ro.build.product") == "hwG510-0010" || getprop("ro.build.product") == #"u8951d" || getprop("ro.build.device") == "msm7627a" || getprop("ro.build.product") == "msm7627a" || getprop("ro.build.device") == "u8833d" #|| getprop("ro.build.product") == "u8833d" || getprop("ro.product.device") == "%s" || getprop("ro.build.product") == "%s"
+#
+TARGET_OTA_ASSERT_DEVICE := hwY300-0000

@@ -24,7 +24,7 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
 # The GPS configuration appropriate for this device.
-$(call inherit-product, device/common/gps/gps_eu_supl.mk)
+$(call inherit-product, device/common/gps/gps_as_supl.mk)
 
 $(call inherit-product, vendor/huawei/u8833d/u8833d-vendor.mk)
 
@@ -81,6 +81,8 @@ PRODUCT_PACKAGES += \
     com.android.future.usb.accessory
 
 PRODUCT_COPY_FILES += \
+    device/huawei/u8833d/ramdisk/tp/1191601.img:root/tp/1191601.img \
+    device/huawei/u8833d/ramdisk/tp/1294018.img:root/tp/1294018.img \
     device/huawei/u8833d/ramdisk/init.huawei.rc:root/init.huawei.rc \
     device/huawei/u8833d/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc \
     device/huawei/u8833d/ramdisk/fstab.huawei:root/fstab.huawei \
