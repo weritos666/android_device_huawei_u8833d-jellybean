@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <!-- local_manifest.xml for building HuaWei U8833D cm-10 -->
-  <remote name="gh"
-          fetch="git://github.com/" />
            
-    <!-- CM replacements -->
-  <remove-project path="hardware/qcom/display" name="CyanogenMod/android_hardware_qcom_display" />
+  <!-- CM replacements -->
   <remove-project name="CyanogenMod/android_frameworks_base" />
   <remove-project name="CyanogenMod/android_packages_apps_Mms" />
   <remove-project name="CyanogenMod/android_packages_apps_Phone" />
@@ -16,18 +13,22 @@
 
     
   <!-- Local projects -->
-  <project path="hardware/atheros/wlan" name="CyanogenMod/android_hardware_atheros_wlan" remote="gh" revision="jellybean" />
-  <project path="hardware/qcom/display" name="xjljian/android_hardware_qcom_display" remote="gh" revision="jellybean" />
+  <project path="hardware/atheros/wlan" name="CyanogenMod/android_hardware_atheros_wlan" remote="github" revision="jellybean" />
+
+  <!-- kernel -->
+  <project path="kernel/huawei/msm8x25" name="xjljian/android_kernel_huawei_msm8x25" remote="github" revision="cm-10.1" />
 
 
-   <!-- kernel -->
-  <project path="kernel/huawei/msm8x25" name="xjljian/android_kernel_huawei_msm8x25" remote="gh" revision="cm-10.1" />
 
-  <!-- HuaWei u8833d 
-  <project path="device/huawei/u8833d" name="xjljian/android_device_huawei_u8833d" remote="gh" revision="jellybean" />
- -->
+  <!-- jellybean-Add support DSDS(dual-sim) from ivan19871002-->
+  <!-- unneed download agian
+  <project path="frameworks/base" name="xjljian/android_frameworks_base-cm10-dual-sim" remote="github" revision="jellybean" />
+  <project path="packages/apps/Mms" name="xjljian/android_packages_apps_Mms" remote="github" revision="jellybean" />
+  <project path="packages/apps/Phone" name="xjljian/android_packages_apps_Phone" remote="github" revision="jellybean" />
+  <project path="packages/apps/Settings" name="xjljian/android_packages_apps_Settings" remote="github" revision="jellybean" />
+  <project path="packages/apps/Contacts" name="xjljian/android_packages_apps_Contacts" remote="github" revision="jellybean" />
+  <project path="packages/providers/TelephonyProvider" name="xjljian/android_packages_providers_TelephonyProvider" remote="github" revision="jellybean" />
 
-  <!-- Vendor 
-  <project path="vendor/huawei" name="xjljian/android_vendor_huawei_u8833" remote="gh" revision="jellybean" />
- -->
+-->
+
 </manifest>
