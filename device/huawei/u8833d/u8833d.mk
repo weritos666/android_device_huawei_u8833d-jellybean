@@ -80,9 +80,12 @@ PRODUCT_PACKAGES += \
     Torch \
     com.android.future.usb.accessory
 
+# If use Kra1o5/android_kernel_huawei_msm8x25-common kernel source,unneed tp/*.img. Remove them
+#PRODUCT_COPY_FILES += \
+#    device/huawei/u8833d/ramdisk/tp/1191601.img:root/tp/1191601.img \
+#    device/huawei/u8833d/ramdisk/tp/1294018.img:root/tp/1294018.img 
+
 PRODUCT_COPY_FILES += \
-    device/huawei/u8833d/ramdisk/tp/1191601.img:root/tp/1191601.img \
-    device/huawei/u8833d/ramdisk/tp/1294018.img:root/tp/1294018.img \
     device/huawei/u8833d/ramdisk/init.huawei.rc:root/init.huawei.rc \
     device/huawei/u8833d/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc \
     device/huawei/u8833d/ramdisk/fstab.huawei:root/fstab.huawei \
