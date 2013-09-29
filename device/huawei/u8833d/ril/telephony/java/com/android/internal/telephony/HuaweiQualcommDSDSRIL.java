@@ -43,7 +43,7 @@ import java.util.ArrayList;
  *
  * {@hide}
  */
-public class QualcommSharedRIL extends RIL implements CommandsInterface {
+public class HuaweiQualcommDSDSRIL extends QualcommSharedRIL implements CommandsInterface {
     protected HandlerThread mIccThread;
     protected IccHandler mIccHandler;
     protected String mAid;
@@ -59,13 +59,13 @@ public class QualcommSharedRIL extends RIL implements CommandsInterface {
     private final int RIL_INT_RADIO_ON_NG = 10;
     private final int RIL_INT_RADIO_ON_HTC = 13;
 
-    public QualcommSharedRIL(Context context, int networkMode, int cdmaSubscription ,Integer instanceId) {
+    public HuaweiQualcommDSDSRIL(Context context, int networkMode, int cdmaSubscription ,Integer instanceId) {
         super(context, networkMode, cdmaSubscription,instanceId);
         mSetPreferredNetworkType = 1;
         mQANElements = 5;
     }
     
-    public QualcommSharedRIL(Context context, int networkMode, int cdmaSubscription) {
+    public HuaweiQualcommDSDSRIL(Context context, int networkMode, int cdmaSubscription) {
         super(context, networkMode, cdmaSubscription);
         mSetPreferredNetworkType = 1;
         mQANElements = 5;

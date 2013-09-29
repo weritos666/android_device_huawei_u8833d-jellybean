@@ -56,7 +56,11 @@ persist.thermal.monitor=true
 #ro.telephony.call_ring.multiple=false
 #ro.telephony.ril_class=HuaweiQualcommRIL
 #ro.telephony.ril_class=QualcommSharedRIL
-ro.telephony.ril.v3=qcomdsds
+
+#
+#ro.telephony.ril.v3=qcomdsds
+
+
 #ro.multi.rild=false
 
 
@@ -65,7 +69,7 @@ ro.telephony.ril.v3=qcomdsds
 rild.libpath=/system/lib/libril-qc-1.so
 rild.libargs=-d /dev/smd0
 ro.telephony.default_network=0
-ro.telephony.ril_class=QualcommSharedRIL
+ro.telephony.ril_class=HuaweiQualcommDSDSRIL
 persist.rild.nitz_plmn=
 persist.rild.nitz_long_ons_0=
 persist.rild.nitz_long_ons_1=

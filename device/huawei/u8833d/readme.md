@@ -19,3 +19,5 @@ remove HuaweiQualcommRIL.java out of ril folder.
 If use Kra1o5/android_kernel_huawei_msm8x25-common kernel source,unneed tp/*.img. Remove them
 
 Fix wifi tethering from Kralo5
+
+add HuaweiQualcommDSDSRIL
