@@ -11,7 +11,7 @@ config ZRAM
 	  Creates virtual block devices called /dev/zramX (X = 0, 1, ...).
 	  Pages written to these disks are compressed and stored in memory
 	  itself. These disks allow very fast I/O and compression provides
-	  good amounts of memory savings.
+	  good amounts of memory savings.//this only for x86,not for arm
 
 	  It has several use cases, for example: /tmp storage, use as swap
 	  disks and maybe many more.
