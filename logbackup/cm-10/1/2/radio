@@ -1,0 +1,1328 @@
+E/RILD    (  175): **RIL Daemon Started**
+E/RILD    (  175): **RILd param count=1**
+E/RILD    (  181): **RIL Daemon Started**
+E/RILD    (  181): **RILd param count=3**
+E/RILD    (  181): RIL_Init argc = 5 client = 1
+E/RILD    (  175): RIL_Init argc = 5 client = 0
+E/RILD    (  175): isMultiSimEnabled: prop_val = dsds enabled = 1
+E/RILC    (  175): RIL_register: RIL version 7
+E/RILC    (  175): s_registerCalled = 1, s_started = 1, RIL_getMaxNumClients = 1
+E/RILD    (  181): isMultiSimEnabled: prop_val = dsds enabled = 1
+E/RILC    (  181): RIL_register: RIL version 7
+E/RILC    (  181): s_registerCalled = 1, s_started = 1, RIL_getMaxNumClients = 1
+D/RILB    (  595): /proc/cmdline=androidboot.hardware=huawei loglevel=1 androidboot.mode=boot alarm_time=0xdffe37c9 RTC_time=0x2a4b3 hw_status_loc=0x1 androidboot.localproppath=unicom/cn usb.pid.index=25 usb.serial=2469A5526E2F androidboot.serialno=2469A5526E2F androidboot.network=umts_gsm androidboot.swtype=normal androidboot.platform=msm7627a androidboot.emmc=true androidboot.baseband=msm
+D/RILB    (  595): getLteOnCdmaMode=-1 curVal=-1 product_type='' lteOnCdmaProductType=''
+E/PHONE   (  595): ------MSimPhoneFactory.java----------->hasException = false 
+D/RILB    (  595): getLteOnCdmaMode=-1 curVal=-1 product_type='' lteOnCdmaProductType=''
+D/RILJ    (  595): RIL(context, preferredNetworkType=0 cdmaSubscription=1)
+D/RILJ    (  595): Starting RILReceiver [SUB0]
+I/RILJ    (  595): Connected to 'rild' socket
+D/RILJ    (  595): RIL(context, preferredNetworkType=0 cdmaSubscription=1)
+D/RILJ    (  595): Starting RILReceiver [SUB1]
+I/RILJ    (  595): Connected to 'rild1' socket
+E/RIL_UiccController(  595): new UiccController() ....registerForIccStatusChanged()....mCi[i] = com.android.internal.telephony.RIL@41e2e6c0
+E/RIL_UiccController(  595): new UiccController() ....registerForIccStatusChanged()....mCi[i] = com.android.internal.telephony.RIL@41e32950
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/PHONE   (  595): mDoesRilSendMultipleCallRing=true
+D/PHONE   (  595): mCallRingDelay=3000
+D/PHONE   (  595): mOosIsDisconnect=true
+D/RILJ    (  595): setPhoneType=1 old value=0 [SUB0]
+I/GSM     (  595): Is EONS enabled: true
+D/GSM     (  595): MSimGSMPhone: constructor: sub = 0
+D/GSM     (  595): [ApnContext:default] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:default] set enabled as true, current state is false
+D/GSM     (  595): [ApnContext:default] set reason as dependencyMet,current state IDLE
+D/GSM     (  595): [ApnContext:default] set enabled as true, current state is true
+D/GSM     (  595): [ApnContext:default] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:mms] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:mms] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:mms] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:supl] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:supl] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:supl] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:dun] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:dun] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:dun] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:hipri] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:hipri] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:hipri] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:fota] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:fota] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:fota] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:ims] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:ims] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:ims] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:cbs] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:cbs] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:cbs] set mDependencyMet as true current state is false
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     (  595): [MSimGsmDCT:0] =================broadcastMessenger () ============> this = Handler (com.android.internal.telephony.msim.MSimGsmDataConnectionTracker) {41e450d8}
+D/GSM     (  595): [MSimGsmDCT:0] SUPPORT_MPDN = true
+D/GSM     (  595): [MSimGsmDCT:0] mCdmaHomeOperatorNumeric = 
+D/GSM     (  595): [MSimGsmDCT:0] mUseNvOperatorForEhrpd = false
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimGsmDCT:0] mInternalDataEnabled (is data sub?) = true
+D/RILB    (  595): =====================> registerForRilConnected h=Handler (com.android.internal.telephony.msim.MSimPhoneProxy) {41e3c170} w=4
+D/RIL_IccSms(  595): MSimIccSmsInterfaceManager: initDispatchers()
+E/RIL_ImsSms(  595): getFormat should never be called from here!
+D/SMS     (  595): SMSDispatcher: ctor mSmsCapable=true format=unknown mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/RIL_IMS (  595): MSimImsSMSDispatcher: initDispatchers()
+D/SMS     (  595): SMSDispatcher: ctor mSmsCapable=true format=3gpp2 mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/CDMA    (  595): CdmaSMSDispatcher created
+D/CDMA    (  595): MSimCdmaSMSDispatcher created
+D/SMS     (  595): SMSDispatcher: ctor mSmsCapable=true format=3gpp mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/GSM     (  595): GsmSMSDispatcher created
+D/GSM     (  595): MSimGsmSMSDispatcher created
+D/RIL_IMS (  595): MSimImsSMSDispatcher created
+D/RIL_IccSms(  595): MSimIccSmsInterfaceManager created
+D/RIL_MSimIccCardProxy(  595): Creating
+D/RIL_MSimIccCardProxy(  595): Broadcasting intent ACTION_SIM_STATE_CHANGED NOT_READY reason null for subscription : 0
+D/RIL_MSimIccCardProxy(  595): Setting radio tech UMTS
+D/RIL_MSimIccCardProxy(  595): Updating quiet mode
+D/RIL_MSimIccCardProxy(  595): 3GPP subscription -> QuietMode: false
+D/RIL_MSimIccCardProxy(  595): QuietMode is false (app_type: 1 nv: false multimode: false)
+D/PHONE   (  595): mDoesRilSendMultipleCallRing=true
+D/PHONE   (  595): mCallRingDelay=3000
+D/PHONE   (  595): mOosIsDisconnect=true
+D/RILJ    (  595): setPhoneType=1 old value=0 [SUB1]
+I/GSM     (  595): Is EONS enabled: true
+D/GSM     (  595): MSimGSMPhone: constructor: sub = 1
+D/GSM     (  595): [ApnContext:default] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:default] set enabled as true, current state is false
+D/GSM     (  595): [ApnContext:default] set reason as dependencyMet,current state IDLE
+D/GSM     (  595): [ApnContext:default] set enabled as true, current state is true
+D/GSM     (  595): [ApnContext:default] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:mms] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:mms] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:mms] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:supl] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:supl] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:supl] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:dun] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:dun] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:dun] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:hipri] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:hipri] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:hipri] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:fota] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:fota] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:fota] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:ims] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:ims] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:ims] set mDependencyMet as true current state is false
+D/GSM     (  595): [ApnContext:cbs] set mDependencyMet as false current state is true
+D/GSM     (  595): [ApnContext:cbs] set enabled as false, current state is false
+D/GSM     (  595): [ApnContext:cbs] set mDependencyMet as true current state is false
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     (  595): [MSimGsmDCT:0] =================broadcastMessenger () ============> this = Handler (com.android.internal.telephony.msim.MSimGsmDataConnectionTracker) {41e5e360}
+D/GSM     (  595): [MSimGsmDCT:0] SUPPORT_MPDN = true
+D/GSM     (  595): [MSimGsmDCT:0] mCdmaHomeOperatorNumeric = 
+D/GSM     (  595): [MSimGsmDCT:0] mUseNvOperatorForEhrpd = false
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimGsmDCT:1] mInternalDataEnabled (is data sub?) = false
+D/RILB    (  595): =====================> registerForRilConnected h=Handler (com.android.internal.telephony.msim.MSimPhoneProxy) {41e5bac0} w=4
+D/RIL_IccSms(  595): MSimIccSmsInterfaceManager: initDispatchers()
+E/RIL_ImsSms(  595): getFormat should never be called from here!
+D/SMS     (  595): SMSDispatcher: ctor mSmsCapable=true format=unknown mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/RIL_IMS (  595): MSimImsSMSDispatcher: initDispatchers()
+D/SMS     (  595): SMSDispatcher: ctor mSmsCapable=true format=3gpp2 mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/CDMA    (  595): CdmaSMSDispatcher created
+D/CDMA    (  595): MSimCdmaSMSDispatcher created
+D/SMS     (  595): SMSDispatcher: ctor mSmsCapable=true format=3gpp mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/GSM     (  595): GsmSMSDispatcher created
+D/GSM     (  595): MSimGsmSMSDispatcher created
+D/RIL_IMS (  595): MSimImsSMSDispatcher created
+D/RIL_IccSms(  595): MSimIccSmsInterfaceManager created
+D/RIL_MSimIccCardProxy(  595): Creating
+D/RIL_MSimIccCardProxy(  595): Broadcasting intent ACTION_SIM_STATE_CHANGED NOT_READY reason null for subscription : 0
+D/RIL_MSimIccCardProxy(  595): Setting radio tech UMTS
+D/RIL_MSimIccCardProxy(  595): Updating quiet mode
+D/RIL_MSimIccCardProxy(  595): 3GPP subscription -> QuietMode: false
+D/RIL_MSimIccCardProxy(  595): QuietMode is false (app_type: 1 nv: false multimode: false)
+D/RILJ    (  595): [0000]> SET_SUPP_SVC_NOTIFICATION [SUB0]
+E/RILC    (  175): Should not come here !!! buffer red :: 
+D/RILJ    (  595): [UNSL]< UNSOL_RIL_CONNECTED {7} [SUB0]
+D/RILJ    (  595): [UNSL]< UNSOL_RESPONSE_RADIO_STATE_CHANGED RADIO_OFF [SUB0]
+D/RILB    (  595): Notifying: radio available
+D/RILJ    (  595): [0001]> SCREEN_STATE: true [SUB0]
+D/RILJ    (  595): [0002]> SET_SUPP_SVC_NOTIFICATION [SUB1]
+E/RILC    (  181): Should not come here !!! buffer red :: 
+D/RILJ    (  595): [UNSL]< UNSOL_RIL_CONNECTED {7} [SUB1]
+D/RILJ    (  595): [UNSL]< UNSOL_RESPONSE_RADIO_STATE_CHANGED RADIO_OFF [SUB1]
+D/RILB    (  595): Notifying: radio available
+D/RILJ    (  595): [0003]> SCREEN_STATE: true [SUB1]
+E/RIL_UiccController(  595): EVENT_RADIO_UNAVAILABLE 
+E/RIL_UiccController(  595): EVENT_RADIO_UNAVAILABLE 
+D/RILJ    (  595): [0004]> GET_CURRENT_CALLS [SUB0]
+D/RILJ    (  595): [0005]> RADIO_POWER on [SUB0]
+I/GSM     (  595): Network State Changed, get EONS and update operator name display
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimGsmDCT:0] ******************&&&&&&&&&&&&&&&&&&&&newIccRecords = null
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [ApnContext:fota] set reason as radioTurnedOff,current state IDLE
+D/GSM     (  595): [ApnContext:fota] setState: IDLE, previous state:IDLE
+D/GSM     (  595): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     (  595): [ApnContext:fota] setDataConnection: old dc=null new dc=null this={mApnType=fota mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     (  595): [ApnContext:fota] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     (  595): [ApnContext:dun] set reason as radioTurnedOff,current state IDLE
+D/GSM     (  595): [ApnContext:dun] setState: IDLE, previous state:IDLE
+D/GSM     (  595): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     (  595): [ApnContext:dun] setDataConnection: old dc=null new dc=null this={mApnType=dun mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     (  595): [ApnContext:dun] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     (  595): [ApnContext:supl] set reason as radioTurnedOff,current state IDLE
+D/GSM     (  595): [ApnContext:supl] setState: IDLE, previous state:IDLE
+D/GSM     (  595): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     (  595): [ApnContext:supl] setDataConnection: old dc=null new dc=null this={mApnType=supl mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     (  595): [ApnContext:supl] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     (  595): [ApnContext:hipri] set reason as radioTurnedOff,current state IDLE
+D/GSM     (  595): [ApnContext:hipri] setState: IDLE, previous state:IDLE
+D/GSM     (  595): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     (  595): [ApnContext:hipri] setDataConnection: old dc=null new dc=null this={mApnType=hipri mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     (  595): [ApnContext:hipri] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     (  595): [ApnContext:ims] set reason as radioTurnedOff,current state IDLE
+D/GSM     (  595): [ApnContext:ims] setState: IDLE, previous state:IDLE
+D/GSM     (  595): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     (  595): [ApnContext:ims] setDataConnection: old dc=null new dc=null this={mApnType=ims mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     (  595): [ApnContext:ims] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     (  595): [ApnContext:default] set reason as radioTurnedOff,current state IDLE
+D/GSM     (  595): [ApnContext:default] setState: IDLE, previous state:IDLE
+D/GSM     (  595): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     (  595): [ApnContext:default] setDataConnection: old dc=null new dc=null this={mApnType=default mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=true mDependencyMet=true}
+D/GSM     (  595): [ApnContext:default] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     (  595): [ApnContext:mms] set reason as radioTurnedOff,current state IDLE
+D/GSM     (  595): [ApnContext:mms] setState: IDLE, previous state:IDLE
+D/GSM     (  595): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     (  595): [ApnContext:mms] setDataConnection: old dc=null new dc=null this={mApnType=mms mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     (  595): [ApnContext:mms] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     (  595): [ApnContext:cbs] set reason as radioTurnedOff,current state IDLE
+D/GSM     (  595): [ApnContext:cbs] setState: IDLE, previous state:IDLE
+D/GSM     (  595): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     (  595): [ApnContext:cbs] setDataConnection: old dc=null new dc=null this={mApnType=cbs mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     (  595): [ApnContext:cbs] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     (  595): [MSimGsmDCT:0] cleanUpConnection: mDisconnectPendingCount = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     (  595): [MSimGsmDCT:0] setupDataOnReadyApns: roamingOff
+D/GSM     (  595): [ApnContext:default] set reason as roamingOff,current state IDLE
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     (  595): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     (  595): MSimGsmSMSDispatcher: subId = 0 slotId = -1
+D/RIL_MSimIccCardProxy(  595): No card available
+D/RIL_MSimIccCardProxy(  595): No card available
+D/RILJ    (  595): [0006]> GET_CURRENT_CALLS [SUB1]
+D/RILJ    (  595): [0007]> RADIO_POWER on [SUB1]
+I/GSM     (  595): Network State Changed, get EONS and update operator name display
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     (  595): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     (  595): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     (  595): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     (  595): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+D/GSM     (  595): MSimGsmSMSDispatcher: subId = 1 slotId = -1
+D/RIL_MSimIccCardProxy(  595): No card available
+D/RIL_MSimIccCardProxy(  595): No card available
+D/RILJ    (  595): [0008]> RADIO_POWER on [SUB0]
+I/GSM     (  595): Network State Changed, get EONS and update operator name display
+D/RILJ    (  595): [0009]> RADIO_POWER on [SUB0]
+D/RILJ    (  595): [0010]> BASEBAND_VERSION [SUB0]
+D/RILJ    (  595): [0011]> GET_IMEI [SUB0]
+D/RILJ    (  595): [0012]> GET_IMEISV [SUB0]
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+D/RILJ    (  595): [0013]> RADIO_POWER on [SUB1]
+I/GSM     (  595): Network State Changed, get EONS and update operator name display
+D/RILJ    (  595): [0014]> RADIO_POWER on [SUB1]
+D/RILJ    (  595): [0015]> BASEBAND_VERSION [SUB1]
+D/RILJ    (  595): [0016]> GET_IMEI [SUB1]
+D/RILJ    (  595): [0017]> GET_IMEISV [SUB1]
+E/PHONE   (  595): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     (  595): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+W/RILC    (  175): EOS.  Closing command socket.
+W/RILC    (  181): EOS.  Closing command socket.
+D/RILB    ( 1053): /proc/cmdline=androidboot.hardware=huawei loglevel=1 androidboot.mode=boot alarm_time=0xdffe37c9 RTC_time=0x2a4b3 hw_status_loc=0x1 androidboot.localproppath=unicom/cn usb.pid.index=25 usb.serial=2469A5526E2F androidboot.serialno=2469A5526E2F androidboot.network=umts_gsm androidboot.swtype=normal androidboot.platform=msm7627a androidboot.emmc=true androidboot.baseband=msm
+D/RILB    ( 1053): getLteOnCdmaMode=-1 curVal=-1 product_type='' lteOnCdmaProductType=''
+E/PHONE   ( 1053): ------MSimPhoneFactory.java----------->hasException = false 
+D/RILB    ( 1053): getLteOnCdmaMode=-1 curVal=-1 product_type='' lteOnCdmaProductType=''
+D/RILJ    ( 1053): RIL(context, preferredNetworkType=0 cdmaSubscription=1)
+D/RILJ    ( 1053): Starting RILReceiver [SUB0]
+D/RILJ    ( 1053): RIL(context, preferredNetworkType=0 cdmaSubscription=1)
+I/RILJ    ( 1053): Connected to 'rild' socket
+D/RILJ    ( 1053): Starting RILReceiver [SUB1]
+I/RILJ    ( 1053): Connected to 'rild1' socket
+E/RIL_UiccController( 1053): new UiccController() ....registerForIccStatusChanged()....mCi[i] = com.android.internal.telephony.RIL@41e2b9f8
+E/RIL_UiccController( 1053): new UiccController() ....registerForIccStatusChanged()....mCi[i] = com.android.internal.telephony.RIL@41e2fa20
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/PHONE   ( 1053): mDoesRilSendMultipleCallRing=true
+D/PHONE   ( 1053): mCallRingDelay=3000
+D/PHONE   ( 1053): mOosIsDisconnect=true
+D/RILJ    ( 1053): setPhoneType=1 old value=0 [SUB0]
+I/GSM     ( 1053): Is EONS enabled: true
+D/GSM     ( 1053): MSimGSMPhone: constructor: sub = 0
+D/GSM     ( 1053): [ApnContext:default] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:default] set enabled as true, current state is false
+D/GSM     ( 1053): [ApnContext:default] set reason as dependencyMet,current state IDLE
+D/GSM     ( 1053): [ApnContext:default] set enabled as true, current state is true
+D/GSM     ( 1053): [ApnContext:default] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:mms] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:mms] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:mms] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:supl] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:supl] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:supl] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:dun] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:dun] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:dun] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:hipri] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:hipri] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:hipri] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:fota] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:fota] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:fota] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:ims] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:ims] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:ims] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:cbs] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:cbs] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:cbs] set mDependencyMet as true current state is false
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1053): [MSimGsmDCT:0] =================broadcastMessenger () ============> this = Handler (com.android.internal.telephony.msim.MSimGsmDataConnectionTracker) {41e42530}
+D/GSM     ( 1053): [MSimGsmDCT:0] SUPPORT_MPDN = true
+D/GSM     ( 1053): [MSimGsmDCT:0] mCdmaHomeOperatorNumeric = 
+D/GSM     ( 1053): [MSimGsmDCT:0] mUseNvOperatorForEhrpd = false
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimGsmDCT:0] mInternalDataEnabled (is data sub?) = true
+D/RILB    ( 1053): =====================> registerForRilConnected h=Handler (com.android.internal.telephony.msim.MSimPhoneProxy) {41e394a8} w=4
+D/RIL_IccSms( 1053): MSimIccSmsInterfaceManager: initDispatchers()
+E/RIL_ImsSms( 1053): getFormat should never be called from here!
+D/SMS     ( 1053): SMSDispatcher: ctor mSmsCapable=true format=unknown mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/RIL_IMS ( 1053): MSimImsSMSDispatcher: initDispatchers()
+D/SMS     ( 1053): SMSDispatcher: ctor mSmsCapable=true format=3gpp2 mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/CDMA    ( 1053): CdmaSMSDispatcher created
+D/CDMA    ( 1053): MSimCdmaSMSDispatcher created
+D/SMS     ( 1053): SMSDispatcher: ctor mSmsCapable=true format=3gpp mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/GSM     ( 1053): GsmSMSDispatcher created
+D/GSM     ( 1053): MSimGsmSMSDispatcher created
+D/RIL_IMS ( 1053): MSimImsSMSDispatcher created
+D/RIL_IccSms( 1053): MSimIccSmsInterfaceManager created
+D/RIL_MSimIccCardProxy( 1053): Creating
+D/RIL_MSimIccCardProxy( 1053): Broadcasting intent ACTION_SIM_STATE_CHANGED NOT_READY reason null for subscription : 0
+D/RIL_MSimIccCardProxy( 1053): Setting radio tech UMTS
+D/RIL_MSimIccCardProxy( 1053): Updating quiet mode
+D/RIL_MSimIccCardProxy( 1053): 3GPP subscription -> QuietMode: false
+D/RIL_MSimIccCardProxy( 1053): QuietMode is false (app_type: 1 nv: false multimode: false)
+D/PHONE   ( 1053): mDoesRilSendMultipleCallRing=true
+D/PHONE   ( 1053): mCallRingDelay=3000
+D/PHONE   ( 1053): mOosIsDisconnect=true
+D/RILJ    ( 1053): setPhoneType=1 old value=0 [SUB1]
+I/GSM     ( 1053): Is EONS enabled: true
+D/GSM     ( 1053): MSimGSMPhone: constructor: sub = 1
+D/GSM     ( 1053): [ApnContext:default] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:default] set enabled as true, current state is false
+D/GSM     ( 1053): [ApnContext:default] set reason as dependencyMet,current state IDLE
+D/GSM     ( 1053): [ApnContext:default] set enabled as true, current state is true
+D/GSM     ( 1053): [ApnContext:default] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:mms] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:mms] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:mms] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:supl] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:supl] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:supl] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:dun] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:dun] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:dun] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:hipri] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:hipri] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:hipri] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:fota] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:fota] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:fota] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:ims] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:ims] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:ims] set mDependencyMet as true current state is false
+D/GSM     ( 1053): [ApnContext:cbs] set mDependencyMet as false current state is true
+D/GSM     ( 1053): [ApnContext:cbs] set enabled as false, current state is false
+D/GSM     ( 1053): [ApnContext:cbs] set mDependencyMet as true current state is false
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1053): [MSimGsmDCT:0] =================broadcastMessenger () ============> this = Handler (com.android.internal.telephony.msim.MSimGsmDataConnectionTracker) {41e5c3a8}
+D/GSM     ( 1053): [MSimGsmDCT:0] SUPPORT_MPDN = true
+D/GSM     ( 1053): [MSimGsmDCT:0] mCdmaHomeOperatorNumeric = 
+D/GSM     ( 1053): [MSimGsmDCT:0] mUseNvOperatorForEhrpd = false
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimGsmDCT:1] mInternalDataEnabled (is data sub?) = false
+D/RILB    ( 1053): =====================> registerForRilConnected h=Handler (com.android.internal.telephony.msim.MSimPhoneProxy) {41e59e98} w=4
+D/RIL_IccSms( 1053): MSimIccSmsInterfaceManager: initDispatchers()
+E/RIL_ImsSms( 1053): getFormat should never be called from here!
+D/SMS     ( 1053): SMSDispatcher: ctor mSmsCapable=true format=unknown mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/RIL_IMS ( 1053): MSimImsSMSDispatcher: initDispatchers()
+D/SMS     ( 1053): SMSDispatcher: ctor mSmsCapable=true format=3gpp2 mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/CDMA    ( 1053): CdmaSMSDispatcher created
+D/CDMA    ( 1053): MSimCdmaSMSDispatcher created
+D/SMS     ( 1053): SMSDispatcher: ctor mSmsCapable=true format=3gpp mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/GSM     ( 1053): GsmSMSDispatcher created
+D/GSM     ( 1053): MSimGsmSMSDispatcher created
+D/RIL_IMS ( 1053): MSimImsSMSDispatcher created
+D/RIL_IccSms( 1053): MSimIccSmsInterfaceManager created
+D/RIL_MSimIccCardProxy( 1053): Creating
+D/RIL_MSimIccCardProxy( 1053): Broadcasting intent ACTION_SIM_STATE_CHANGED NOT_READY reason null for subscription : 0
+D/RIL_MSimIccCardProxy( 1053): Setting radio tech UMTS
+D/RIL_MSimIccCardProxy( 1053): Updating quiet mode
+D/RIL_MSimIccCardProxy( 1053): 3GPP subscription -> QuietMode: false
+D/RIL_MSimIccCardProxy( 1053): QuietMode is false (app_type: 1 nv: false multimode: false)
+D/RILJ    ( 1053): [0000]> SET_SUPP_SVC_NOTIFICATION [SUB0]
+E/RILC    (  175): Should not come here !!! buffer red :: 
+D/RILJ    ( 1053): [UNSL]< UNSOL_RIL_CONNECTED {7} [SUB0]
+D/RILJ    ( 1053): [UNSL]< UNSOL_RESPONSE_RADIO_STATE_CHANGED RADIO_OFF [SUB0]
+D/RILB    ( 1053): Notifying: radio available
+D/RILJ    ( 1053): [0002]> SCREEN_STATE: true [SUB0]
+D/RILJ    ( 1053): [0001]> SET_SUPP_SVC_NOTIFICATION [SUB1]
+E/RILC    (  181): Should not come here !!! buffer red :: 
+D/RILJ    ( 1053): [UNSL]< UNSOL_RIL_CONNECTED {7} [SUB1]
+D/RILJ    ( 1053): [UNSL]< UNSOL_RESPONSE_RADIO_STATE_CHANGED RADIO_OFF [SUB1]
+D/RILB    ( 1053): Notifying: radio available
+D/RILJ    ( 1053): [0003]> SCREEN_STATE: true [SUB1]
+E/RIL_UiccController( 1053): EVENT_RADIO_UNAVAILABLE 
+E/RIL_UiccController( 1053): EVENT_RADIO_UNAVAILABLE 
+D/RILJ    ( 1053): [0004]> GET_CURRENT_CALLS [SUB0]
+D/RILJ    ( 1053): [0005]> RADIO_POWER on [SUB0]
+I/GSM     ( 1053): Network State Changed, get EONS and update operator name display
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimGsmDCT:0] ******************&&&&&&&&&&&&&&&&&&&&newIccRecords = null
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [ApnContext:fota] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1053): [ApnContext:fota] setState: IDLE, previous state:IDLE
+D/GSM     ( 1053): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1053): [ApnContext:fota] setDataConnection: old dc=null new dc=null this={mApnType=fota mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1053): [ApnContext:fota] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1053): [ApnContext:dun] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1053): [ApnContext:dun] setState: IDLE, previous state:IDLE
+D/GSM     ( 1053): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1053): [ApnContext:dun] setDataConnection: old dc=null new dc=null this={mApnType=dun mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1053): [ApnContext:dun] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1053): [ApnContext:supl] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1053): [ApnContext:supl] setState: IDLE, previous state:IDLE
+D/GSM     ( 1053): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1053): [ApnContext:supl] setDataConnection: old dc=null new dc=null this={mApnType=supl mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1053): [ApnContext:supl] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1053): [ApnContext:hipri] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1053): [ApnContext:hipri] setState: IDLE, previous state:IDLE
+D/GSM     ( 1053): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1053): [ApnContext:hipri] setDataConnection: old dc=null new dc=null this={mApnType=hipri mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1053): [ApnContext:hipri] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1053): [ApnContext:ims] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1053): [ApnContext:ims] setState: IDLE, previous state:IDLE
+D/GSM     ( 1053): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1053): [ApnContext:ims] setDataConnection: old dc=null new dc=null this={mApnType=ims mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1053): [ApnContext:ims] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1053): [ApnContext:default] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1053): [ApnContext:default] setState: IDLE, previous state:IDLE
+D/GSM     ( 1053): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1053): [ApnContext:default] setDataConnection: old dc=null new dc=null this={mApnType=default mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=true mDependencyMet=true}
+D/GSM     ( 1053): [ApnContext:default] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1053): [ApnContext:mms] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1053): [ApnContext:mms] setState: IDLE, previous state:IDLE
+D/GSM     ( 1053): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1053): [ApnContext:mms] setDataConnection: old dc=null new dc=null this={mApnType=mms mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1053): [ApnContext:mms] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1053): [ApnContext:cbs] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1053): [ApnContext:cbs] setState: IDLE, previous state:IDLE
+D/GSM     ( 1053): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1053): [ApnContext:cbs] setDataConnection: old dc=null new dc=null this={mApnType=cbs mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1053): [ApnContext:cbs] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1053): [MSimGsmDCT:0] cleanUpConnection: mDisconnectPendingCount = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1053): [MSimGsmDCT:0] setupDataOnReadyApns: roamingOff
+D/GSM     ( 1053): [ApnContext:default] set reason as roamingOff,current state IDLE
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1053): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1053): MSimGsmSMSDispatcher: subId = 0 slotId = -1
+D/RIL_MSimIccCardProxy( 1053): No card available
+D/RIL_MSimIccCardProxy( 1053): No card available
+D/RILJ    ( 1053): [0006]> GET_CURRENT_CALLS [SUB1]
+D/RILJ    ( 1053): [0007]> RADIO_POWER on [SUB1]
+I/GSM     ( 1053): Network State Changed, get EONS and update operator name display
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1053): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1053): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1053): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1053): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+D/GSM     ( 1053): MSimGsmSMSDispatcher: subId = 1 slotId = -1
+D/RIL_MSimIccCardProxy( 1053): No card available
+D/RIL_MSimIccCardProxy( 1053): No card available
+D/RILJ    ( 1053): [0008]> RADIO_POWER on [SUB0]
+I/GSM     ( 1053): Network State Changed, get EONS and update operator name display
+D/RILJ    ( 1053): [0009]> RADIO_POWER on [SUB0]
+D/RILJ    ( 1053): [0010]> BASEBAND_VERSION [SUB0]
+D/RILJ    ( 1053): [0011]> GET_IMEI [SUB0]
+D/RILJ    ( 1053): [0012]> GET_IMEISV [SUB0]
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+D/RILJ    ( 1053): [0013]> RADIO_POWER on [SUB1]
+I/GSM     ( 1053): Network State Changed, get EONS and update operator name display
+D/RILJ    ( 1053): [0014]> RADIO_POWER on [SUB1]
+D/RILJ    ( 1053): [0015]> BASEBAND_VERSION [SUB1]
+D/RILJ    ( 1053): [0016]> GET_IMEI [SUB1]
+D/RILJ    ( 1053): [0017]> GET_IMEISV [SUB1]
+E/PHONE   ( 1053): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1053): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+D/RILJ    ( 1053): NOTE: mReqWaiting is NOT 0 but9 at TIMEOUT, reset! There still msg waitng for response
+D/RILJ    ( 1053): WAKE_LOCK_TIMEOUT  mRequestList=9
+D/RILJ    ( 1053): 0: [0] SET_SUPP_SVC_NOTIFICATION
+D/RILJ    ( 1053): 1: [2] SCREEN_STATE
+D/RILJ    ( 1053): 2: [4] GET_CURRENT_CALLS
+D/RILJ    ( 1053): 3: [5] RADIO_POWER
+D/RILJ    ( 1053): 4: [8] RADIO_POWER
+D/RILJ    ( 1053): 5: [9] RADIO_POWER
+D/RILJ    ( 1053): 6: [10] BASEBAND_VERSION
+D/RILJ    ( 1053): 7: [11] GET_IMEI
+D/RILJ    ( 1053): 8: [12] GET_IMEISV
+D/RILJ    ( 1053): NOTE: mReqWaiting is NOT 0 but9 at TIMEOUT, reset! There still msg waitng for response
+D/RILJ    ( 1053): WAKE_LOCK_TIMEOUT  mRequestList=9
+D/RILJ    ( 1053): 0: [1] SET_SUPP_SVC_NOTIFICATION
+D/RILJ    ( 1053): 1: [3] SCREEN_STATE
+D/RILJ    ( 1053): 2: [6] GET_CURRENT_CALLS
+D/RILJ    ( 1053): 3: [7] RADIO_POWER
+D/RILJ    ( 1053): 4: [13] RADIO_POWER
+D/RILJ    ( 1053): 5: [14] RADIO_POWER
+D/RILJ    ( 1053): 6: [15] BASEBAND_VERSION
+D/RILJ    ( 1053): 7: [16] GET_IMEI
+D/RILJ    ( 1053): 8: [17] GET_IMEISV
+W/RILC    (  175): EOS.  Closing command socket.
+W/RILC    (  181): EOS.  Closing command socket.
+D/RILB    ( 1137): /proc/cmdline=androidboot.hardware=huawei loglevel=1 androidboot.mode=boot alarm_time=0xdffe37c9 RTC_time=0x2a4b3 hw_status_loc=0x1 androidboot.localproppath=unicom/cn usb.pid.index=25 usb.serial=2469A5526E2F androidboot.serialno=2469A5526E2F androidboot.network=umts_gsm androidboot.swtype=normal androidboot.platform=msm7627a androidboot.emmc=true androidboot.baseband=msm
+D/RILB    ( 1137): getLteOnCdmaMode=-1 curVal=-1 product_type='' lteOnCdmaProductType=''
+E/PHONE   ( 1137): ------MSimPhoneFactory.java----------->hasException = false 
+D/RILB    ( 1137): getLteOnCdmaMode=-1 curVal=-1 product_type='' lteOnCdmaProductType=''
+D/RILJ    ( 1137): RIL(context, preferredNetworkType=0 cdmaSubscription=1)
+D/RILJ    ( 1137): Starting RILReceiver [SUB0]
+D/RILJ    ( 1137): RIL(context, preferredNetworkType=0 cdmaSubscription=1)
+I/RILJ    ( 1137): Connected to 'rild' socket
+D/RILJ    ( 1137): Starting RILReceiver [SUB1]
+E/RIL_UiccController( 1137): new UiccController() ....registerForIccStatusChanged()....mCi[i] = com.android.internal.telephony.RIL@41e2c7f8
+E/RIL_UiccController( 1137): new UiccController() ....registerForIccStatusChanged()....mCi[i] = com.android.internal.telephony.RIL@41e30820
+I/RILJ    ( 1137): Connected to 'rild1' socket
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/PHONE   ( 1137): mDoesRilSendMultipleCallRing=true
+D/PHONE   ( 1137): mCallRingDelay=3000
+D/PHONE   ( 1137): mOosIsDisconnect=true
+D/RILJ    ( 1137): setPhoneType=1 old value=0 [SUB0]
+I/GSM     ( 1137): Is EONS enabled: true
+D/GSM     ( 1137): MSimGSMPhone: constructor: sub = 0
+D/GSM     ( 1137): [ApnContext:default] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:default] set enabled as true, current state is false
+D/GSM     ( 1137): [ApnContext:default] set reason as dependencyMet,current state IDLE
+D/GSM     ( 1137): [ApnContext:default] set enabled as true, current state is true
+D/GSM     ( 1137): [ApnContext:default] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:mms] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:mms] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:mms] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:supl] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:supl] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:supl] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:dun] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:dun] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:dun] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:hipri] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:hipri] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:hipri] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:fota] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:fota] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:fota] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:ims] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:ims] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:ims] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:cbs] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:cbs] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:cbs] set mDependencyMet as true current state is false
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1137): [MSimGsmDCT:0] =================broadcastMessenger () ============> this = Handler (com.android.internal.telephony.msim.MSimGsmDataConnectionTracker) {41e43330}
+D/GSM     ( 1137): [MSimGsmDCT:0] SUPPORT_MPDN = true
+D/GSM     ( 1137): [MSimGsmDCT:0] mCdmaHomeOperatorNumeric = 
+D/GSM     ( 1137): [MSimGsmDCT:0] mUseNvOperatorForEhrpd = false
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimGsmDCT:0] mInternalDataEnabled (is data sub?) = true
+D/RILB    ( 1137): =====================> registerForRilConnected h=Handler (com.android.internal.telephony.msim.MSimPhoneProxy) {41e3a2a8} w=4
+D/RIL_IccSms( 1137): MSimIccSmsInterfaceManager: initDispatchers()
+E/RIL_ImsSms( 1137): getFormat should never be called from here!
+D/SMS     ( 1137): SMSDispatcher: ctor mSmsCapable=true format=unknown mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/RIL_IMS ( 1137): MSimImsSMSDispatcher: initDispatchers()
+D/SMS     ( 1137): SMSDispatcher: ctor mSmsCapable=true format=3gpp2 mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/CDMA    ( 1137): CdmaSMSDispatcher created
+D/CDMA    ( 1137): MSimCdmaSMSDispatcher created
+D/SMS     ( 1137): SMSDispatcher: ctor mSmsCapable=true format=3gpp mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/GSM     ( 1137): GsmSMSDispatcher created
+D/GSM     ( 1137): MSimGsmSMSDispatcher created
+D/RIL_IMS ( 1137): MSimImsSMSDispatcher created
+D/RIL_IccSms( 1137): MSimIccSmsInterfaceManager created
+D/RIL_MSimIccCardProxy( 1137): Creating
+D/RIL_MSimIccCardProxy( 1137): Broadcasting intent ACTION_SIM_STATE_CHANGED NOT_READY reason null for subscription : 0
+D/RIL_MSimIccCardProxy( 1137): Setting radio tech UMTS
+D/RIL_MSimIccCardProxy( 1137): Updating quiet mode
+D/RIL_MSimIccCardProxy( 1137): 3GPP subscription -> QuietMode: false
+D/RIL_MSimIccCardProxy( 1137): QuietMode is false (app_type: 1 nv: false multimode: false)
+D/PHONE   ( 1137): mDoesRilSendMultipleCallRing=true
+D/PHONE   ( 1137): mCallRingDelay=3000
+D/PHONE   ( 1137): mOosIsDisconnect=true
+D/RILJ    ( 1137): setPhoneType=1 old value=0 [SUB1]
+I/GSM     ( 1137): Is EONS enabled: true
+D/GSM     ( 1137): MSimGSMPhone: constructor: sub = 1
+D/GSM     ( 1137): [ApnContext:default] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:default] set enabled as true, current state is false
+D/GSM     ( 1137): [ApnContext:default] set reason as dependencyMet,current state IDLE
+D/GSM     ( 1137): [ApnContext:default] set enabled as true, current state is true
+D/GSM     ( 1137): [ApnContext:default] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:mms] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:mms] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:mms] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:supl] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:supl] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:supl] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:dun] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:dun] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:dun] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:hipri] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:hipri] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:hipri] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:fota] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:fota] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:fota] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:ims] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:ims] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:ims] set mDependencyMet as true current state is false
+D/GSM     ( 1137): [ApnContext:cbs] set mDependencyMet as false current state is true
+D/GSM     ( 1137): [ApnContext:cbs] set enabled as false, current state is false
+D/GSM     ( 1137): [ApnContext:cbs] set mDependencyMet as true current state is false
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1137): [MSimGsmDCT:0] =================broadcastMessenger () ============> this = Handler (com.android.internal.telephony.msim.MSimGsmDataConnectionTracker) {41e5d1a8}
+D/GSM     ( 1137): [MSimGsmDCT:0] SUPPORT_MPDN = true
+D/GSM     ( 1137): [MSimGsmDCT:0] mCdmaHomeOperatorNumeric = 
+D/GSM     ( 1137): [MSimGsmDCT:0] mUseNvOperatorForEhrpd = false
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimGsmDCT:1] mInternalDataEnabled (is data sub?) = false
+D/RILB    ( 1137): =====================> registerForRilConnected h=Handler (com.android.internal.telephony.msim.MSimPhoneProxy) {41e5ac98} w=4
+D/RIL_IccSms( 1137): MSimIccSmsInterfaceManager: initDispatchers()
+E/RIL_ImsSms( 1137): getFormat should never be called from here!
+D/SMS     ( 1137): SMSDispatcher: ctor mSmsCapable=true format=unknown mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/RIL_IMS ( 1137): MSimImsSMSDispatcher: initDispatchers()
+D/SMS     ( 1137): SMSDispatcher: ctor mSmsCapable=true format=3gpp2 mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/CDMA    ( 1137): CdmaSMSDispatcher created
+D/CDMA    ( 1137): MSimCdmaSMSDispatcher created
+D/SMS     ( 1137): SMSDispatcher: ctor mSmsCapable=true format=3gpp mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/GSM     ( 1137): GsmSMSDispatcher created
+D/GSM     ( 1137): MSimGsmSMSDispatcher created
+D/RIL_IMS ( 1137): MSimImsSMSDispatcher created
+D/RIL_IccSms( 1137): MSimIccSmsInterfaceManager created
+D/RIL_MSimIccCardProxy( 1137): Creating
+D/RIL_MSimIccCardProxy( 1137): Broadcasting intent ACTION_SIM_STATE_CHANGED NOT_READY reason null for subscription : 0
+D/RIL_MSimIccCardProxy( 1137): Setting radio tech UMTS
+D/RIL_MSimIccCardProxy( 1137): Updating quiet mode
+D/RIL_MSimIccCardProxy( 1137): 3GPP subscription -> QuietMode: false
+D/RIL_MSimIccCardProxy( 1137): QuietMode is false (app_type: 1 nv: false multimode: false)
+D/RILJ    ( 1137): [0000]> SET_SUPP_SVC_NOTIFICATION [SUB0]
+E/RILC    (  175): Should not come here !!! buffer red :: 
+D/RILJ    ( 1137): [UNSL]< UNSOL_RIL_CONNECTED {7} [SUB0]
+D/RILJ    ( 1137): [UNSL]< UNSOL_RESPONSE_RADIO_STATE_CHANGED RADIO_OFF [SUB0]
+D/RILB    ( 1137): Notifying: radio available
+D/RILJ    ( 1137): [0001]> SCREEN_STATE: true [SUB0]
+D/RILJ    ( 1137): [0002]> SET_SUPP_SVC_NOTIFICATION [SUB1]
+E/RILC    (  181): Should not come here !!! buffer red :: 
+D/RILJ    ( 1137): [UNSL]< UNSOL_RIL_CONNECTED {7} [SUB1]
+D/RILJ    ( 1137): [UNSL]< UNSOL_RESPONSE_RADIO_STATE_CHANGED RADIO_OFF [SUB1]
+D/RILB    ( 1137): Notifying: radio available
+D/RILJ    ( 1137): [0003]> SCREEN_STATE: true [SUB1]
+E/RIL_UiccController( 1137): EVENT_RADIO_UNAVAILABLE 
+E/RIL_UiccController( 1137): EVENT_RADIO_UNAVAILABLE 
+D/RILJ    ( 1137): [0004]> GET_CURRENT_CALLS [SUB0]
+D/RILJ    ( 1137): [0005]> RADIO_POWER on [SUB0]
+I/GSM     ( 1137): Network State Changed, get EONS and update operator name display
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimGsmDCT:0] ******************&&&&&&&&&&&&&&&&&&&&newIccRecords = null
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [ApnContext:fota] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1137): [ApnContext:fota] setState: IDLE, previous state:IDLE
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1137): [ApnContext:fota] setDataConnection: old dc=null new dc=null this={mApnType=fota mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1137): [ApnContext:fota] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1137): [ApnContext:dun] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1137): [ApnContext:dun] setState: IDLE, previous state:IDLE
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1137): [ApnContext:dun] setDataConnection: old dc=null new dc=null this={mApnType=dun mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1137): [ApnContext:dun] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1137): [ApnContext:supl] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1137): [ApnContext:supl] setState: IDLE, previous state:IDLE
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1137): [ApnContext:supl] setDataConnection: old dc=null new dc=null this={mApnType=supl mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1137): [ApnContext:supl] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1137): [ApnContext:hipri] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1137): [ApnContext:hipri] setState: IDLE, previous state:IDLE
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1137): [ApnContext:hipri] setDataConnection: old dc=null new dc=null this={mApnType=hipri mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1137): [ApnContext:hipri] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1137): [ApnContext:ims] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1137): [ApnContext:ims] setState: IDLE, previous state:IDLE
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1137): [ApnContext:ims] setDataConnection: old dc=null new dc=null this={mApnType=ims mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1137): [ApnContext:ims] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1137): [ApnContext:default] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1137): [ApnContext:default] setState: IDLE, previous state:IDLE
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1137): [ApnContext:default] setDataConnection: old dc=null new dc=null this={mApnType=default mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=true mDependencyMet=true}
+D/GSM     ( 1137): [ApnContext:default] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1137): [ApnContext:mms] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1137): [ApnContext:mms] setState: IDLE, previous state:IDLE
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1137): [ApnContext:mms] setDataConnection: old dc=null new dc=null this={mApnType=mms mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1137): [ApnContext:mms] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1137): [ApnContext:cbs] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1137): [ApnContext:cbs] setState: IDLE, previous state:IDLE
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1137): [ApnContext:cbs] setDataConnection: old dc=null new dc=null this={mApnType=cbs mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1137): [ApnContext:cbs] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1137): [MSimGsmDCT:0] cleanUpConnection: mDisconnectPendingCount = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1137): [MSimGsmDCT:0] setupDataOnReadyApns: roamingOff
+D/GSM     ( 1137): [ApnContext:default] set reason as roamingOff,current state IDLE
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1137): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1137): MSimGsmSMSDispatcher: subId = 0 slotId = -1
+D/RIL_MSimIccCardProxy( 1137): No card available
+D/RIL_MSimIccCardProxy( 1137): No card available
+D/RILJ    ( 1137): [0006]> GET_CURRENT_CALLS [SUB1]
+D/RILJ    ( 1137): [0007]> RADIO_POWER on [SUB1]
+I/GSM     ( 1137): Network State Changed, get EONS and update operator name display
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1137): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1137): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1137): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1137): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+D/GSM     ( 1137): MSimGsmSMSDispatcher: subId = 1 slotId = -1
+D/RIL_MSimIccCardProxy( 1137): No card available
+D/RIL_MSimIccCardProxy( 1137): No card available
+D/RILJ    ( 1137): [0008]> RADIO_POWER on [SUB0]
+I/GSM     ( 1137): Network State Changed, get EONS and update operator name display
+D/RILJ    ( 1137): [0009]> RADIO_POWER on [SUB0]
+D/RILJ    ( 1137): [0010]> BASEBAND_VERSION [SUB0]
+D/RILJ    ( 1137): [0011]> GET_IMEI [SUB0]
+D/RILJ    ( 1137): [0012]> GET_IMEISV [SUB0]
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+D/RILJ    ( 1137): [0013]> RADIO_POWER on [SUB1]
+I/GSM     ( 1137): Network State Changed, get EONS and update operator name display
+D/RILJ    ( 1137): [0014]> RADIO_POWER on [SUB1]
+D/RILJ    ( 1137): [0015]> BASEBAND_VERSION [SUB1]
+D/RILJ    ( 1137): [0016]> GET_IMEI [SUB1]
+D/RILJ    ( 1137): [0017]> GET_IMEISV [SUB1]
+E/PHONE   ( 1137): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1137): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+D/RILJ    ( 1137): NOTE: mReqWaiting is NOT 0 but9 at TIMEOUT, reset! There still msg waitng for response
+D/RILJ    ( 1137): WAKE_LOCK_TIMEOUT  mRequestList=9
+D/RILJ    ( 1137): 0: [2] SET_SUPP_SVC_NOTIFICATION
+D/RILJ    ( 1137): 1: [3] SCREEN_STATE
+D/RILJ    ( 1137): 2: [6] GET_CURRENT_CALLS
+D/RILJ    ( 1137): 3: [7] RADIO_POWER
+D/RILJ    ( 1137): 4: [13] RADIO_POWER
+D/RILJ    ( 1137): 5: [14] RADIO_POWER
+D/RILJ    ( 1137): 6: [15] BASEBAND_VERSION
+D/RILJ    ( 1137): 7: [16] GET_IMEI
+D/RILJ    ( 1137): 8: [17] GET_IMEISV
+D/RILJ    ( 1137): NOTE: mReqWaiting is NOT 0 but9 at TIMEOUT, reset! There still msg waitng for response
+D/RILJ    ( 1137): WAKE_LOCK_TIMEOUT  mRequestList=9
+D/RILJ    ( 1137): 0: [0] SET_SUPP_SVC_NOTIFICATION
+D/RILJ    ( 1137): 1: [1] SCREEN_STATE
+D/RILJ    ( 1137): 2: [4] GET_CURRENT_CALLS
+D/RILJ    ( 1137): 3: [5] RADIO_POWER
+D/RILJ    ( 1137): 4: [8] RADIO_POWER
+D/RILJ    ( 1137): 5: [9] RADIO_POWER
+D/RILJ    ( 1137): 6: [10] BASEBAND_VERSION
+D/RILJ    ( 1137): 7: [11] GET_IMEI
+D/RILJ    ( 1137): 8: [12] GET_IMEISV
+D/RILB    ( 1137): getLteOnCdmaMode=-1 curVal=-1 product_type='' lteOnCdmaProductType=''
+D/RILJ    ( 1137): [0018]> REQUEST_GET_PREFERRED_NETWORK_TYPE [SUB0]
+D/RILJ    ( 1137): [0019]> REQUEST_GET_PREFERRED_NETWORK_TYPE [SUB0]
+D/GSM     ( 1137): isManualNetSelAllowed in mode = 0
+D/RILJ    ( 1137): [0020]> QUERY_AVAILABLE_NETWORKS  [SUB0]
+D/RILJ    ( 1137): NOTE: mReqWaiting is NOT 0 but3 at TIMEOUT, reset! There still msg waitng for response
+D/RILJ    ( 1137): WAKE_LOCK_TIMEOUT  mRequestList=12
+D/RILJ    ( 1137): 0: [0] SET_SUPP_SVC_NOTIFICATION
+D/RILJ    ( 1137): 1: [1] SCREEN_STATE
+D/RILJ    ( 1137): 2: [4] GET_CURRENT_CALLS
+D/RILJ    ( 1137): 3: [5] RADIO_POWER
+D/RILJ    ( 1137): 4: [8] RADIO_POWER
+D/RILJ    ( 1137): 5: [9] RADIO_POWER
+D/RILJ    ( 1137): 6: [10] BASEBAND_VERSION
+D/RILJ    ( 1137): 7: [11] GET_IMEI
+D/RILJ    ( 1137): 8: [12] GET_IMEISV
+D/RILJ    ( 1137): 9: [18] REQUEST_GET_PREFERRED_NETWORK_TYPE
+D/RILJ    ( 1137): 10: [19] REQUEST_GET_PREFERRED_NETWORK_TYPE
+D/RILJ    ( 1137): 11: [20] QUERY_AVAILABLE_NETWORKS 
+D/RILJ    ( 1137): [0021]> REQUEST_GET_PREFERRED_NETWORK_TYPE [SUB0]
+D/RILJ    ( 1137): [0022]> REQUEST_GET_NEIGHBORING_CELL_IDS [SUB0]
+D/RILJ    ( 1137): [0023]> REQUEST_SET_LOCATION_UPDATES: true [SUB0]
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+D/GSM     ( 1137): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+D/RILJ    ( 1137): [0024]> REQUEST_SET_PREFERRED_NETWORK_TYPE : 0 [SUB0]
+D/RILJ    ( 1137): [0025]> REQUEST_SET_PREFERRED_NETWORK_TYPE : 1 [SUB0]
+D/RILJ    ( 1137): [0026]> REQUEST_SET_PREFERRED_NETWORK_TYPE : 3 [SUB0]
+D/RILJ    ( 1137): [0027]> RADIO_POWER on [SUB0]
+D/RILJ    ( 1137): [0028]> QUERY_AVAILABLE_BAND_MODE [SUB0]
+D/RILJ    ( 1137): NOTE: mReqWaiting is NOT 0 but8 at TIMEOUT, reset! There still msg waitng for response
+D/RILJ    ( 1137): WAKE_LOCK_TIMEOUT  mRequestList=20
+D/RILJ    ( 1137): 0: [0] SET_SUPP_SVC_NOTIFICATION
+D/RILJ    ( 1137): 1: [1] SCREEN_STATE
+D/RILJ    ( 1137): 2: [4] GET_CURRENT_CALLS
+D/RILJ    ( 1137): 3: [5] RADIO_POWER
+D/RILJ    ( 1137): 4: [8] RADIO_POWER
+D/RILJ    ( 1137): 5: [9] RADIO_POWER
+D/RILJ    ( 1137): 6: [10] BASEBAND_VERSION
+D/RILJ    ( 1137): 7: [11] GET_IMEI
+D/RILJ    ( 1137): 8: [12] GET_IMEISV
+D/RILJ    ( 1137): 9: [18] REQUEST_GET_PREFERRED_NETWORK_TYPE
+D/RILJ    ( 1137): 10: [19] REQUEST_GET_PREFERRED_NETWORK_TYPE
+D/RILJ    ( 1137): 11: [20] QUERY_AVAILABLE_NETWORKS 
+D/RILJ    ( 1137): 12: [21] REQUEST_GET_PREFERRED_NETWORK_TYPE
+D/RILJ    ( 1137): 13: [22] REQUEST_GET_NEIGHBORING_CELL_IDS
+D/RILJ    ( 1137): 14: [23] REQUEST_SET_LOCATION_UPDATES
+D/RILJ    ( 1137): 15: [24] REQUEST_SET_PREFERRED_NETWORK_TYPE
+D/RILJ    ( 1137): 16: [25] REQUEST_SET_PREFERRED_NETWORK_TYPE
+D/RILJ    ( 1137): 17: [26] REQUEST_SET_PREFERRED_NETWORK_TYPE
+D/RILJ    ( 1137): 18: [27] RADIO_POWER
+D/RILJ    ( 1137): 19: [28] QUERY_AVAILABLE_BAND_MODE
+W/RILC    (  175): EOS.  Closing command socket.
+W/RILC    (  181): EOS.  Closing command socket.
+D/RILB    ( 1482): /proc/cmdline=androidboot.hardware=huawei loglevel=1 androidboot.mode=boot alarm_time=0xdffe37c9 RTC_time=0x2a4b3 hw_status_loc=0x1 androidboot.localproppath=unicom/cn usb.pid.index=25 usb.serial=2469A5526E2F androidboot.serialno=2469A5526E2F androidboot.network=umts_gsm androidboot.swtype=normal androidboot.platform=msm7627a androidboot.emmc=true androidboot.baseband=msm
+D/RILB    ( 1482): getLteOnCdmaMode=-1 curVal=-1 product_type='' lteOnCdmaProductType=''
+E/PHONE   ( 1482): ------MSimPhoneFactory.java----------->hasException = false 
+D/RILB    ( 1482): getLteOnCdmaMode=-1 curVal=-1 product_type='' lteOnCdmaProductType=''
+D/RILJ    ( 1482): RIL(context, preferredNetworkType=0 cdmaSubscription=1)
+D/RILJ    ( 1482): Starting RILReceiver [SUB0]
+D/RILJ    ( 1482): RIL(context, preferredNetworkType=0 cdmaSubscription=1)
+I/RILJ    ( 1482): Connected to 'rild' socket
+D/RILJ    ( 1482): Starting RILReceiver [SUB1]
+E/RIL_UiccController( 1482): new UiccController() ....registerForIccStatusChanged()....mCi[i] = com.android.internal.telephony.RIL@41e2faa8
+E/RIL_UiccController( 1482): new UiccController() ....registerForIccStatusChanged()....mCi[i] = com.android.internal.telephony.RIL@41e33ad0
+I/RILJ    ( 1482): Connected to 'rild1' socket
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/PHONE   ( 1482): mDoesRilSendMultipleCallRing=true
+D/PHONE   ( 1482): mCallRingDelay=3000
+D/PHONE   ( 1482): mOosIsDisconnect=true
+D/RILJ    ( 1482): setPhoneType=1 old value=0 [SUB0]
+I/GSM     ( 1482): Is EONS enabled: true
+D/GSM     ( 1482): MSimGSMPhone: constructor: sub = 0
+D/GSM     ( 1482): [ApnContext:default] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:default] set enabled as true, current state is false
+D/GSM     ( 1482): [ApnContext:default] set reason as dependencyMet,current state IDLE
+D/GSM     ( 1482): [ApnContext:default] set enabled as true, current state is true
+D/GSM     ( 1482): [ApnContext:default] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:mms] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:mms] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:mms] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:supl] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:supl] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:supl] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:dun] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:dun] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:dun] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:hipri] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:hipri] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:hipri] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:fota] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:fota] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:fota] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:ims] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:ims] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:ims] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:cbs] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:cbs] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:cbs] set mDependencyMet as true current state is false
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1482): [MSimGsmDCT:0] =================broadcastMessenger () ============> this = Handler (com.android.internal.telephony.msim.MSimGsmDataConnectionTracker) {41e465e0}
+D/GSM     ( 1482): [MSimGsmDCT:0] SUPPORT_MPDN = true
+D/GSM     ( 1482): [MSimGsmDCT:0] mCdmaHomeOperatorNumeric = 
+D/GSM     ( 1482): [MSimGsmDCT:0] mUseNvOperatorForEhrpd = false
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimGsmDCT:0] mInternalDataEnabled (is data sub?) = true
+D/RILB    ( 1482): =====================> registerForRilConnected h=Handler (com.android.internal.telephony.msim.MSimPhoneProxy) {41e3d558} w=4
+D/RIL_IccSms( 1482): MSimIccSmsInterfaceManager: initDispatchers()
+E/RIL_ImsSms( 1482): getFormat should never be called from here!
+D/SMS     ( 1482): SMSDispatcher: ctor mSmsCapable=true format=unknown mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/RIL_IMS ( 1482): MSimImsSMSDispatcher: initDispatchers()
+D/SMS     ( 1482): SMSDispatcher: ctor mSmsCapable=true format=3gpp2 mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/CDMA    ( 1482): CdmaSMSDispatcher created
+D/CDMA    ( 1482): MSimCdmaSMSDispatcher created
+D/SMS     ( 1482): SMSDispatcher: ctor mSmsCapable=true format=3gpp mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/GSM     ( 1482): GsmSMSDispatcher created
+D/GSM     ( 1482): MSimGsmSMSDispatcher created
+D/RIL_IMS ( 1482): MSimImsSMSDispatcher created
+D/RIL_IccSms( 1482): MSimIccSmsInterfaceManager created
+D/RIL_MSimIccCardProxy( 1482): Creating
+D/RIL_MSimIccCardProxy( 1482): Broadcasting intent ACTION_SIM_STATE_CHANGED NOT_READY reason null for subscription : 0
+D/RIL_MSimIccCardProxy( 1482): Setting radio tech UMTS
+D/RIL_MSimIccCardProxy( 1482): Updating quiet mode
+D/RIL_MSimIccCardProxy( 1482): 3GPP subscription -> QuietMode: false
+D/RIL_MSimIccCardProxy( 1482): QuietMode is false (app_type: 1 nv: false multimode: false)
+D/PHONE   ( 1482): mDoesRilSendMultipleCallRing=true
+D/PHONE   ( 1482): mCallRingDelay=3000
+D/PHONE   ( 1482): mOosIsDisconnect=true
+D/RILJ    ( 1482): setPhoneType=1 old value=0 [SUB1]
+I/GSM     ( 1482): Is EONS enabled: true
+D/GSM     ( 1482): MSimGSMPhone: constructor: sub = 1
+D/GSM     ( 1482): [ApnContext:default] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:default] set enabled as true, current state is false
+D/GSM     ( 1482): [ApnContext:default] set reason as dependencyMet,current state IDLE
+D/GSM     ( 1482): [ApnContext:default] set enabled as true, current state is true
+D/GSM     ( 1482): [ApnContext:default] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:mms] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:mms] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:mms] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:supl] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:supl] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:supl] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:dun] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:dun] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:dun] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:hipri] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:hipri] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:hipri] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:fota] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:fota] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:fota] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:ims] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:ims] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:ims] set mDependencyMet as true current state is false
+D/GSM     ( 1482): [ApnContext:cbs] set mDependencyMet as false current state is true
+D/GSM     ( 1482): [ApnContext:cbs] set enabled as false, current state is false
+D/GSM     ( 1482): [ApnContext:cbs] set mDependencyMet as true current state is false
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1482): [MSimGsmDCT:0] =================broadcastMessenger () ============> this = Handler (com.android.internal.telephony.msim.MSimGsmDataConnectionTracker) {41e60458}
+D/GSM     ( 1482): [MSimGsmDCT:0] SUPPORT_MPDN = true
+D/GSM     ( 1482): [MSimGsmDCT:0] mCdmaHomeOperatorNumeric = 
+D/GSM     ( 1482): [MSimGsmDCT:0] mUseNvOperatorForEhrpd = false
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimGsmDCT:1] mInternalDataEnabled (is data sub?) = false
+D/RILB    ( 1482): =====================> registerForRilConnected h=Handler (com.android.internal.telephony.msim.MSimPhoneProxy) {41e5df48} w=4
+D/RIL_IccSms( 1482): MSimIccSmsInterfaceManager: initDispatchers()
+E/RIL_ImsSms( 1482): getFormat should never be called from here!
+D/SMS     ( 1482): SMSDispatcher: ctor mSmsCapable=true format=unknown mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/RIL_IMS ( 1482): MSimImsSMSDispatcher: initDispatchers()
+D/SMS     ( 1482): SMSDispatcher: ctor mSmsCapable=true format=3gpp2 mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/CDMA    ( 1482): CdmaSMSDispatcher created
+D/CDMA    ( 1482): MSimCdmaSMSDispatcher created
+D/SMS     ( 1482): SMSDispatcher: ctor mSmsCapable=true format=3gpp mSmsReceiveDisabled=false mSmsSendDisabled=false
+D/GSM     ( 1482): GsmSMSDispatcher created
+D/GSM     ( 1482): MSimGsmSMSDispatcher created
+D/RIL_IMS ( 1482): MSimImsSMSDispatcher created
+D/RIL_IccSms( 1482): MSimIccSmsInterfaceManager created
+D/RIL_MSimIccCardProxy( 1482): Creating
+D/RIL_MSimIccCardProxy( 1482): Broadcasting intent ACTION_SIM_STATE_CHANGED NOT_READY reason null for subscription : 0
+D/RIL_MSimIccCardProxy( 1482): Setting radio tech UMTS
+D/RIL_MSimIccCardProxy( 1482): Updating quiet mode
+D/RIL_MSimIccCardProxy( 1482): 3GPP subscription -> QuietMode: false
+D/RIL_MSimIccCardProxy( 1482): QuietMode is false (app_type: 1 nv: false multimode: false)
+D/RILJ    ( 1482): [0000]> SET_SUPP_SVC_NOTIFICATION [SUB0]
+E/RILC    (  175): Should not come here !!! buffer red :: 
+D/RILJ    ( 1482): [UNSL]< UNSOL_RIL_CONNECTED {7} [SUB0]
+D/RILJ    ( 1482): [UNSL]< UNSOL_RESPONSE_RADIO_STATE_CHANGED RADIO_OFF [SUB0]
+D/RILJ    ( 1482): [0001]> SET_SUPP_SVC_NOTIFICATION [SUB1]
+D/RILB    ( 1482): Notifying: radio available
+D/RILJ    ( 1482): [0002]> SCREEN_STATE: true [SUB0]
+E/RILC    (  181): Should not come here !!! buffer red :: 
+D/RILJ    ( 1482): [UNSL]< UNSOL_RIL_CONNECTED {7} [SUB1]
+D/RILJ    ( 1482): [UNSL]< UNSOL_RESPONSE_RADIO_STATE_CHANGED RADIO_OFF [SUB1]
+D/RILB    ( 1482): Notifying: radio available
+D/RILJ    ( 1482): [0003]> SCREEN_STATE: true [SUB1]
+D/RILJ    ( 1482): [0004]> REQUEST_GET_PREFERRED_NETWORK_TYPE [SUB0]
+D/RILJ    ( 1482): [0005]> REQUEST_GET_NEIGHBORING_CELL_IDS [SUB0]
+D/RILJ    ( 1482): [0006]> REQUEST_SET_LOCATION_UPDATES: true [SUB0]
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/RIL_UiccController( 1482): EVENT_RADIO_UNAVAILABLE 
+E/RIL_UiccController( 1482): EVENT_RADIO_UNAVAILABLE 
+D/RILJ    ( 1482): [0007]> GET_CURRENT_CALLS [SUB0]
+D/RILJ    ( 1482): [0008]> RADIO_POWER on [SUB0]
+I/GSM     ( 1482): Network State Changed, get EONS and update operator name display
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimGsmDCT:0] ******************&&&&&&&&&&&&&&&&&&&&newIccRecords = null
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [ApnContext:fota] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1482): [ApnContext:fota] setState: IDLE, previous state:IDLE
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1482): [ApnContext:fota] setDataConnection: old dc=null new dc=null this={mApnType=fota mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1482): [ApnContext:fota] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1482): [ApnContext:dun] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1482): [ApnContext:dun] setState: IDLE, previous state:IDLE
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1482): [ApnContext:dun] setDataConnection: old dc=null new dc=null this={mApnType=dun mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1482): [ApnContext:dun] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1482): [ApnContext:supl] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1482): [ApnContext:supl] setState: IDLE, previous state:IDLE
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1482): [ApnContext:supl] setDataConnection: old dc=null new dc=null this={mApnType=supl mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1482): [ApnContext:supl] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1482): [ApnContext:hipri] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1482): [ApnContext:hipri] setState: IDLE, previous state:IDLE
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1482): [ApnContext:hipri] setDataConnection: old dc=null new dc=null this={mApnType=hipri mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1482): [ApnContext:hipri] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1482): [ApnContext:ims] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1482): [ApnContext:ims] setState: IDLE, previous state:IDLE
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1482): [ApnContext:ims] setDataConnection: old dc=null new dc=null this={mApnType=ims mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1482): [ApnContext:ims] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1482): [ApnContext:default] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1482): [ApnContext:default] setState: IDLE, previous state:IDLE
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1482): [ApnContext:default] setDataConnection: old dc=null new dc=null this={mApnType=default mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=true mDependencyMet=true}
+D/GSM     ( 1482): [ApnContext:default] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1482): [ApnContext:mms] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1482): [ApnContext:mms] setState: IDLE, previous state:IDLE
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1482): [ApnContext:mms] setDataConnection: old dc=null new dc=null this={mApnType=mms mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1482): [ApnContext:mms] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1482): [ApnContext:cbs] set reason as radioTurnedOff,current state IDLE
+D/GSM     ( 1482): [ApnContext:cbs] setState: IDLE, previous state:IDLE
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1482): [ApnContext:cbs] setDataConnection: old dc=null new dc=null this={mApnType=cbs mState=IDLE mWaitingApns=null mWaitingApnsPermanentFailureCountDown=0 mDataProfile =null mDataConnectionAc=null mReason=radioTurnedOff mDataEnabled=false mDependencyMet=true}
+D/GSM     ( 1482): [ApnContext:cbs] setDataConnectionAc: old dcac=null new dcac=null
+D/GSM     ( 1482): [MSimGsmDCT:0] cleanUpConnection: mDisconnectPendingCount = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1482): [MSimGsmDCT:0] setupDataOnReadyApns: roamingOff
+D/GSM     ( 1482): [ApnContext:default] set reason as roamingOff,current state IDLE
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/GSM     ( 1482): [MSimDefaultPhoneNotifier] subscription = 0, DDS = 0
+D/GSM     ( 1482): MSimGsmSMSDispatcher: subId = 0 slotId = -1
+D/RIL_MSimIccCardProxy( 1482): No card available
+D/RIL_MSimIccCardProxy( 1482): No card available
+D/RILJ    ( 1482): [0009]> GET_CURRENT_CALLS [SUB1]
+D/RILJ    ( 1482): [0010]> RADIO_POWER on [SUB1]
+I/GSM     ( 1482): Network State Changed, get EONS and update operator name display
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1482): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1482): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1482): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1482): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+D/GSM     ( 1482): MSimGsmSMSDispatcher: subId = 1 slotId = -1
+D/RIL_MSimIccCardProxy( 1482): No card available
+D/RIL_MSimIccCardProxy( 1482): No card available
+D/RILJ    ( 1482): [0011]> RADIO_POWER on [SUB0]
+I/GSM     ( 1482): Network State Changed, get EONS and update operator name display
+D/RILJ    ( 1482): [0012]> RADIO_POWER on [SUB0]
+D/RILJ    ( 1482): [0013]> BASEBAND_VERSION [SUB0]
+D/RILJ    ( 1482): [0014]> GET_IMEI [SUB0]
+D/RILJ    ( 1482): [0015]> GET_IMEISV [SUB0]
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+D/RILJ    ( 1482): [0016]> RADIO_POWER on [SUB1]
+I/GSM     ( 1482): Network State Changed, get EONS and update operator name display
+D/RILJ    ( 1482): [0017]> RADIO_POWER on [SUB1]
+D/RILJ    ( 1482): [0018]> BASEBAND_VERSION [SUB1]
+D/RILJ    ( 1482): [0019]> GET_IMEI [SUB1]
+D/RILJ    ( 1482): [0020]> GET_IMEISV [SUB1]
+E/PHONE   ( 1482): Settings Exception Reading Dual Sim Data Call Values
+E/GSM     ( 1482): [MSimGsmDCT:1] Ignore GSM msgs since GSM phone is not the current DDS
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+D/GSM     ( 1482): [GSMPhone] getDataConnectionState: Data is Out of Service. ret = DISCONNECTED
+D/RILJ    ( 1482): [0021]> REQUEST_SET_PREFERRED_NETWORK_TYPE : 3 [SUB0]
+D/RILJ    ( 1482): [0022]> REQUEST_SET_PREFERRED_NETWORK_TYPE : 3 [SUB0]
