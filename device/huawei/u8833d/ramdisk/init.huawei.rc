@@ -193,6 +193,11 @@ service ril-qmi /system/bin/sh /init.qcom.ril.path.sh
     user root
     oneshot
 
+service qcom-c_main-sh /system/bin/sh /init.qcom.class_main.sh
+    class main
+    user root
+    oneshot
+
 # Msm specific files that need to be created on /data
 on post-fs-data
     mkdir /data/misc/bluetooth 0770 bluetooth bluetooth
@@ -463,6 +468,14 @@ service mpdecision /system/bin/mpdecision --Nw 5.4 --Ts 350 --no_sleep --avg_com
     class late_start 
     user root
     disabled
+
+service ril-daemon1 /system/bin/rild -c 1
+    class main
+    socket rild1 stream 660 root radio
+    socket rild-debug1 stream 660 radio system
+    user root
+    disabled
+    group radio cache inet misc audio sdcard_rw qcom_oncrpc diag
 
 service thermald /system/bin/thermald
     class late_start
