@@ -27,8 +27,8 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 $(call inherit-product, device/common/gps/gps_as_supl.mk)
 
 $(call inherit-product, vendor/huawei/u8833d/u8833d-vendor.mk)
-
-FRAMEWORKS_BASE_SUBDIRS += ../../$(LOCAL_PATH)/ril/
+#use more change from framework
+#FRAMEWORKS_BASE_SUBDIRS += ../../$(LOCAL_PATH)/ril/
 
 DEVICE_PACKAGE_OVERLAYS += device/huawei/u8833d/overlay
 
