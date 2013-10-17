@@ -86,6 +86,7 @@ PRODUCT_PACKAGES += \
 #    device/huawei/u8833d/ramdisk/tp/1294018.img:root/tp/1294018.img 
 
 PRODUCT_COPY_FILES += \
+    device/huawei/u8833d/ramdisk/init.qcom.class_main.sh:root/init.qcom.class_main.sh \
     device/huawei/u8833d/ramdisk/init.huawei.rc:root/init.huawei.rc \
     device/huawei/u8833d/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc \
     device/huawei/u8833d/ramdisk/fstab.huawei:root/fstab.huawei \
