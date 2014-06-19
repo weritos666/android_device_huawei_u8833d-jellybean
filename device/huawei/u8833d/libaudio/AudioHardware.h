@@ -69,8 +69,8 @@ using android::Condition;
 #define MBADRC_DISABLE 0xFFEF
 #define SRS_ENABLE 0x0020
 #define SRS_DISABLE 0xFFDF
-#define LPA_BUFFER_SIZE 512*1024
-#define BUFFER_COUNT 2
+#define LPA_BUFFER_SIZE 256*1024
+#define BUFFER_COUNT 4
 
 #define AGC_ENABLE     0x0001
 #define NS_ENABLE      0x0002
@@ -250,7 +250,7 @@ private:
     status_t    dumpInternals(int fd, const Vector<String16>& args);
     uint32_t    getInputSampleRate(uint32_t sampleRate);
     bool        checkOutputStandby();
-    status_t    doRouting(AudioStreamInMSM72xx *input, int outputDevice = 0);
+    status_t    doRouting(AudioStreamInMSM72xx *input);
 #ifdef QCOM_FM_ENABLED
     status_t    enableFM();
     status_t    disableFM();
@@ -273,10 +273,10 @@ private:
             char af_quality[32];
             property_get("af.resampler.quality",af_quality,"0");
             if(strcmp("255",af_quality) == 0) {
-                //ALOGD("SampleRate 48k");
+                ALOGD("SampleRate 48k");
                 return 48000;
             } else {
-                //ALOGD("SampleRate 44.1k");
+                ALOGD("SampleRate 44.1k");
                 return 44100;
             }
         }
@@ -284,10 +284,10 @@ private:
             char af_quality[32];
             property_get("af.resampler.quality",af_quality,"0");
             if(strcmp("255",af_quality) == 0) {
-                //ALOGD("Bufsize 5248");
+                ALOGD("Bufsize 5248");
                 return 5248;
             } else {
-                //ALOGD("Bufsize 4800");
+                ALOGD("Bufsize 4800");
                 return 4800;
             }
         }
@@ -411,10 +411,8 @@ public:
 
     virtual status_t    getNextWriteTimestamp(int64_t *timestamp);
     virtual status_t    setObserver(void *observer);
-    virtual status_t    getBufferInfo(buf_info **buf);
-    virtual status_t    isBufferAvailable(int *isAvail);
 
-    void* memBufferAlloc(int nSize, int32_t *ion_fd);
+	void* memBufferAlloc(int nSize, int32_t *ion_fd);
 
 private:
     Mutex               mLock;

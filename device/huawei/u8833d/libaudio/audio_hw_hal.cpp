@@ -171,22 +171,6 @@ static int out_set_observer(const struct audio_stream_out *stream,
     return out->qcom_out->setObserver(observer);
 }
 
-static int out_get_buffer_info(const struct audio_stream_out *stream,
-                                   buf_info ** buf)
-{
-    const struct qcom_stream_out *out =
-        reinterpret_cast<const struct qcom_stream_out *>(stream);
-    return out->qcom_out->getBufferInfo(buf);
-}
-
-static int out_is_buffer_available(const struct audio_stream_out *stream,
-                                   int *isAvail)
-{
-    const struct qcom_stream_out *out =
-        reinterpret_cast<const struct qcom_stream_out *>(stream);
-    return out->qcom_out->isBufferAvailable(isAvail);
-}
-
 static status_t out_start(struct audio_stream_out *stream)
 {
     struct qcom_stream_out *out =
@@ -300,7 +284,6 @@ static int in_set_parameters(struct audio_stream *stream, const char *kvpairs)
     struct qcom_stream_in *in =
         reinterpret_cast<struct qcom_stream_in *>(stream);
     return in->qcom_in->setParameters(String8(kvpairs));
-    AudioParameter parms = AudioParameter(String8(kvpairs));
 }
 
 static char * in_get_parameters(const struct audio_stream *stream,
@@ -519,8 +502,6 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
     out->stream.flush = out_flush;
     out->stream.stop = out_stop;
     out->stream.set_observer = out_set_observer;
-    out->stream.get_buffer_info = out_get_buffer_info;
-    out->stream.is_buffer_available = out_is_buffer_available;
 
     *stream_out = &out->stream;
     return 0;

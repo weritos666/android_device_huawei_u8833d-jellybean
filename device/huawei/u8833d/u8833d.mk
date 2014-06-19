@@ -67,6 +67,12 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     lights.u8833d
 
+# FM Radio
+PRODUCT_PACKAGES += \
+    FM2 \
+    libqcomfm_jni \
+    qcom.fmradio
+
 # Live Wallpapers
 PRODUCT_PACKAGES += \
     LiveWallpapersPicker \

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
+ * Copyright (c) 2012, Code Aurora Forum. All rights reserved.
  * This code has been modified.  Portions copyright (C) 2010, T-Mobile USA, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -2075,6 +2076,30 @@ public class Intent implements Parcelable, Cloneable {
     @SdkConstant(SdkConstantType.BROADCAST_INTENT_ACTION)
     public static final String ACTION_HEADSET_PLUG =
             "android.intent.action.HEADSET_PLUG";
+
+    /**
+     * Intents indicating the FM Rx switching on or off
+     * <p>The intent will have the following extra values:
+     * <ul>
+     *   <li><em>state</em> - 0 for switched off, 1 for switched on. </li>
+     * </ul>
+     * </ul>
+     * @hide
+     */
+    public static final String ACTION_FM =
+            "qualcomm.intent.action.FM";
+
+    /**
+     * Intents indicating the FM Tx switching on or off
+     * <p>The intent will have the following extra values:
+     * <ul>
+     *   <li><em>state</em> - 0 for switched off, 1 for switched on. </li>
+     * </ul>
+     * </ul>
+     * @hide
+     */
+    public static final String ACTION_FM_TX =
+            "qualcomm.intent.action.FMTX";
 
     /**
      * Broadcast Action: An analog audio speaker/headset plugged in or unplugged.

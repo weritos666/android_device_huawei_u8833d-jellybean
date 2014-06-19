@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 The Android Open Source Project
+ * Copyright (C) 2012, Code Aurora Forum. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -216,12 +217,18 @@ public abstract class KeyguardViewBase extends FrameLayout {
                         // Volume buttons should only function for music (local or remote).
                         if (keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
                                 mAudioManager.toggleGlobalMute();
-                        } else {
+                        } else if (mAudioManager.isMusicActive()) {
                             mAudioManager.adjustLocalOrRemoteStreamVolume(
                                     AudioManager.STREAM_MUSIC,
                                     keyCode == KeyEvent.KEYCODE_VOLUME_UP
                                             ? AudioManager.ADJUST_RAISE
                                             : AudioManager.ADJUST_LOWER);
+                        } else if (mAudioManager.isFMActive()) {
+                        mAudioManager.adjustLocalOrRemoteStreamVolume(
+                                 AudioManager.STREAM_FM,
+                                 keyCode == KeyEvent.KEYCODE_VOLUME_UP
+                                         ? AudioManager.ADJUST_RAISE
+                                         : AudioManager.ADJUST_LOWER);
                         }
                         // Don't execute default volume behavior
                         return true;

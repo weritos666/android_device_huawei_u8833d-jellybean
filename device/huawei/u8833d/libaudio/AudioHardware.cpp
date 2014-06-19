@@ -660,12 +660,12 @@ uint32_t AudioHardware::getMvsMode(int format)
     case AudioSystem::EVRC:
         return   MVS_MODE_IS127;
         break;
-/*    case AudioSystem::EVRCB:
+    case AudioSystem::EVRCB:
         return MVS_MODE_4GV_NB;
         break;
     case AudioSystem::EVRCWB:
         return MVS_MODE_4GV_WB;
-        break; */
+        break;
     default:
         return BAD_INDEX;
     }
@@ -1500,9 +1500,9 @@ size_t AudioHardware::getInputBufferSize(uint32_t sampleRate, int format, int ch
          (format != AudioSystem::AMR_NB)     &&
          (format != AudioSystem::AMR_WB)     &&
          (format != AudioSystem::EVRC)       &&
-/*         (format != AudioSystem::EVRCB)      &&
+         (format != AudioSystem::EVRCB)      &&
          (format != AudioSystem::EVRCWB)     &&
-*/         (format != AudioSystem::QCELP)      &&
+         (format != AudioSystem::QCELP)      &&
          (format != AudioSystem::AAC)){
         ALOGW("getInputBufferSize bad format: 0x%x", format);
         return 0;
@@ -1574,8 +1574,11 @@ status_t AudioHardware::setVoiceVolume(float v)
         ALOGW("setVoiceVolume(%f) over 1.0, assuming 1.0\n", v);
         v = 1.0;
     }
+    // Added 0.4 to current volume, as in voice call Mute cannot be set as minimum volume(0.00)
+    // setting Rx volume level as 2 for minimum and 7 as max level.
+    v = 0.4 + v;
 
-    int vol = lrint(v * 7.0);
+    int vol = lrint(v * 5.0);
     ALOGD("setVoiceVolume(%f)\n", v);
     ALOGI("Setting in-call volume to %d (available range is 2 to 7)\n", vol);
 
@@ -1742,22 +1745,18 @@ bool AudioHardware::isFMAnalog()
     return isAfm;
 }
 #endif
-status_t AudioHardware::doRouting(AudioStreamInMSM72xx *input, int outputDevice)
+status_t AudioHardware::doRouting(AudioStreamInMSM72xx *input)
 {
     /* currently this code doesn't work without the htc libacoustic */
 
     Mutex::Autolock lock(mLock);
-    uint32_t outputDevices;
+    uint32_t outputDevices = mOutput->devices();
     status_t ret = NO_ERROR;
     int new_snd_device = -1;
 #ifdef QCOM_FM_ENABLED
     bool enableDgtlFmDriver = false;
 #endif
 
-    if (outputDevice)
-        outputDevices = outputDevice;
-    else
-        outputDevices = mOutput->devices();
 
     //int (*msm72xx_enable_audpp)(int);
     //msm72xx_enable_audpp = (int (*)(int))::dlsym(acoustic, "msm72xx_enable_audpp");
@@ -1865,10 +1864,6 @@ status_t AudioHardware::doRouting(AudioStreamInMSM72xx *input, int outputDevice)
             new_snd_device = SND_DEVICE_CARKIT;
         } else if (outputDevices & AudioSystem::DEVICE_OUT_WIRED_HEADSET) {
             ALOGI("Routing audio to Wired Headset\n");
-            new_snd_device = SND_DEVICE_HEADSET;
-            new_post_proc_feature_mask = (ADRC_ENABLE | EQ_ENABLE | RX_IIR_ENABLE | MBADRC_ENABLE);
-        } else if (outputDevices & AudioSystem::DEVICE_OUT_WIRED_HEADPHONE) {
-            ALOGI("Routing audio to Wired Headphone\n");
             new_snd_device = SND_DEVICE_HEADSET;
             new_post_proc_feature_mask = (ADRC_ENABLE | EQ_ENABLE | RX_IIR_ENABLE | MBADRC_ENABLE);
         } else if (outputDevices & AudioSystem::DEVICE_OUT_SPEAKER) {
@@ -3379,7 +3374,7 @@ status_t AudioHardware::AudioSessionOutLPA::setParameters(const String8& keyValu
     if (param.getInt(key, device) == NO_ERROR) {
         mDevices = device;
         ALOGV("set output routing %x", mDevices);
-        status = mHardware->doRouting(NULL, device);
+        status = mHardware->doRouting(NULL);
         param.remove(key);
     }
 
@@ -3410,14 +3405,25 @@ ssize_t AudioHardware::AudioSessionOutLPA::write(const void* buffer, size_t byte
     ALOGV("write Empty Queue size() = %d, Filled Queue size() = %d ",
          mEmptyQueue.size(),mFilledQueue.size());
 
-    if (mSkipWrite) {
-        mSkipWrite = false;
-        if (bytes < LPA_BUFFER_SIZE)
-            bytes = 0;
-        else
-            return 0;
+    // 1.) Wait till a empty buffer is available in the Empty buffer queue
+    mEmptyQueueMutex.lock();
+    if (mEmptyQueue.empty()) {
+        ALOGV("Write: waiting on mWriteCv");
+        mLock.unlock();
+        mWriteCv.wait(mEmptyQueueMutex);
+        mLock.lock();
+        if (mSkipWrite) {
+            ALOGV("Write: Flushing the previous write buffer");
+            mSkipWrite = false;
+            if (bytes < LPA_BUFFER_SIZE) {
+                bytes = 0;
+            } else {
+                mEmptyQueueMutex.unlock();
+                return 0;
+            }
+        }
+        ALOGV("Write: received a signal to wake up");
     }
-
     if (mSkipWrite)
         mSkipWrite = false;
 
@@ -4003,50 +4009,6 @@ status_t AudioHardware::AudioSessionOutLPA::getRenderPosition(uint32_t *dspFrame
 {
     //TODO: enable when supported by driver
     return INVALID_OPERATION;
-}
-
-
-status_t AudioHardware::AudioSessionOutLPA::getBufferInfo(buf_info **buf) {
-
-    buf_info *tempbuf = (buf_info *)malloc(sizeof(buf_info) + mInputBufferCount*sizeof(int *));
-    ALOGV("Get buffer info");
-    tempbuf->bufsize = LPA_BUFFER_SIZE;
-    tempbuf->nBufs = mInputBufferCount;
-    tempbuf->buffers = (int **)((char*)tempbuf + sizeof(buf_info));
-    List<BuffersAllocated>::iterator it = mEmptyQueue.begin();
-    for (int i = 0; i < mInputBufferCount; i++) {
-        tempbuf->buffers[i] = (int *)it->memBuf;
-        it++;
-    }
-    *buf = tempbuf;
-    return NO_ERROR;
-}
-
-status_t AudioHardware::AudioSessionOutLPA::isBufferAvailable(int *isAvail) {
-
-    Mutex::Autolock autoLock(mLock);
-    ALOGV("isBufferAvailable Empty Queue size() = %d, Filled Queue size() = %d ",
-          mEmptyQueue.size(),mFilledQueue.size());
-    *isAvail = false;
-    // 1.) Wait till a empty buffer is available in the Empty buffer queue
-    mEmptyQueueMutex.lock();
-    if (mEmptyQueue.empty()) {
-        ALOGV("Write: waiting on mWriteCv");
-        mLock.unlock();
-        mWriteCv.wait(mEmptyQueueMutex);
-        mLock.lock();
-        if (mSkipWrite) {
-            ALOGV("Write: Flushing the previous write buffer");
-            mSkipWrite = false;
-            mEmptyQueueMutex.unlock();
-            return NO_ERROR;
-        }
-        ALOGV("Write: received a signal to wake up");
-    }
-    mEmptyQueueMutex.unlock();
-
-    *isAvail = true;
-    return NO_ERROR;
 }
 
 // End AudioSessionOutLPA
