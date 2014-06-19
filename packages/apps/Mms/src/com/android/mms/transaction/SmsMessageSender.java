@@ -31,8 +31,8 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.Telephony.Sms;
-import android.provider.Telephony.Sms.Inbox;
 import android.telephony.SmsMessage;
+import android.provider.Telephony.Sms.Inbox;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -60,22 +60,6 @@ public class SmsMessageSender implements MessageSender {
     private static final int COLUMN_REPLY_PATH_PRESENT = 0;
     private static final int COLUMN_SERVICE_CENTER     = 1;
 
-    public SmsMessageSender(Context context, String[] dests, String msgText, long threadId) {
-        mContext = context;
-        mMessageText = msgText;
-        if (dests != null) {
-            mNumberOfDests = dests.length;
-            mDests = new String[mNumberOfDests];
-            System.arraycopy(dests, 0, mDests, 0, mNumberOfDests);
-        } else {
-            mNumberOfDests = 0;
-            mDests = null;
-        }
-        mTimestamp = System.currentTimeMillis();
-        mThreadId = threadId;
-        mServiceCenter = getOutgoingServiceCenter(mThreadId);
-    }
-    
     public SmsMessageSender(Context context, String[] dests,
                  String msgText, long threadId, int subscription) {
         mContext = context;
@@ -144,45 +128,46 @@ public class SmsMessageSender implements MessageSender {
 
                     for (int i = 0; i < mNumberOfDests; i++) {
                     try {
+                            log("updating Database with sub = " + mSubscription);
                             Sms.addMessageToUri(mContext.getContentResolver(),
                             Uri.parse("content://sms/queued"), mDests[i],
                             MessageBody.get(page), null, mTimestamp,
                             true /* read */,
                             requestDeliveryReport,
-                            mThreadId);
+                            mThreadId, mSubscription);
                         } catch (SQLiteException e) {
                             SqliteWrapper.checkSQLiteException(mContext, e);
                         }
                     }
                 }
-		        } else { // Send without split or counter
-		        for (int i = 0; i < mNumberOfDests; i++) {
-		            try {
-		                if (LogTag.DEBUG_SEND) {
-		                    Log.v(TAG, "queueMessage mDests[i]: " + mDests[i] + " mThreadId: " + mThreadId);
-		                }
-		                log("updating Database with sub = " + mSubscription);
-		                Sms.addMessageToUri(mContext.getContentResolver(),
-		                        Uri.parse("content://sms/queued"), mDests[i],
-		                        mMessageText, null, mTimestamp,
-		                        true /* read */,
-		                        requestDeliveryReport,
-		                        mThreadId, mSubscription);
-		            } catch (SQLiteException e) {
-		                if (LogTag.DEBUG_SEND) {
-		                    Log.e(TAG, "queueMessage SQLiteException", e);
-		                }
-		                SqliteWrapper.checkSQLiteException(mContext, e);
-		            	}
-		        	}
-		        }
-		        // Notify the SmsReceiverService to send the message out
-		        mContext.sendBroadcast(new Intent(SmsReceiverService.ACTION_SEND_MESSAGE,
-		                null,
-		                mContext,
-		                SmsReceiver.class));
-		        return false;
-		    }
+        } else { // Send without split or counter
+        for (int i = 0; i < mNumberOfDests; i++) {
+            try {
+                if (LogTag.DEBUG_SEND) {
+                    Log.v(TAG, "queueMessage mDests[i]: " + mDests[i] + " mThreadId: " + mThreadId);
+                }
+                log("updating Database with sub = " + mSubscription);
+                Sms.addMessageToUri(mContext.getContentResolver(),
+                    Uri.parse("content://sms/queued"), mDests[i],
+                    mMessageText, null, mTimestamp,
+                    true /* read */,
+                    requestDeliveryReport,
+                    mThreadId, mSubscription);
+                } catch (SQLiteException e) {
+                    if (LogTag.DEBUG_SEND) {
+                        Log.e(TAG, "queueMessage SQLiteException", e);
+                    }
+                    SqliteWrapper.checkSQLiteException(mContext, e);
+                }
+            }
+        }
+        // Notify the SmsReceiverService to send the message out
+        mContext.sendBroadcast(new Intent(SmsReceiverService.ACTION_SEND_MESSAGE,
+                null,
+                mContext,
+                SmsReceiver.class));
+        return false;
+    }
 
     /**
      * Get the service center to use for a reply.

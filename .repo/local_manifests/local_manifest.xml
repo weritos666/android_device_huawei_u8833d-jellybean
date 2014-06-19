@@ -8,6 +8,7 @@
   <remove-project name="CyanogenMod/android_packages_apps_Phone" />
   <remove-project name="CyanogenMod/android_packages_apps_Settings" />
   <remove-project name="CyanogenMod/android_packages_apps_Contacts" />
+  <remove-project name="CyanogenMod/android_packages_apps_Stk" />
   <remove-project name="CyanogenMod/android_packages_providers_TelephonyProvider" />
 
 
@@ -20,7 +21,7 @@
 
 
 
-  <!-- jellybean-Add support DSDS(dual-sim) from ivan19871002-->
+  <!-- jellybean-Add support DSDS(dual-sim) -->
   <!-- unneed download agian
   <project path="frameworks/base" name="xjljian/android_frameworks_base-cm10-dual-sim" remote="github" revision="jellybean" />
   <project path="packages/apps/Mms" name="xjljian/android_packages_apps_Mms" remote="github" revision="jellybean" />

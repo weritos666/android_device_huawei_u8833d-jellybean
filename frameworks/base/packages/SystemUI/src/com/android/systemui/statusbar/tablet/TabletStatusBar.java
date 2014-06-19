@@ -1,5 +1,9 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (c) 2012, Code Aurora Forum. All rights reserved.
+ *
+ * Not a Contribution, Apache license notifications and license are retained
+ * for attribution purposes only
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,6 +179,7 @@ public class TabletStatusBar extends BaseStatusBar implements
     NetworkController mNetworkController;
     DoNotDisturb mDoNotDisturb;
     MSimNetworkController mMSimNetworkController;
+
     private boolean mHasDockBattery;
 
     ViewGroup mBarContents;
@@ -331,7 +336,7 @@ public class TabletStatusBar extends BaseStatusBar implements
                     (TextView)mBarContents.findViewById(R.id.network_text));
         } else {
             if (mobileRSSI != null) {
-                mMSimNetworkController.addPhoneSignalIconView(mobileRSSI);
+                mNetworkController.addPhoneSignalIconView(mobileRSSI);
             }
             if (wifiRSSI != null) {
                 mNetworkController.addWifiIconView(wifiRSSI);
@@ -1779,8 +1784,15 @@ public class TabletStatusBar extends BaseStatusBar implements
     public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
         pw.print("mDisabled=0x");
         pw.println(Integer.toHexString(mDisabled));
-        pw.println("mNetworkController:");
-        mNetworkController.dump(fd, pw, args);
+        if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
+            pw.println("mMSimNetworkController:");
+            for(int i=0; i < MSimTelephonyManager.getDefault().getPhoneCount(); i++) {
+                mMSimNetworkController.dump(fd, pw, args, i);
+            }
+        } else {
+            pw.println("mNetworkController:");
+            mNetworkController.dump(fd, pw, args);
+        }
     }
 
     @Override

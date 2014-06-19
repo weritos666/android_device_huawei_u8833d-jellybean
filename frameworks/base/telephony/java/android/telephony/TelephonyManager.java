@@ -23,6 +23,8 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
+import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
 
 import com.android.internal.telephony.IPhoneSubInfo;
 import com.android.internal.telephony.ITelephony;
@@ -402,7 +404,35 @@ public class TelephonyManager {
      * on a CDMA network).
      */
     public String getNetworkCountryIso() {
-        return SystemProperties.get(TelephonyProperties.PROPERTY_OPERATOR_ISO_COUNTRY);
+        return getTelephonyProperty(TelephonyProperties.PROPERTY_OPERATOR_ISO_COUNTRY,
+                getDefaultSubscription(), "");
+    }
+
+    /**
+     * Gets the telephony Default Subscription.
+     *
+     * @hide
+     */
+    public static int getDefaultSubscription() {
+        return  SystemProperties.getInt(TelephonyProperties.PROPERTY_DEFAULT_SUBSCRIPTION, 0);
+    }
+
+
+    /**
+     * Gets the telephony property.
+     *
+     * @hide
+     */
+    public static String getTelephonyProperty(String property, int index, String defaultVal) {
+        String propVal = null;
+        String prop = SystemProperties.get(property);
+         if ((prop != null) && (prop.length() > 0)) {
+            String values[] = prop.split(",");
+            if ((index >= 0) && (index < values.length) && (values[index] != null)) {
+                propVal = values[index];
+            }
+        }
+        return propVal == null ? defaultVal : propVal;
     }
 
     /** Network type is unknown */
@@ -475,6 +505,17 @@ public class TelephonyManager {
         } catch (NullPointerException ex) {
             // This could happen before phone restarts due to crashing
             return NETWORK_TYPE_UNKNOWN;
+        }
+    }
+
+    /**
+     * {@hide}
+     */
+    public void toggleLTE(boolean on) {
+        try {
+            getITelephony().toggleLTE(on);
+        } catch (RemoteException e) {
+            //Silently fail
         }
     }
 
@@ -621,7 +662,8 @@ public class TelephonyManager {
      * @see #SIM_STATE_CARD_IO_ERROR
      */
     public int getSimState() {
-        String prop = SystemProperties.get(TelephonyProperties.PROPERTY_SIM_STATE);
+        String prop = getTelephonyProperty(TelephonyProperties.PROPERTY_SIM_STATE,
+                              getDefaultSubscription(), "");
         if ("ABSENT".equals(prop)) {
             return SIM_STATE_ABSENT;
         }
@@ -631,7 +673,7 @@ public class TelephonyManager {
         else if ("PUK_REQUIRED".equals(prop)) {
             return SIM_STATE_PUK_REQUIRED;
         }
-        else if ("NETWORK_LOCKED".equals(prop)) {
+        else if ("PERSO_LOCKED".equals(prop)) {
             return SIM_STATE_NETWORK_LOCKED;
         }
         else if ("READY".equals(prop)) {
@@ -654,7 +696,8 @@ public class TelephonyManager {
      * @see #getSimState
      */
     public String getSimOperator() {
-        return SystemProperties.get(TelephonyProperties.PROPERTY_ICC_OPERATOR_NUMERIC);
+        return getTelephonyProperty(TelephonyProperties.PROPERTY_ICC_OPERATOR_NUMERIC,
+                getDefaultSubscription(), "");
     }
 
     /**
@@ -672,7 +715,8 @@ public class TelephonyManager {
      * Returns the ISO country code equivalent for the SIM provider's country code.
      */
     public String getSimCountryIso() {
-        return SystemProperties.get(TelephonyProperties.PROPERTY_ICC_OPERATOR_ISO_COUNTRY);
+        return getTelephonyProperty(TelephonyProperties.PROPERTY_ICC_OPERATOR_ISO_COUNTRY,
+                getDefaultSubscription(), "");
     }
 
     /**
@@ -712,6 +756,21 @@ public class TelephonyManager {
         } catch (NullPointerException ex) {
             // This could happen before phone restarts due to crashing
             return Phone.LTE_ON_CDMA_UNKNOWN;
+        }
+    }
+
+    /**
+     * Return if the current radio is LTE on GSM
+     * @hide
+     */
+    public int getLteOnGsmMode() {
+        try {
+            return getITelephony().getLteOnGsmMode();
+        } catch (RemoteException ex) {
+            return 0;
+        } catch (NullPointerException ex) {
+            // This could happen before phone restarts due to crashing
+            return 0;
         }
     }
 

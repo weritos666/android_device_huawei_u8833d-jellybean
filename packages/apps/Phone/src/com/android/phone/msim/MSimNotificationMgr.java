@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (c) 2011-2012 Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2011-2012 The Linux Foundation. All rights reserved.
  *
  * Not a Contribution, Apache license notifications and license are retained
  * for attribution purposes only
@@ -69,6 +69,7 @@ public class MSimNotificationMgr extends NotificationMgr {
 
     static final int VOICEMAIL_NOTIFICATION_SUB2 = 20;
     static final int CALL_FORWARD_NOTIFICATION_SUB2 = 21;
+    static final int CALL_FORWARD_XDIVERT = 22;
 
     /**
      * Private constructor (this is a singleton).
@@ -106,8 +107,13 @@ public class MSimNotificationMgr extends NotificationMgr {
      */
     /* package */
     void updateMwi(boolean visible, Phone phone) {
-        if (DBG) log("updateMwi(): " + visible);
         int subscription = phone.getSubscription();
+        if (DBG) log("updateMwi(): " + visible + " Subscription: "
+                + subscription);
+        int[] iconId = {R.drawable.stat_notify_voicemail_sub1,
+                    R.drawable.stat_notify_voicemail_sub2};
+        mPhone = phone;
+        mVMResId = iconId[subscription];
         super.updateMwi(visible);
     }
 
@@ -170,6 +176,36 @@ public class MSimNotificationMgr extends NotificationMgr {
                     notification);
         } else {
             mNotificationManager.cancel(notificationId);
+        }
+    }
+
+    /**
+     * Updates the XDivert indicator notification.
+     *
+     * @param visible true if XDivert is enabled.
+     */
+    /* package */ void updateXDivert(boolean visible) {
+        Log.d(LOG_TAG, "updateXDivert: " + visible);
+        if (visible) {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setClassName("com.android.phone",
+                    "com.android.phone.MSimCallFeaturesSetting");
+            int resId = R.drawable.stat_sys_phone_call_forward_xdivert;
+            Notification notification = new Notification(
+                    resId,  // icon
+                    null, // tickerText
+                    System.currentTimeMillis()
+                    );
+            notification.setLatestEventInfo(
+                    mContext, // context
+                    mContext.getString(R.string.xdivert_title), // expandedTitle
+                    mContext.getString(R.string.sum_xdivert_enabled), // expandedText
+                    PendingIntent.getActivity(mContext, 0, intent, 0)); // contentIntent
+
+            mNotificationManager.notify(CALL_FORWARD_XDIVERT, notification);
+        } else {
+            mNotificationManager.cancel(CALL_FORWARD_XDIVERT);
         }
     }
 

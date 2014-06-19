@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (c) 2011-2012 Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2011-2012 The Linux Foundation. All rights reserved.
  *
  * Not a Contribution, Apache license notifications and license are retained
  * for attribution purposes only
@@ -101,6 +101,10 @@ public class PhoneUtils {
     static final int AUDIO_IDLE = 0;  /** audio behaviour at phone idle */
     static final int AUDIO_RINGING = 1;  /** audio behaviour while ringing */
     static final int AUDIO_OFFHOOK = 2;  /** audio behaviour while in call. */
+
+    // USSD string length for MMI operations
+    static final int MIN_USSD_LEN = 1;
+    static final int MAX_USSD_LEN = 160;
 
     /** Speaker state, persisting between wired headset connection events */
     private static boolean sIsSpeakerEnabled = false;
@@ -251,13 +255,16 @@ public class PhoneUtils {
         final PhoneApp app = PhoneApp.getInstance();
 
         // If the ringer is currently ringing and/or vibrating, stop it
-        // right now (before actually answering the call.)
-        app.getRinger().stopRing();
+        // right now and prevent new rings (before actually answering the call)
+        app.notifier.silenceRinger();
 
         final Phone phone = ringing.getPhone();
         final boolean phoneIsCdma = (phone.getPhoneType() == Phone.PHONE_TYPE_CDMA);
         boolean answered = false;
         BluetoothHandsfree bluetoothHandsfree = null;
+
+        // enable noise suppression
+        turnOnNoiseSuppression(app.getApplicationContext(), true);
 
         if (phoneIsCdma) {
             // Stop any signalInfo tone being played when a Call waiting gets answered
@@ -593,13 +600,6 @@ public class PhoneUtils {
         if (!hangupActiveCall(cm.getActiveFgCall())) {
             Log.w(LOG_TAG, "end active call failed!");
             return false;
-        }
-
-        // since hangupActiveCall() also accepts the ringing call
-        // check if the ringing call was already answered or not
-        // only answer it when the call still is ringing
-        if (ringing.isRinging()) {
-            return answerCall(ringing);
         }
 
         return true;
@@ -1206,7 +1206,20 @@ public class PhoneUtils {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             switch (whichButton) {
                                 case DialogInterface.BUTTON_POSITIVE:
-                                    phone.sendUssdResponse(inputText.getText().toString());
+                                    // As per spec 24.080, valid length of ussd string
+                                    // is 1 - 160. If length is out of the range then
+                                    // display toast message & Cancel MMI operation.
+                                    if (inputText.length() < MIN_USSD_LEN
+                                            || inputText.length() > MAX_USSD_LEN) {
+                                        Toast.makeText(app,
+                                                R.string.enter_input,
+                                                Toast.LENGTH_LONG).show();
+                                        if (mmiCode.isCancelable()) {
+                                            mmiCode.cancel();
+                                        }
+                                    } else {
+                                        phone.sendUssdResponse(inputText.getText().toString());
+                                    }
                                     break;
                                 case DialogInterface.BUTTON_NEGATIVE:
                                     if (mmiCode.isCancelable()) {
@@ -1978,7 +1991,7 @@ public class PhoneUtils {
     }
 
 
-    static void turnOnNoiseSuppression(Context context, boolean flag, boolean store) {
+    static void turnOnNoiseSuppression(Context context, boolean flag) {
         if (DBG) log("turnOnNoiseSuppression: " + flag);
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
@@ -2044,17 +2057,19 @@ public class PhoneUtils {
      */
     private static void setMuteInternal(Phone phone, boolean muted) {
         final PhoneApp app = PhoneApp.getInstance();
-        Context context = phone.getContext();
-        boolean routeToAudioManager =
-            context.getResources().getBoolean(R.bool.send_mic_mute_to_AudioManager);
-        if (routeToAudioManager) {
-            AudioManager audioManager =
-                (AudioManager) phone.getContext().getSystemService(Context.AUDIO_SERVICE);
-            log("setMuteInternal: using setMicrophoneMute(" + muted + ")...");
-            audioManager.setMicrophoneMute(muted);
-        } else {
-            log("setMuteInternal: using phone.setMute(" + muted + ")...");
-            phone.setMute(muted);
+        if (phone != null) {
+            Context context = phone.getContext();
+            boolean routeToAudioManager =
+                context.getResources().getBoolean(R.bool.send_mic_mute_to_AudioManager);
+            if (routeToAudioManager) {
+                AudioManager audioManager =
+                    (AudioManager) phone.getContext().getSystemService(Context.AUDIO_SERVICE);
+                if (DBG) log("setMuteInternal: using setMicrophoneMute(" + muted + ")...");
+                audioManager.setMicrophoneMute(muted);
+            } else {
+                if (DBG) log("setMuteInternal: using phone.setMute(" + muted + ")...");
+                phone.setMute(muted);
+            }
         }
         app.notificationMgr.updateMuteNotification();
     }

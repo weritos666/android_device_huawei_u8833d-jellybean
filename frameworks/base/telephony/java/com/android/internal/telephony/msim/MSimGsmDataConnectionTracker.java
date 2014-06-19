@@ -19,6 +19,8 @@
 
 package com.android.internal.telephony.msim;
 
+import android.app.AlarmManager;
+import android.content.Context;
 import android.os.AsyncResult;
 import android.os.Handler;
 import android.os.Message;
@@ -28,9 +30,11 @@ import android.util.Log;
 
 import com.android.internal.telephony.ApnContext;
 import com.android.internal.telephony.DataProfile;
+import com.android.internal.telephony.DataConnection;
 import com.android.internal.telephony.DataConnectionAc;
 import com.android.internal.telephony.uicc.IccRecords;
 import com.android.internal.telephony.Phone;
+import com.android.internal.telephony.PhoneBase;
 import com.android.internal.telephony.msim.Subscription;
 import com.android.internal.telephony.msim.MSimPhoneFactory;
 
@@ -43,14 +47,11 @@ import java.util.Collection;
 /**
  * This file is used to handle Multi sim case
  * Functions are overriden to register and notify data disconnect
- * 
  */
 public final class MSimGsmDataConnectionTracker extends GsmDataConnectionTracker {
 
     /** Subscription id */
-    protected int mSubscription;
-
-    protected MSimGSMPhone mPhone;
+    protected Integer mSubscription;
 
     /**
      * List of messages that are waiting to be posted, when data call disconnect
@@ -60,14 +61,12 @@ public final class MSimGsmDataConnectionTracker extends GsmDataConnectionTracker
 
     private RegistrantList mAllDataDisconnectedRegistrants = new RegistrantList();
 
-    protected int mDisconnectPendingCount = 0;
-
-    MSimGsmDataConnectionTracker(MSimGSMPhone p) {
+    MSimGsmDataConnectionTracker(PhoneBase p) {
         super(p);
-        mPhone = p;
         mSubscription = mPhone.getSubscription();
-        mInternalDataEnabled = mSubscription == MSimPhoneFactory.getDataSubscription();
+        mInternalDataEnabled = isActiveDataSubscription();
         log("mInternalDataEnabled (is data sub?) = " + mInternalDataEnabled);
+        broadcastMessenger();
     }
 
     protected void registerForAllEvents() {
@@ -92,8 +91,11 @@ public final class MSimGsmDataConnectionTracker extends GsmDataConnectionTracker
          //Unregister for all events
         mPhone.mCM.unregisterForAvailable(this);
         mPhone.mCM.unregisterForOffOrNotAvailable(this);
-        IccRecords r = mIccRecords;
-        if (r != null) { r.unregisterForRecordsLoaded(this);}
+        IccRecords r = mIccRecords.get();
+        if (r != null) {
+            r.unregisterForRecordsLoaded(this);
+            mIccRecords.set(null);
+        }
         mPhone.mCM.unregisterForDataNetworkStateChanged(this);
         mPhone.getCallTracker().unregisterForVoiceCallEnded(this);
         mPhone.getCallTracker().unregisterForVoiceCallStarted(this);
@@ -107,27 +109,12 @@ public final class MSimGsmDataConnectionTracker extends GsmDataConnectionTracker
 
     @Override
     public void handleMessage (Message msg) {
-    	//loge("=========DCT......1111============ >this = " + this + " , msg = " + msg );
         if (!isActiveDataSubscription()) {
             loge("Ignore GSM msgs since GSM phone is not the current DDS");
-          /**
-             * fix bug : MobileDataStateTracker.setUserDataEnable
-			 * channel.sendMessage(CMD_SET_USER_DATA_ENABLE
-			 * 						, enabled ? ENABLED : DISABLED);
-			 * sub1 gprs 当前卡1链接网络
-			 * sub2 Receiver 接收msg导致无法关闭移动数据
-			 * 所以需要重新定向到sub1上
-             */
-            if(msg.what == CMD_SET_USER_DATA_ENABLE){
-            	 int nextSub = MSimPhoneFactory.getDataSubscription();
-            	 MSimPhoneProxy mp = ((MSimPhoneProxy)MSimPhoneFactory.getPhone(nextSub));
-            	 MSimGSMPhone msgp = (MSimGSMPhone) mp.getActivePhone();
-            	 msgp.mDataConnectionTracker.handleMessage(msg);
-            }
             return;
         }
         switch (msg.what) {
-            case EVENT_SET_INTERNAL_DATA_ENABLE://270363
+            case EVENT_SET_INTERNAL_DATA_ENABLE:
                 boolean enabled = (msg.arg1 == ENABLED) ? true : false;
                 onSetInternalDataEnabled(enabled, (Message) msg.obj);
                 break;
@@ -154,92 +141,9 @@ public final class MSimGsmDataConnectionTracker extends GsmDataConnectionTracker
     protected void cleanUpAllConnections(boolean tearDown, String reason) {
         super.cleanUpAllConnections(tearDown, reason);
 
-        log("cleanUpConnection: mDisconnectPendingCount = " + mDisconnectPendingCount);
-        if (tearDown && mDisconnectPendingCount == 0) {
+        if (tearDown && isDisconnected()) {
             notifyDataDisconnectComplete();
             notifyAllDataDisconnected();
-        }
-    }
-
-    @Override
-    protected void cleanUpConnection(boolean tearDown, ApnContext apnContext, boolean doAll) {
-
-        if (apnContext == null) {
-            if (DBG) log("cleanUpConnection: apn context is null");
-            return;
-        }
-
-        DataConnectionAc dcac = apnContext.getDataConnectionAc();
-        if (DBG) {
-            log("cleanUpConnection: E tearDown=" + tearDown + " reason=" + apnContext.getReason() +
-                    " apnContext=" + apnContext);
-        }
-        if (tearDown) {
-            if (apnContext.isDisconnected()) {
-                // The request is tearDown and but ApnContext is not connected.
-                // If apnContext is not enabled anymore, break the linkage to the DCAC/DC.
-                apnContext.setState(State.IDLE);
-                if (!apnContext.isReady()) {
-                    apnContext.setDataConnection(null);
-                    apnContext.setDataConnectionAc(null);
-                }
-            } else {
-                // Connection is still there. Try to clean up.
-                if (dcac != null) {
-                    if (apnContext.getState() != State.DISCONNECTING) {
-                        boolean disconnectAll = doAll;
-                        if (Phone.APN_TYPE_DUN.equals(apnContext.getApnType())) {
-                            DataProfile dunSetting = fetchDunApn();
-                            if (dunSetting != null &&
-                                    dunSetting.equals(apnContext.getApnSetting())) {
-                                if (DBG) log("tearing down dedicated DUN connection");
-                                // we need to tear it down - we brought it up just for dun and
-                                // other people are camped on it and now dun is done.  We need
-                                // to stop using it and let the normal apn list get used to find
-                                // connections for the remaining desired connections
-                                disconnectAll = true;
-                            }
-                        }
-                        if (DBG) {
-                            log("cleanUpConnection: tearing down" + (disconnectAll ? " all" :""));
-                        }
-                        Message msg = obtainMessage(EVENT_DISCONNECT_DONE, apnContext);
-                        if (disconnectAll) {
-                            apnContext.getDataConnection().tearDownAll(apnContext.getReason(), msg);
-                        } else {
-                            apnContext.getDataConnection().tearDown(apnContext.getReason(), msg);
-                        }
-                        apnContext.setState(State.DISCONNECTING);
-                        mDisconnectPendingCount++;
-                    }
-                } else {
-                    // apn is connected but no reference to dcac.
-                    // Should not be happen, but reset the state in case.
-                    apnContext.setState(State.IDLE);
-                    mPhone.notifyDataConnection(apnContext.getReason(),
-                                                apnContext.getApnType());
-                }
-            }
-        } else {
-            // force clean up the data connection.
-            if (dcac != null) dcac.resetSync();
-            apnContext.setState(State.IDLE);
-            mPhone.notifyDataConnection(apnContext.getReason(), apnContext.getApnType());
-            apnContext.setDataConnection(null);
-            apnContext.setDataConnectionAc(null);
-        }
-
-        // make sure reconnection alarm is cleaned up if there is no ApnContext
-        // associated to the connection.
-        if (dcac != null) {
-            Collection<ApnContext> apnList = dcac.getApnListSync();
-            if (apnList.isEmpty()) {
-                cancelReconnectAlarm(dcac);
-            }
-        }
-        if (DBG) {
-            log("cleanUpConnection: X tearDown=" + tearDown + " reason=" + apnContext.getReason() +
-                    " apnContext=" + apnContext + " dc=" + apnContext.getDataConnection());
         }
     }
 
@@ -249,10 +153,8 @@ public final class MSimGsmDataConnectionTracker extends GsmDataConnectionTracker
     @Override
     protected void onDisconnectDone(int connId, AsyncResult ar) {
         super.onDisconnectDone(connId, ar);
-        if (mDisconnectPendingCount > 0)
-            mDisconnectPendingCount--;
 
-        if (mDisconnectPendingCount == 0) {
+        if (isDisconnected()) {
             notifyDataDisconnectComplete();
             notifyAllDataDisconnected();
         }
@@ -270,11 +172,21 @@ public final class MSimGsmDataConnectionTracker extends GsmDataConnectionTracker
 
     @Override
     protected IccRecords getUiccCardApplication() {
-        Subscription subscriptionData = mPhone.getSubscriptionInfo();
-        if(subscriptionData != null) {
-            return  mUiccController.getIccRecords(subscriptionData.slotId,
-                    UiccController.APP_FAM_3GPP);
+        Subscription subscriptionData = null;
+        int appType = UiccController.APP_FAM_3GPP;
+
+        if (mPhone instanceof MSimCDMALTEPhone) {
+            subscriptionData = ((MSimCDMALTEPhone)mPhone).getSubscriptionInfo();
+            appType = UiccController.APP_FAM_3GPP2;
+        } else if (mPhone instanceof MSimGSMPhone) {
+            subscriptionData = ((MSimGSMPhone)mPhone).getSubscriptionInfo();
+            appType = UiccController.APP_FAM_3GPP;
         }
+
+        if(subscriptionData != null) {
+            return  mUiccController.getIccRecords(subscriptionData.slotId, appType);
+        }
+
         return null;
     }
 
@@ -343,6 +255,7 @@ public final class MSimGsmDataConnectionTracker extends GsmDataConnectionTracker
         }
     }
 
+
     @Override
     public void cleanUpAllConnections(String cause) {
         cleanUpAllConnections(cause, null);
@@ -367,8 +280,9 @@ public final class MSimGsmDataConnectionTracker extends GsmDataConnectionTracker
 
     /** Returns true if this is current DDS. */
     protected boolean isActiveDataSubscription() {
-    	//loge("======***===DCT......1111============ >mSubscription = " + mSubscription + " , ddsub = " + MSimPhoneFactory.getDataSubscription() );
-        return (mSubscription == MSimPhoneFactory.getDataSubscription());
+        return (mSubscription != null
+                ? mSubscription == MSimPhoneFactory.getDataSubscription()
+                : false);
     }
 
     // setAsCurrentDataConnectionTracker
@@ -381,11 +295,47 @@ public final class MSimGsmDataConnectionTracker extends GsmDataConnectionTracker
 
             mUserDataEnabled = Settings.Secure.getInt(mPhone.getContext().getContentResolver(),
                     Settings.Secure.MOBILE_DATA, 1) == 1;
-            mPhone.updateCurrentCarrierInProvider();
+
+            if (mPhone instanceof MSimCDMALTEPhone) {
+                ((MSimCDMALTEPhone)mPhone).updateCurrentCarrierInProvider();
+            } else if (mPhone instanceof MSimGSMPhone) {
+                ((MSimGSMPhone)mPhone).updateCurrentCarrierInProvider();
+            } else {
+                log("Phone object is not MultiSim. This should not hit!!!!");
+            }
+
             broadcastMessenger();
         } else {
             unregisterForAllEvents();
             log("update(): NOT the active DDS, unregister for all events!");
+        }
+    }
+
+    @Override
+    public synchronized int disableApnType(String type) {
+        if (isActiveDataSubscription()) {
+            return super.disableApnType(type);
+        } else {
+            if(type.equals(Phone.APN_TYPE_DEFAULT)) {
+                log("disableApnType(): NOT active DDS, apnContext setEnabled as false for default");
+                ApnContext apnContext = mApnContexts.get(type);
+                apnContext.setEnabled(false);
+            }
+            return Phone.APN_REQUEST_FAILED;
+        }
+    }
+
+    @Override
+    public synchronized int enableApnType(String apnType) {
+        if (isActiveDataSubscription()) {
+            return super.enableApnType(apnType);
+        } else {
+            if(apnType.equals(Phone.APN_TYPE_DEFAULT)) {
+                log("enableApnType(): NOT active DDS, apnContext setEnabled as true for default");
+                ApnContext apnContext = mApnContexts.get(apnType);
+                apnContext.setEnabled(true);
+            }
+            return Phone.APN_REQUEST_FAILED;
         }
     }
 

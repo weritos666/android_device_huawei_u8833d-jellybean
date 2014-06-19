@@ -36,13 +36,12 @@ import android.os.RegistrantList;
 import android.os.SystemProperties;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.telephony.MSimTelephonyManager;
 import android.telephony.ServiceState;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.internal.R;
-//import com.android.internal.telephony.test.SimulatedRadioControl;
+import com.android.internal.telephony.test.SimulatedRadioControl;
 import com.android.internal.telephony.uicc.IccFileHandler;
 import com.android.internal.telephony.uicc.IccRecords;
 import com.android.internal.telephony.QosSpec;
@@ -122,23 +121,16 @@ public abstract class PhoneBase extends Handler implements Phone {
     protected static final int EVENT_CDMA_SUBSCRIPTION_SOURCE_CHANGED = 27;
     // other
     protected static final int EVENT_SET_NETWORK_AUTOMATIC          = 28;
-    protected static final int EVENT_NEW_ICC_SMS = 29;
-    protected static final int EVENT_ICC_RECORD_EVENTS              = 30;
-    protected static final int EVENT_ICC_CHANGED                    = 31;
-    protected static final int EVENT_GET_NETWORKS_DONE              = 32;
+    protected static final int EVENT_ICC_RECORD_EVENTS              = 29;
+    protected static final int EVENT_ICC_CHANGED                    = 30;
+    protected static final int EVENT_GET_NETWORKS_DONE              = 31;
+    protected static final int EVENT_SS                             = 34;
 
-    protected static final int EVENT_SS = 34;
-    
     // Key used to read/write current CLIR setting
     public static final String CLIR_KEY = "clir_key";
 
     // Key used to read/write "disable DNS server check" pref (used for testing)
     public static final String DNS_SERVER_CHECK_DISABLED_KEY = "dns_server_check_disabled_key";
-
-    // Key used for storing voice mail count
-    public static final String VM_COUNT = "vm_count_key";
-    // Key used to read/write the ID for storing the voice mail
-    public static final String VM_ID = "vm_id_key";
 
     /* Instance Variables */
     public CommandsInterface mCM;
@@ -151,12 +143,17 @@ public abstract class PhoneBase extends Handler implements Phone {
     public boolean mIsTheCurrentActivePhone = true;
     boolean mIsVoiceCapable = true;
     protected UiccController mUiccController = null;
-    //public AtomicReference<IccRecords> mIccRecords = new AtomicReference<IccRecords>();
-    public IccRecords mIccRecords ;
-    
+    public AtomicReference<IccRecords> mIccRecords = new AtomicReference<IccRecords>();
     public SmsStorageMonitor mSmsStorageMonitor;
     public SmsUsageMonitor mSmsUsageMonitor;
-    protected UiccCardApplication mUiccApplication ;
+    protected AtomicReference<UiccCardApplication> mUiccApplication =
+            new AtomicReference<UiccCardApplication>();
+
+    // Key used for storing voice mail count
+    protected String mVmCountKey = "vm_count_key";
+
+    // Key used to read/write the ID for storing the voice mail
+    protected String mVmId = "vm_id_key";
 
     // Flag that indicates that Out Of Service is considered as data call disconnect
     protected boolean mOosIsDisconnect = SystemProperties.getBoolean(
@@ -201,6 +198,9 @@ public abstract class PhoneBase extends Handler implements Phone {
     protected final RegistrantList mSuppServiceFailedRegistrants
             = new RegistrantList();
 
+    protected final RegistrantList mSimRecordsLoadedRegistrants
+            = new RegistrantList();
+
     protected Looper mLooper; /* to insure registrants are in correct thread*/
 
     protected final Context mContext;
@@ -212,7 +212,7 @@ public abstract class PhoneBase extends Handler implements Phone {
      */
     protected PhoneNotifier mNotifier;
 
-    //protected SimulatedRadioControl mSimulatedRadioControl;
+    protected SimulatedRadioControl mSimulatedRadioControl;
 
     boolean mUnitTestMode;
 
@@ -277,8 +277,13 @@ public abstract class PhoneBase extends Handler implements Phone {
         mCallRingDelay = SystemProperties.getInt(
                 TelephonyProperties.PROPERTY_CALL_RING_DELAY, 3000);
         Log.d(LOG_TAG, "mCallRingDelay=" + mCallRingDelay);
+
+        // Initialize device storage and outgoing SMS usage monitors for SMSDispatchers.
+        mSmsStorageMonitor = new SmsStorageMonitor(this);
+        mSmsUsageMonitor = new SmsUsageMonitor(context);
+        mUiccController = UiccController.getInstance();
+        mUiccController.registerForIccChanged(this, EVENT_ICC_CHANGED, null);
         Log.d(LOG_TAG, "mOosIsDisconnect=" + mOosIsDisconnect);
-        
     }
 
     public void dispose() {
@@ -287,13 +292,20 @@ public abstract class PhoneBase extends Handler implements Phone {
             // Must cleanup all connectionS and needs to use sendMessage!
             mDataConnectionTracker.cleanUpAllConnections(null);
             mIsTheCurrentActivePhone = false;
+            // Dispose the SMS usage and storage monitors
+            mSmsStorageMonitor.dispose();
+            mSmsUsageMonitor.dispose();
+            mUiccController.unregisterForIccChanged(this);
         }
     }
 
     public void removeReferences() {
-        mIccRecords = null;
-        mUiccApplication = null;
+        mSmsStorageMonitor = null;
+        mSmsUsageMonitor = null;
+        mIccRecords.set(null);
+        mUiccApplication.set(null);
         mDataConnectionTracker = null;
+        mUiccController = null;
     }
 
     /**
@@ -308,7 +320,7 @@ public abstract class PhoneBase extends Handler implements Phone {
         AsyncResult ar;
 
         switch(msg.what) {
-            case EVENT_CALL_RING://14
+            case EVENT_CALL_RING:
                 Log.d(LOG_TAG, "Event EVENT_CALL_RING Received state=" + getState());
                 ar = (AsyncResult)msg.obj;
                 if (ar.exception == null) {
@@ -323,14 +335,14 @@ public abstract class PhoneBase extends Handler implements Phone {
                 }
                 break;
 
-            case EVENT_CALL_RING_CONTINUE://15
+            case EVENT_CALL_RING_CONTINUE:
                 Log.d(LOG_TAG, "Event EVENT_CALL_RING_CONTINUE Received stat=" + getState());
                 if (getState() == Phone.State.RINGING) {
                     sendIncomingCallRingNotification(msg.arg1);
                 }
                 break;
 
-            case EVENT_ICC_CHANGED://31
+            case EVENT_ICC_CHANGED:
                 onUpdateIccAvailability();
                 break;
 
@@ -504,6 +516,12 @@ public abstract class PhoneBase extends Handler implements Phone {
         mMmiCompleteRegistrants.remove(h);
     }
 
+    public void registerForSimRecordsLoaded(Handler h, int what, Object obj) {
+    }
+
+    public void unregisterForSimRecordsLoaded(Handler h) {
+    }
+
     /**
      * Method to retrieve the saved operator id from the Shared Preferences
      */
@@ -605,9 +623,9 @@ public abstract class PhoneBase extends Handler implements Phone {
     }
 
     // Inherited documentation suffices.
-    //public SimulatedRadioControl getSimulatedRadioControl() {
-   //     return mSimulatedRadioControl;
-   // }
+    public SimulatedRadioControl getSimulatedRadioControl() {
+        return mSimulatedRadioControl;
+    }
 
     /**
      * Verifies the current thread is the same as the thread originally
@@ -675,7 +693,7 @@ public abstract class PhoneBase extends Handler implements Phone {
      * Retrieves the IccFileHandler of the Phone instance
      */
     public IccFileHandler getIccFileHandler(){
-        UiccCardApplication uiccApplication = mUiccApplication;
+        UiccCardApplication uiccApplication = mUiccApplication.get();
         if (uiccApplication == null) return null;
         return uiccApplication.getIccFileHandler();
     }
@@ -717,20 +735,20 @@ public abstract class PhoneBase extends Handler implements Phone {
      * version scoped to their packages
      */
     protected AppState getCurrentUiccStateP() {
-        UiccCardApplication uiccCardApplication = mUiccApplication;
+        UiccCardApplication uiccCardApplication = mUiccApplication.get();
         if (uiccCardApplication == null) return AppState.APPSTATE_UNKNOWN;
         return uiccCardApplication.getState();
     }
 
     @Override
     public String getIccSerialNumber() {
-        IccRecords r = mIccRecords;
-        return (r != null) ? r.iccid : "";
+        IccRecords r = mIccRecords.get();
+        return (r != null) ? r.iccid : null;
     }
 
     @Override
     public boolean getIccRecordsLoaded() {
-        IccRecords r = mIccRecords;
+        IccRecords r = mIccRecords.get();
         return (r != null) ? r.getRecordsLoaded() : false;
     }
 
@@ -742,7 +760,7 @@ public abstract class PhoneBase extends Handler implements Phone {
 
     @Override
     public boolean getCallForwardingIndicator() {
-        IccRecords r = mIccRecords;
+        IccRecords r = mIccRecords.get();
         return (r != null) ? r.getVoiceCallForwardingFlag() : false;
     }
 
@@ -1128,6 +1146,11 @@ public abstract class PhoneBase extends Handler implements Phone {
         if (!mIsVoiceCapable)
             return;
         AsyncResult ar = new AsyncResult(null, cn, null);
+        if (SystemProperties.getBoolean(
+                "ro.telephony.call_ring.absent", true)) {
+            sendMessageDelayed(
+                    obtainMessage(EVENT_CALL_RING_CONTINUE, mCallRingContinueToken, 0), mCallRingDelay);
+        }
         mNewRingingConnectionRegistrants.notifyRegistrants(ar);
     }
 
@@ -1233,12 +1256,20 @@ public abstract class PhoneBase extends Handler implements Phone {
     }
 
     /**
+     * {@hide}
+     */
+    @Override
+    public int getLteOnGsmMode() {
+        return mCM.getLteOnGsmMode();
+    }
+
+    /**
      * Gets the USIM service table from the UICC, if present and available.
      * @return an interface to the UsimServiceTable record, or null if not available
      */
     @Override
     public UsimServiceTable getUsimServiceTable() {
-        IccRecords r = mIccRecords;
+        IccRecords r = mIccRecords.get();
         return (r != null) ? r.getUsimServiceTable() : null;
     }
 
@@ -1252,15 +1283,15 @@ public abstract class PhoneBase extends Handler implements Phone {
         pw.println(" mCallRingDelay=" + mCallRingDelay);
         pw.println(" mIsTheCurrentActivePhone=" + mIsTheCurrentActivePhone);
         pw.println(" mIsVoiceCapable=" + mIsVoiceCapable);
-        pw.println(" mIccRecords=" + mIccRecords);
-        pw.println(" mUiccApplication=" + mUiccApplication);
+        pw.println(" mIccRecords=" + mIccRecords.get());
+        pw.println(" mUiccApplication=" + mUiccApplication.get());
         pw.println(" mSmsStorageMonitor=" + mSmsStorageMonitor);
         pw.println(" mSmsUsageMonitor=" + mSmsUsageMonitor);
         pw.flush();
         pw.println(" mLooper=" + mLooper);
         pw.println(" mContext=" + mContext);
         pw.println(" mNotifier=" + mNotifier);
-        //pw.println(" mSimulatedRadioControl=" + mSimulatedRadioControl);
+        pw.println(" mSimulatedRadioControl=" + mSimulatedRadioControl);
         pw.println(" mUnitTestMode=" + mUnitTestMode);
         pw.println(" isDnsCheckDisabled()=" + isDnsCheckDisabled());
         pw.println(" getUnitTestMode()=" + getUnitTestMode());
@@ -1278,6 +1309,10 @@ public abstract class PhoneBase extends Handler implements Phone {
         pw.println(" getActiveApnTypes()=" + getActiveApnTypes());
         pw.println(" isDataConnectivityPossible()=" + isDataConnectivityPossible());
         pw.println(" needsOtaServiceProvisioning=" + needsOtaServiceProvisioning());
+    }
+
+    public void setTransmitPower(int powerLevel, Message onCompleted) {
+        return;
     }
 
     /**

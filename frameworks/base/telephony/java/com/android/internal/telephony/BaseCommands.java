@@ -51,7 +51,6 @@ public abstract class BaseCommands implements CommandsInterface {
     protected RegistrantList mOffOrNotAvailRegistrants = new RegistrantList();
     protected RegistrantList mNotAvailRegistrants = new RegistrantList();
     protected RegistrantList mCallStateRegistrants = new RegistrantList();
-    protected RegistrantList mDataCallListChangedRegistrants = new RegistrantList();
     protected RegistrantList mVoiceNetworkStateRegistrants = new RegistrantList();
     protected RegistrantList mDataNetworkStateRegistrants = new RegistrantList();
     protected RegistrantList mVoiceRadioTechChangedRegistrants = new RegistrantList();
@@ -80,9 +79,10 @@ public abstract class BaseCommands implements CommandsInterface {
     protected RegistrantList mCdmaFwdBurstDtmfRegistrants = new RegistrantList();
     protected RegistrantList mCdmaFwdContDtmfStartRegistrants = new RegistrantList();
     protected RegistrantList mCdmaFwdContDtmfStopRegistrants = new RegistrantList();
+    protected RegistrantList mTetheredModeStateRegistrants = new RegistrantList();
     protected RegistrantList mQosStateChangedIndRegistrants = new RegistrantList();
     protected RegistrantList mSubscriptionStatusRegistrants = new RegistrantList();
-    protected Registrant mSSRegistrant;
+
     protected Registrant mGsmSmsRegistrant;
     protected Registrant mCdmaSmsRegistrant;
     protected Registrant mNITZTimeRegistrant;
@@ -100,41 +100,9 @@ public abstract class BaseCommands implements CommandsInterface {
     protected Registrant mRingRegistrant;
     protected Registrant mRestrictedStateRegistrant;
     protected Registrant mGsmBroadcastSmsRegistrant;
-    protected RegistrantList mModifyCallRegistrants = new RegistrantList();
     protected Registrant mCatCcAlphaRegistrant;
+    protected Registrant mSSRegistrant;
 
-    public void setOnSS(Handler paramHandler, int paramInt, Object paramObject)
-    {
-      this.mSSRegistrant = new Registrant(paramHandler, paramInt, paramObject);
-    }
-    
-    public void unSetOnSS(Handler paramHandler)
-    {
-      this.mSSRegistrant.clear();
-    }
-    
-    protected RegistrantList mTetheredModeStateRegistrants = new RegistrantList();
-    public void registerForTetheredModeStateChanged(Handler paramHandler, int paramInt, Object paramObject)
-    {
-      Registrant localRegistrant = new Registrant(paramHandler, paramInt, paramObject);
-      this.mTetheredModeStateRegistrants.add(localRegistrant);
-    }
-    public void unregisterForTetheredModeStateChanged(Handler paramHandler)
-    {
-      this.mTetheredModeStateRegistrants.remove(paramHandler);
-    }
-    
-    public void registerForModifyCall(Handler paramHandler, int paramInt, Object paramObject)
-    {
-      Registrant localRegistrant = new Registrant(paramHandler, paramInt, paramObject);
-      this.mModifyCallRegistrants.add(localRegistrant);
-    }
-
-    public void unregisterForModifyCall(Handler paramHandler)
-    {
-      this.mModifyCallRegistrants.remove(paramHandler);
-    }
-    
     // Preferred network type received from PhoneFactory.
     // This is used when establishing a connection to the
     // vendor ril so it starts up in the correct mode.
@@ -150,17 +118,6 @@ public abstract class BaseCommands implements CommandsInterface {
         mContext = context;  // May be null (if so we won't log statistics)
     }
 
-    public void unregisterForDataCallListChanged(Handler paramHandler)
-    {
-      this.mDataCallListChangedRegistrants.remove(paramHandler);
-    }
-    
-    public void registerForDataCallListChanged(Handler paramHandler, int paramInt, Object paramObject)
-    {
-      Registrant localRegistrant = new Registrant(paramHandler, paramInt, paramObject);
-      this.mDataCallListChangedRegistrants.add(localRegistrant);
-    }
-    
     //***** CommandsInterface implementation
 
     public RadioState getRadioState() {
@@ -450,6 +407,22 @@ public abstract class BaseCommands implements CommandsInterface {
         mRingRegistrant.clear();
     }
 
+    public void setOnSS(Handler h, int what, Object obj) {
+        mSSRegistrant = new Registrant (h, what, obj);
+    }
+
+    public void unSetOnSS(Handler h) {
+        mSSRegistrant.clear();
+    }
+
+    public void setOnCatCcAlphaNotify(Handler h, int what, Object obj) {
+        mCatCcAlphaRegistrant = new Registrant (h, what, obj);
+    }
+
+    public void unSetOnCatCcAlphaNotify(Handler h) {
+        mCatCcAlphaRegistrant.clear();
+    }
+
     public void registerForInCallVoicePrivacyOn(Handler h, int what, Object obj) {
         Registrant r = new Registrant (h, what, obj);
         mVoicePrivacyOnRegistrants.add(r);
@@ -582,6 +555,16 @@ public abstract class BaseCommands implements CommandsInterface {
         mRingbackToneRegistrants.remove(h);
     }
 
+    public void registerForTetheredModeStateChanged(Handler h, int what,
+            Object obj) {
+        Registrant r = new Registrant(h, what, obj);
+        mTetheredModeStateRegistrants.add(r);
+    }
+
+    public void unregisterForTetheredModeStateChanged(Handler h) {
+        mTetheredModeStateRegistrants.remove(h);
+    }
+
     public void registerForResendIncallMute(Handler h, int what, Object obj) {
         Registrant r = new Registrant (h, what, obj);
         mResendIncallMuteRegistrants.add(r);
@@ -638,11 +621,11 @@ public abstract class BaseCommands implements CommandsInterface {
      */
     @Override
     public void registerForRilConnected(Handler h, int what, Object obj) {
-        Log.d(LOG_TAG, "=====================> registerForRilConnected h=" + h + " w=" + what);
+        Log.d(LOG_TAG, "registerForRilConnected h=" + h + " w=" + what);
         Registrant r = new Registrant (h, what, obj);
         mRilConnectedRegistrants.add(r);
         if (mRilVersion != -1) {
-            Log.d(LOG_TAG, "=================> Notifying: ril connected mRilVersion=" + mRilVersion);
+            Log.d(LOG_TAG, "Notifying: ril connected mRilVersion=" + mRilVersion);
             r.notifyRegistrant(new AsyncResult(null, new Integer(mRilVersion), null));
         }
     }
@@ -818,8 +801,7 @@ public abstract class BaseCommands implements CommandsInterface {
                     retVal = Phone.LTE_ON_CDMA_FALSE;
                 }
             } else {
-//                retVal = Phone.LTE_ON_CDMA_FALSE;
-                retVal =  Phone.LTE_ON_CDMA_UNKNOWN;
+                retVal = Phone.LTE_ON_CDMA_FALSE;
             }
         }
 
@@ -831,9 +813,21 @@ public abstract class BaseCommands implements CommandsInterface {
 
     @Override
     public void testingEmergencyCall() {}
-    
-    public void setOnCatCcAlphaNotify(Handler paramHandler, int paramInt, Object paramObject)
-    {
-      this.mCatCcAlphaRegistrant = new Registrant(paramHandler, paramInt, paramObject);
+
+    /**
+     * @hide
+     */
+    @Override
+    public int getLteOnGsmMode() {
+        return getLteOnGsmModeStatic();
+    }
+
+    /**
+     * Return if the current radio is LTE on GSM
+     * @hide
+     */
+    public static int getLteOnGsmModeStatic() {
+        return SystemProperties.getInt(TelephonyProperties.PROPERTY_LTE_ON_GSM_DEVICE,
+                    0);
     }
 }

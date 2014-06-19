@@ -72,12 +72,26 @@ public class MSimPhoneSubInfoProxy extends IPhoneSubInfoMSim.Stub {
         }
     }
 
+    /**
+     * Retrieves the serial number of the ICC, if applicable.
+     */
+    public String getIccSerialNumber(int subscription) {
+        PhoneSubInfoProxy phoneSubInfoProxy = getPhoneSubInfoProxy(subscription);
+        if (phoneSubInfoProxy != null) {
+            return getPhoneSubInfoProxy(subscription).getIccSerialNumber();
+        } else {
+            Log.e(TAG,"getIccSerialNumber phoneSubInfoProxy is" +
+                      " null for Subscription:"+subscription);
+            return null;
+        }
+    }
+
     public String getLine1Number(int subscription) {
         PhoneSubInfoProxy phoneSubInfoProxy = getPhoneSubInfoProxy(subscription);
         if (phoneSubInfoProxy != null) {
             return getPhoneSubInfoProxy(subscription).getLine1Number();
         } else {
-            Log.e(TAG,"  getLine1Number phoneSubInfoProxy is" +
+            Log.e(TAG,"getLine1Number phoneSubInfoProxy is" +
                       " null for Subscription:"+subscription);
             return null;
         }
@@ -134,11 +148,11 @@ public class MSimPhoneSubInfoProxy extends IPhoneSubInfoMSim.Stub {
         try {
             return ((MSimPhoneProxy)mPhone[subscription]).getPhoneSubInfoProxy();
         } catch (NullPointerException e) {
-            Log.e(TAG, "---------------> Exception is :"+e.toString()+" For subscription :"+subscription );
+            Log.e(TAG, "Exception is :"+e.toString()+" For subscription :"+subscription );
             e.printStackTrace();
             return null;
         } catch (ArrayIndexOutOfBoundsException e) {
-            Log.e(TAG, "---------------> Exception is :"+e.toString()+" For subscription :"+subscription );
+            Log.e(TAG, "Exception is :"+e.toString()+" For subscription :"+subscription );
             e.printStackTrace();
             return null;
         }

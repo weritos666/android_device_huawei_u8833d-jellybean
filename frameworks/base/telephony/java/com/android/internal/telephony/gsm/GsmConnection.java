@@ -26,6 +26,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.ServiceState;
+import android.text.TextUtils;
 
 import com.android.internal.telephony.*;
 import com.android.internal.telephony.uicc.IccCardApplicationStatus;
@@ -47,6 +48,7 @@ public class GsmConnection extends Connection {
     boolean isIncoming;
     boolean disconnected;
 
+    String cnapName;
     int index;          // index in GsmCallTracker.connections[], -1 if unassigned
                         // The GSM index is 1 + this
 
@@ -73,6 +75,7 @@ public class GsmConnection extends Connection {
     DisconnectCause cause = DisconnectCause.NOT_DISCONNECTED;
     PostDialState postDialState = PostDialState.NOT_STARTED;
     int numberPresentation = Connection.PRESENTATION_ALLOWED;
+    int cnapNamePresentation = Connection.PRESENTATION_ALLOWED;
     UUSInfo uusInfo;
 
     Handler h;
@@ -126,6 +129,8 @@ public class GsmConnection extends Connection {
 
         isIncoming = dc.isMT;
         createTime = System.currentTimeMillis();
+        cnapName = dc.name;
+        cnapNamePresentation = dc.namePresentation;
         numberPresentation = dc.numberPresentation;
         uusInfo = dc.uusInfo;
 
@@ -152,6 +157,9 @@ public class GsmConnection extends Connection {
         index = -1;
 
         isIncoming = false;
+        cnapName = null;
+        cnapNamePresentation = Connection.PRESENTATION_ALLOWED;
+        numberPresentation = Connection.PRESENTATION_ALLOWED;
         createTime = System.currentTimeMillis();
 
         this.parent = parent;
@@ -188,6 +196,14 @@ public class GsmConnection extends Connection {
 
     public GsmCall getCall() {
         return parent;
+    }
+
+    public String getCnapName() {
+        return cnapName;
+    }
+
+    public int getCnapNamePresentation() {
+        return cnapNamePresentation;
     }
 
     public long getCreateTime() {
@@ -361,6 +377,15 @@ public class GsmConnection extends Connection {
             case CallFailCause.UNOBTAINABLE_NUMBER:
                 return DisconnectCause.UNOBTAINABLE_NUMBER;
 
+            case CallFailCause.DIAL_MODIFIED_TO_USSD:
+                return DisconnectCause.DIAL_MODIFIED_TO_USSD;
+
+            case CallFailCause.DIAL_MODIFIED_TO_SS:
+                return DisconnectCause.DIAL_MODIFIED_TO_SS;
+
+            case CallFailCause.DIAL_MODIFIED_TO_DIAL:
+                return DisconnectCause.DIAL_MODIFIED_TO_DIAL;
+
             case CallFailCause.ERROR_UNSPECIFIED:
             case CallFailCause.NORMAL_CLEARING:
             default:
@@ -438,6 +463,21 @@ public class GsmConnection extends Connection {
             address = dc.number;
             changed = true;
         }
+
+        // A null cnapName should be the same as ""
+        if (TextUtils.isEmpty(dc.name)) {
+            if (!TextUtils.isEmpty(cnapName)) {
+                changed = true;
+                cnapName = "";
+            }
+	} else if (!dc.name.equals(cnapName)) {
+                changed = true;
+                cnapName = dc.name;
+        }
+
+        if (Phone.DEBUG_PHONE) log("--dssds----"+cnapName);
+        cnapNamePresentation = dc.namePresentation;
+        numberPresentation = dc.numberPresentation;
 
         if (newParent != parent) {
             if (parent != null) {
@@ -541,14 +581,14 @@ public class GsmConnection extends Connection {
             // From TS 22.101:
             // It continues...
             // Upon the called party answering the UE shall send the DTMF digits
-            // automatically to the network after a delay of 3 seconds( 20 %).
+            // automatically to the network after a delay of 3 seconds(\u00B1 20 %).
             // The digits shall be sent according to the procedures and timing
             // specified in 3GPP TS 24.008 [13]. The first occurrence of the
             // "DTMF Control Digits Separator" shall be used by the ME to
             // distinguish between the addressing digits (i.e. the phone number)
             // and the DTMF digits. Upon subsequent occurrences of the
             // separator,
-            // the UE shall pause again for 3 seconds ( 20 %) before sending
+            // the UE shall pause again for 3 seconds (\u00B1 20 %) before sending
             // any further DTMF digits.
             h.sendMessageDelayed(h.obtainMessage(EVENT_PAUSE_DONE),
                     PAUSE_DELAY_MILLIS);

@@ -35,6 +35,7 @@ import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.msim.Subscription;
 import com.android.internal.telephony.msim.MSimPhoneFactory;
 import com.android.internal.telephony.uicc.IccRecords;
+import com.android.internal.telephony.uicc.UiccCardApplication;
 import com.android.internal.telephony.uicc.UiccController;
 
 import java.util.ArrayList;
@@ -46,9 +47,9 @@ import java.util.ArrayList;
 public final class MSimCdmaDataConnectionTracker extends CdmaDataConnectionTracker {
 
     /** Subscription id */
-    protected int mSubscription;
+    protected Integer mSubscription;
 
-    protected MSimCDMAPhone mPhone;
+    protected MSimCDMALTEPhone mPhone;
 
     /**
      * List of messages that are waiting to be posted, when data call disconnect
@@ -58,14 +59,13 @@ public final class MSimCdmaDataConnectionTracker extends CdmaDataConnectionTrack
 
     private RegistrantList mAllDataDisconnectedRegistrants = new RegistrantList();
 
-    protected int mDisconnectPendingCount = 0;
-
-    MSimCdmaDataConnectionTracker(MSimCDMAPhone p) {
+    MSimCdmaDataConnectionTracker(MSimCDMALTEPhone p) {
         super(p);
         mPhone = p;
         mSubscription = mPhone.getSubscription();
-        mInternalDataEnabled = mSubscription == MSimPhoneFactory.getDataSubscription();
+        mInternalDataEnabled = isActiveDataSubscription();
         log("mInternalDataEnabled (is data sub?) = " + mInternalDataEnabled);
+        broadcastMessenger();
     }
 
     protected void registerForAllEvents() {
@@ -88,8 +88,11 @@ public final class MSimCdmaDataConnectionTracker extends CdmaDataConnectionTrack
     protected void unregisterForAllEvents() {
         mPhone.mCM.unregisterForAvailable(this);
         mPhone.mCM.unregisterForOffOrNotAvailable(this);
-        IccRecords r = mIccRecords;
-        if (r != null) { r.unregisterForRecordsLoaded(this);}
+        IccRecords r = mIccRecords.get();
+        if (r != null) {
+            r.unregisterForRecordsLoaded(this);
+            mIccRecords.set(null);
+        }
         mPhone.mCM.unregisterForDataNetworkStateChanged(this);
         mPhone.getCallTracker().unregisterForVoiceCallEnded(this);
         mPhone.getCallTracker().unregisterForVoiceCallStarted(this);
@@ -128,52 +131,9 @@ public final class MSimCdmaDataConnectionTracker extends CdmaDataConnectionTrack
     protected void cleanUpConnection(boolean tearDown, String reason, boolean doAll) {
         if (DBG) log("cleanUpConnection: reason: " + reason);
 
-        // Clear the reconnect alarm, if set.
-        if (mReconnectIntent != null) {
-            AlarmManager am =
-                (AlarmManager) mPhone.getContext().getSystemService(Context.ALARM_SERVICE);
-            am.cancel(mReconnectIntent);
-            mReconnectIntent = null;
-        }
+        super.cleanUpConnection(tearDown, reason, doAll);
 
-        setState(State.DISCONNECTING);
-        notifyOffApnsOfAvailability(reason);
-
-        boolean notificationDeferred = false;
-        for (DataConnection conn : mDataConnections.values()) {
-            if(conn != null) {
-                DataConnectionAc dcac =
-                    mDataConnectionAsyncChannels.get(conn.getDataConnectionId());
-                if (tearDown) {
-                    if (doAll) {
-                        if (DBG) log("cleanUpConnection: teardown, conn.tearDownAll");
-                        conn.tearDownAll(reason, obtainMessage(EVENT_DISCONNECT_DONE,
-                                conn.getDataConnectionId(), 0, reason));
-                    } else {
-                        if (DBG) log("cleanUpConnection: teardown, conn.tearDown");
-                        conn.tearDown(reason, obtainMessage(EVENT_DISCONNECT_DONE,
-                                conn.getDataConnectionId(), 0, reason));
-                    }
-                    notificationDeferred = true;
-                    mDisconnectPendingCount++;
-                } else {
-                    if (DBG) log("cleanUpConnection: !tearDown, call conn.resetSynchronously");
-                    if (dcac != null) {
-                        dcac.resetSync();
-                    }
-                    notificationDeferred = false;
-                }
-            }
-        }
-
-        stopNetStatPoll();
-
-        if (!notificationDeferred) {
-            if (DBG) log("cleanupConnection: !notificationDeferred");
-            gotoIdleAndNotifyDataConnection(reason);
-        }
-
-        if (tearDown && mDisconnectPendingCount == 0) {
+        if (tearDown && isDisconnected()) {
             notifyDataDisconnectComplete();
             notifyAllDataDisconnected();
         }
@@ -185,10 +145,8 @@ public final class MSimCdmaDataConnectionTracker extends CdmaDataConnectionTrack
     @Override
     protected void onDisconnectDone(int connId, AsyncResult ar) {
         super.onDisconnectDone(connId, ar);
-        if (mDisconnectPendingCount > 0)
-            mDisconnectPendingCount--;
 
-        if (mDisconnectPendingCount == 0) {
+        if (isDisconnected()) {
             notifyDataDisconnectComplete();
             notifyAllDataDisconnected();
         }
@@ -306,11 +264,15 @@ public final class MSimCdmaDataConnectionTracker extends CdmaDataConnectionTrack
 
     /** Returns true if this is current DDS. */
     protected boolean isActiveDataSubscription() {
-        return (mSubscription == MSimPhoneFactory.getDataSubscription());
+        return (mSubscription != null
+                ? mSubscription == MSimPhoneFactory.getDataSubscription()
+                : false);
     }
 
     public void updateRecords() {
-        onUpdateIcc();
+        if (isActiveDataSubscription()) {
+            onUpdateIcc();
+        }
     }
 
     // setAsCurrentDataConnectionTracker
@@ -319,6 +281,7 @@ public final class MSimCdmaDataConnectionTracker extends CdmaDataConnectionTrack
         if (isActiveDataSubscription()) {
             log("update(): Active DDS, register for all events now!");
             registerForAllEvents();
+            onUpdateIcc();
 
             mUserDataEnabled = Settings.Secure.getInt(mPhone.getContext().getContentResolver(),
                     Settings.Secure.MOBILE_DATA, 1) == 1;
@@ -327,6 +290,34 @@ public final class MSimCdmaDataConnectionTracker extends CdmaDataConnectionTrack
         } else {
             unregisterForAllEvents();
             log("update(): NOT the active DDS, unregister for all events!");
+        }
+    }
+
+    @Override
+    public synchronized int disableApnType(String type) {
+        if (isActiveDataSubscription()) {
+            return super.disableApnType(type);
+        } else {
+            if(type.equals(Phone.APN_TYPE_DEFAULT)) {
+                log("disableApnType(): NOT active DDS, dataEnabled as false for default");
+                int apnId = apnTypeToId(type);
+                dataEnabled[apnId] = false;
+            }
+            return Phone.APN_REQUEST_FAILED;
+        }
+    }
+
+    @Override
+    public synchronized int enableApnType(String apnType) {
+        if (isActiveDataSubscription()) {
+            return super.enableApnType(apnType);
+        } else {
+            if(apnType.equals(Phone.APN_TYPE_DEFAULT)) {
+                log("enableApnType(): NOT active DDS, dataEnabled as true for default");
+                int apnId = apnTypeToId(apnType);
+                dataEnabled[apnId] = true;
+            }
+            return Phone.APN_REQUEST_FAILED;
         }
     }
 

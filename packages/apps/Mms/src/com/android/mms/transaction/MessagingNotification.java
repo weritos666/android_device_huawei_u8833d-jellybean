@@ -2,6 +2,9 @@
  * Copyright (C) 2008 Esmertec AG.
  * Copyright (C) 2008 The Android Open Source Project
  * QuickMessage (C) 2012 The CyanogenMod Project (DvTonder)
+ * Copyright (C) 2010-2012, The Linux Foundation. All rights reserved.
+ * Not a Contribution, Apache license notifications and license are retained
+ * for attribution purposes only
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,9 +74,9 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.Telephony.Mms;
 import android.provider.Telephony.Sms;
+import android.telephony.TelephonyManager;
 import android.telephony.MSimSmsManager;
 import android.telephony.MSimTelephonyManager;
-import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -128,7 +131,6 @@ public class MessagingNotification {
     private static final int COLUMN_SUBJECT_CS  = 4;
     private static final int COLUMN_SMS_BODY    = 4;
     private static final int COLUMN_SUB_ID      = 5;
-    private static final int COLUMN_SMS_ID      = 5;
 
     private static final String[] SMS_THREAD_ID_PROJECTION = new String[] { Sms.THREAD_ID };
     private static final String[] MMS_THREAD_ID_PROJECTION = new String[] { Mms.THREAD_ID };
@@ -349,6 +351,7 @@ public class MessagingNotification {
         public final int mAttachmentType;
         public final String mSubject;
         public final long mThreadId;
+        public final int mSubId;
 
         /**
          * @param isSms true if sms, false if mms
@@ -363,12 +366,13 @@ public class MessagingNotification {
          * @param sender contact of the sender
          * @param attachmentType of the mms attachment
          * @param threadId thread this message belongs to
+         * @param subId subscription used for this message
          */
         public NotificationInfo(boolean isSms,
                 Intent clickIntent, String message, String subject,
                 CharSequence ticker, long timeMillis, String title,
                 Bitmap attachmentBitmap, Contact sender,
-                int attachmentType, long threadId) {
+                int attachmentType, long threadId, int subId) {
             mIsSms = isSms;
             mClickIntent = clickIntent;
             mMessage = message;
@@ -380,6 +384,7 @@ public class MessagingNotification {
             mSender = sender;
             mAttachmentType = attachmentType;
             mThreadId = threadId;
+            mSubId = subId;
         }
 
         public long getTime() {
@@ -502,6 +507,7 @@ public class MessagingNotification {
             arg0.writeParcelable(mAttachmentBitmap, 0);
             arg0.writeInt(mAttachmentType);
             arg0.writeLong(mThreadId);
+            arg0.writeInt(mSubId);
         }
 
         public NotificationInfo(Parcel in) {
@@ -516,6 +522,7 @@ public class MessagingNotification {
             mSender = null;
             mAttachmentType = in.readInt();
             mThreadId = in.readLong();
+            mSubId = in.readInt();
         }
 
         public static final Parcelable.Creator<NotificationInfo> CREATOR = new Parcelable.Creator<NotificationInfo>() {
@@ -738,9 +745,6 @@ public class MessagingNotification {
 
         try {
             while (cursor.moveToNext()) {
-            	
-            	long msgId = cursor.getLong(COLUMN_SMS_ID);
-            	
                 String address = cursor.getString(COLUMN_SMS_ADDRESS);
 
                 Contact contact = Contact.get(address, false);
@@ -799,10 +803,11 @@ public class MessagingNotification {
                 0, senderInfo.length());
         CharSequence ticker = buildTickerMessage(
                 context, address, subject, message, subId);
-
+        if (MmsConfig.getSprintVVMEnabled() && address.contentEquals("9016"))
+            return null;
         return new NotificationInfo(isSms,
                 clickIntent, message, subject, ticker, timeMillis,
-                senderInfoName, attachmentBitmap, contact, attachmentType, threadId);
+                senderInfoName, attachmentBitmap, contact, attachmentType, threadId, subId);
     }
 
     public static void cancelNotification(Context context, int notificationId) {
@@ -978,7 +983,6 @@ public class MessagingNotification {
 
         // Set light defaults
         defaults |= Notification.DEFAULT_LIGHTS;
-
         noti.setDefaults(defaults);
 
         // set up delete intent

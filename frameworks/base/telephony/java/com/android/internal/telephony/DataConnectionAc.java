@@ -82,9 +82,7 @@ public class DataConnectionAc extends AsyncChannel {
 
     public static final int REQ_GET_RECONNECT_INTENT = BASE + 26;
     public static final int RSP_GET_RECONNECT_INTENT = BASE + 27;
-    public static final int REQ_GET_PARTIAL_FAILURE_STATUS = BASE + 28;
-    
-    
+
     private static final int CMD_TO_STRING_COUNT = RSP_GET_RECONNECT_INTENT - BASE + 1;
     private static String[] sCmdToString = new String[CMD_TO_STRING_COUNT];
     static {
@@ -313,21 +311,6 @@ public class DataConnectionAc extends AsyncChannel {
         return retVal;
     }
 
-    public boolean getPartialSuccessStatusSync(){
-      int i = 1;
-      Message response = sendMessageSynchronously(266268);
-      if ((response != null) && (response.what == 266269)){
-    	  if(response.arg1 != i){
-    		  return true;
-    	  }else{
-    		  return false;
-    	  }
-      }else{
-    	  log("getPartialSuccessStatusSync error response=" + response + " returning false");
-    	  return false;
-      }
-    }
-    
     /**
      * Get the connections LinkProperties.
      *

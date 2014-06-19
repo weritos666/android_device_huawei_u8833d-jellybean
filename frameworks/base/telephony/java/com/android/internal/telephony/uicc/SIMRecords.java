@@ -466,6 +466,14 @@ public class SIMRecords extends IccRecords {
     /**
      * {@inheritDoc}
      */
+     @Override
+     public boolean isCallForwardStatusStored() {
+         return (mEfCfis != null) || (mEfCff != null);
+     }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean getVoiceCallForwardingFlag() {
         return callForwardingEnabled;
@@ -1198,7 +1206,7 @@ public class SIMRecords extends IccRecords {
                 spnDisplayCondition = 0xff & data[0];
                 spn = IccUtils.adnStringFieldToString(data, 1, data.length - 1);
 
-                SystemProperties.set(PROPERTY_ICC_OPERATOR_ALPHA, spn);
+                setSystemProperty(PROPERTY_ICC_OPERATOR_ALPHA, spn);
 
                 // When device enters or exits Home Zone, certain operators update
                 // EF_SPN file. This helps to know if the device is in Home Zone or
@@ -1318,14 +1326,18 @@ public class SIMRecords extends IccRecords {
                 break;
             case IccRefreshResponse.REFRESH_RESULT_RESET:
                 if (DBG) log("handleSimRefresh with SIM_REFRESH_RESET");
-                mCi.setRadioPower(false, null);
-                /* Note: no need to call setRadioPower(true).  Assuming the desired
-                * radio power state is still ON (as tracked by ServiceStateTracker),
-                * ServiceStateTracker will call setRadioPower when it receives the
-                * RADIO_STATE_CHANGED notification for the power off.  And if the
-                * desired power state has changed in the interim, we don't want to
-                * override it with an unconditional power on.
-                */
+                boolean skipRadioPowerOff = mContext.getResources().getBoolean(
+                        com.android.internal.R.bool.skip_radio_power_off_on_sim_refresh_reset);
+                if (!skipRadioPowerOff) {
+                    mCi.setRadioPower(false, null);
+                    /* Note: no need to call setRadioPower(true).  Assuming the desired
+                    * radio power state is still ON (as tracked by ServiceStateTracker),
+                    * ServiceStateTracker will call setRadioPower when it receives the
+                    * RADIO_STATE_CHANGED notification for the power off.  And if the
+                    * desired power state has changed in the interim, we don't want to
+                    * override it with an unconditional power on.
+                    */
+                }
                 break;
             default:
                 // unknown refresh operation

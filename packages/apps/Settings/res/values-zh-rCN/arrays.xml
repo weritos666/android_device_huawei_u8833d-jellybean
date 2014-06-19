@@ -415,37 +415,4 @@
 
 
     <!-- **** CYANOGENMOD EDITS END **** -->
-    
-        <!-- Multi SIM voice settings.  The type of Subscriptions to show. -->
-    <string-array name="multi_sim_entries_voice_without_prompt">
-        <item>卡 1</item>
-        <item>卡 2</item>
-    </string-array>
-    
-        <!-- Multi SIM voice settings.  The type of Subscriptions to show. -->
-    <string-array name="multi_sim_entries_voice">
-        <item>卡 1</item>
-        <item>卡 2</item>
-        <item>提示用户</item>
-    </string-array>
-
-    <!-- Display settings.  Summary for voice Subscription. -->
-    <string-array name="multi_sim_summaries_voice">
-        <item> 卡 1 </item>
-        <item> 卡 2 </item>
-        <item>提示用户</item>
-    </string-array>
-    
-        <!-- Multi SIM settings.  The type of Subscriptions to show. -->
-    <string-array name="multi_sim_entries">
-        <item>卡 1</item>
-        <item>卡 2</item>
-    </string-array>
-
-    <!-- Display settings.  Summary for each type of Subscription. -->
-    <string-array name="multi_sim_summaries">
-        <item> 卡 1 </item>
-        <item> 卡 2 </item>
-    </string-array>
-    
 </resources>

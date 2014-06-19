@@ -47,7 +47,6 @@ import android.os.SystemProperties;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.provider.Settings.SettingNotFoundException;
-import android.provider.Telephony;
 import android.provider.Telephony.Intents;
 import android.telephony.ServiceState;
 import android.telephony.SignalStrength;
@@ -90,6 +89,9 @@ public class CdmaServiceStateTracker extends ServiceStateTracker {
     private static final int NITZ_UPDATE_DIFF_DEFAULT = 2000;
     private int mNitzUpdateDiff = SystemProperties.getInt("ro.nitz_update_diff",
             NITZ_UPDATE_DIFF_DEFAULT);
+
+    private boolean mSubscribeOnRuimReady = SystemProperties.getBoolean(
+            "ro.cdma.subscribe_on_ruim_ready", false);
 
     private boolean mCdmaRoaming = false;
     protected boolean mDataRoaming = false;
@@ -284,7 +286,7 @@ public class CdmaServiceStateTracker extends ServiceStateTracker {
             // TODO: Consider calling setCurrentPreferredNetworkType as we do in GsmSST.
             // cm.setCurrentPreferredNetworkType();
 
-            if (phone.getLteOnCdmaMode() == Phone.LTE_ON_CDMA_TRUE) {
+            if (!mSubscribeOnRuimReady && phone.getLteOnCdmaMode() == Phone.LTE_ON_CDMA_TRUE) {
                 // Subscription will be read from SIM I/O
                 if (DBG) log("Receive EVENT_RUIM_READY");
                 pollState();
@@ -429,12 +431,16 @@ public class CdmaServiceStateTracker extends ServiceStateTracker {
             break;
 
         case EVENT_NITZ_TIME:
-            ar = (AsyncResult) msg.obj;
+            if (SystemProperties.getBoolean("persist.timed.enable", false)) {
+                ar = (AsyncResult) msg.obj;
 
-            String nitzString = (String)((Object[])ar.result)[0];
-            long nitzReceiveTime = ((Long)((Object[])ar.result)[1]).longValue();
+                String nitzString = (String)((Object[])ar.result)[0];
+                long nitzReceiveTime = ((Long)((Object[])ar.result)[1]).longValue();
 
-            setTimeFromNITZString(nitzString, nitzReceiveTime);
+                setTimeFromNITZString(nitzString, nitzReceiveTime);
+            } else {
+                log("EVENT_NITZ_TIME received, ignore updating time");
+            }
             break;
 
         case EVENT_SIGNAL_STRENGTH_UPDATE:
@@ -1345,7 +1351,8 @@ public class CdmaServiceStateTracker extends ServiceStateTracker {
                 mZoneTime    = c.getTimeInMillis();
             }
             if (DBG) {
-                log("NITZ: tzOffset=" + tzOffset + " dst=" + dst + " zone=" + zone.getID() +
+                log("NITZ: tzOffset=" + tzOffset + " dst=" + dst + " zone=" +
+                        (zone!=null ? zone.getID() : "NULL") +
                         " iso=" + iso + " mGotCountryCode=" + mGotCountryCode +
                         " mNeedFixZone=" + mNeedFixZone);
             }
@@ -1569,7 +1576,7 @@ public class CdmaServiceStateTracker extends ServiceStateTracker {
     /**
      * Returns IMSI as MCC + MNC + MIN
      */
-    String getImsi() {
+    public String getImsi() {
         // TODO: When RUIM is enabled, IMSI will come from RUIM not build-time props.
         String operatorNumeric = getSystemProperty(
                 TelephonyProperties.PROPERTY_ICC_OPERATOR_NUMERIC, "");

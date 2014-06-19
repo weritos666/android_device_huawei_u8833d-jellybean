@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2012, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -10,7 +10,7 @@
  *       copyright notice, this list of conditions and the following
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
- *     * Neither the name of Code Aurora Forum, Inc. nor the names of its
+ *     * Neither the name of The Linux Foundation nor the names of its
  *       contributors may be used to endorse or promote products derived
  *       from this software without specific prior written permission.
  *
@@ -51,6 +51,8 @@ import android.content.DialogInterface;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.Dialog;
+import android.telephony.TelephonyManager;
+import android.telephony.MSimTelephonyManager;
 
 import android.content.Intent;
 
@@ -362,6 +364,10 @@ public class SetSubscription extends PreferenceActivity implements View.OnClickL
                     R.string.set_subscription_error_atleast_one,
                     Toast.LENGTH_SHORT);
             toast.show();
+        } else if (isPhoneInCall()) {
+            // User is not allowed to activate or deactivate the subscriptions
+            // while in a voice call.
+            displayErrorDialog(R.string.set_sub_not_supported_phone_in_call);
         } else {
             for (int i = 0; i < MAX_SUBSCRIPTIONS; i++) {
                 if (subArray[i] == null) {
@@ -438,7 +444,7 @@ public class SetSubscription extends PreferenceActivity implements View.OnClickL
             }
 
             if (deactRequiredCount >= MAX_SUBSCRIPTIONS) {
-                errorMutipleDeactivate();
+                displayErrorDialog(R.string.deact_all_sub_not_supported);
             } else {
                 boolean ret = mSubscriptionManager.setSubscription(mUserSelSub);
                 if (ret) {
@@ -452,16 +458,28 @@ public class SetSubscription extends PreferenceActivity implements View.OnClickL
         }
     }
 
+    private boolean isPhoneInCall() {
+        boolean phoneInCall = false;
+        for (int i = 0; i < MAX_SUBSCRIPTIONS; i++) {
+            if (MSimTelephonyManager.getDefault().getCallState(i)
+                    != TelephonyManager.CALL_STATE_IDLE) {
+                phoneInCall = true;
+                break;
+            }
+        }
+        return phoneInCall;
+    }
+
     /**
      *  Displays an dialog box with error message.
      *  "Deactivation of both subscription is not supported"
      */
-    private void errorMutipleDeactivate() {
-        Log.d(TAG, "errorMutipleDeactivate()");
+    private void displayErrorDialog(int messageId) {
+        Log.d(TAG, "errorMutipleDeactivate(): " + getResources().getString(messageId));
 
         new AlertDialog.Builder(this)
             .setTitle(R.string.config_sub_title)
-            .setMessage(R.string.deact_all_sub_not_supported)
+            .setMessage(messageId)
             .setIcon(android.R.drawable.ic_dialog_alert)
             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {

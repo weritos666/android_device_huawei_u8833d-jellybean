@@ -41,7 +41,7 @@ public final class OplRecords {
         for (byte[] record : records) {
              mRecords.add(new OplRecord(record));
              if (DBG) {
-                log("===>Record " + mRecords.size() + ": " +
+                log("Record " + mRecords.size() + ": " +
                 mRecords.get(mRecords.size() - 1));
              }
         }

@@ -118,9 +118,6 @@ public class SmsSingleRecipientSender extends SmsMessageSender {
         try {
             if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
                 MSimSmsManager smsManagerMSim = MSimSmsManager.getDefault();
-                Log.e("LLL","==============> mDest = " + mDest + " , mServiceCenter = " + mServiceCenter 
-                		+ " ,messages = " + messages + " , sentIntents = " + sentIntents 
-                		+ " ,deliveryIntents = " + deliveryIntents + " ,mSubscription = " + mSubscription);
                 smsManagerMSim.sendMultipartTextMessage(mDest, mServiceCenter, messages,
                            sentIntents, deliveryIntents, mSubscription);
             } else {

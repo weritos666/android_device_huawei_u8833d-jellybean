@@ -249,7 +249,7 @@ public class GsmSMSDispatcher extends SMSDispatcher {
             return Intents.RESULT_SMS_HANDLED;
         }
 
-        if (((mStorageMonitor != null) && !mStorageMonitor.isStorageAvailable()) &&
+        if (!mStorageMonitor.isStorageAvailable() &&
                 sms.getMessageClass() != MessageClass.CLASS_0) {
             // It's a storable message and there's no storage available.  Bail.
             // (See TS 23.038 for a description of class 0 messages.)
@@ -302,19 +302,12 @@ public class GsmSMSDispatcher extends SMSDispatcher {
             PendingIntent sentIntent, PendingIntent deliveryIntent) {
         SmsMessage.SubmitPdu pdu = SmsMessage.getSubmitPdu(
                 scAddr, destAddr, text, (deliveryIntent != null));
-        Log.d(TAG, "sendText ==dispatcher======== destAddr = " + destAddr + ",scAddr = " + scAddr + 
-				",text = " + text + ",sentIntent = " + sentIntent + 
-				",deliveryIntent = " + deliveryIntent);
         if (pdu != null) {
-        	 Log.d(TAG, "sendText ==111==dispatcher========pdu != null");
             HashMap map =  SmsTrackerMapFactory(destAddr, scAddr, text, pdu);
-            Log.d(TAG, "sendText ==2222222==map========map = " + map);
             SmsTracker tracker = SmsTrackerFactory(map, sentIntent, deliveryIntent,
                     getFormat());
-            Log.d(TAG, "sendText ==3333==tracker========tracker = " + tracker);
             sendRawPdu(tracker);
         } else {
-        	 Log.d(TAG, "sendText ==222==dispatcher========pdu == null");
             Log.e(TAG, "GsmSMSDispatcher.sendText(): getSubmitPdu() returned null");
         }
     }

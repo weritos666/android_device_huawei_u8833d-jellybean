@@ -89,12 +89,17 @@ public interface TelephonyProperties
      */
     static final String PROPERTY_LTE_ON_CDMA_DEVICE = "telephony.lteOnCdmaDevice";
 
+    /**
+     * {@see BaseCommands#getLteOnGsmMode()}
+     */
+    static final String PROPERTY_LTE_ON_GSM_DEVICE = "telephony.lteOnGsmDevice";
+
     static final String CURRENT_ACTIVE_PHONE = "gsm.current.phone-type";
 
     //****** SIM Card
     /**
      * One of <code>"UNKNOWN"</code> <code>"ABSENT"</code> <code>"PIN_REQUIRED"</code>
-     * <code>"PUK_REQUIRED"</code> <code>"NETWORK_LOCKED"</code> or <code>"READY"</code>
+     * <code>"PUK_REQUIRED"</code> <code>"PERSO_LOCKED"</code> or <code>"READY"</code>
      */
     static String PROPERTY_SIM_STATE = "gsm.sim.state";
 
@@ -196,6 +201,11 @@ public interface TelephonyProperties
     static final String PROPERTY_IGNORE_NITZ = "telephony.test.ignore.nitz";
 
     /**
+     * Set to true to indicates support for simultaneous voice and data.
+     */
+    static final String PROPERTY_SVDATA = "ro.config.svlte1x";
+
+    /**
      * Indicates whether Out Of Service is considered as data call disconnect.
      */
     static final String PROPERTY_OOS_IS_DISCONNECT = "persist.telephony.oosisdc";
@@ -253,4 +263,15 @@ public interface TelephonyProperties
      * Property to start two ril daemons in case of multi sim.
      */
     static final String PROPERTY_MULTI_RILD = "ro.multi.rild";
+
+    /**
+     * Property to enable MMS Mode.
+     * Type: string ( default = silent, enable to = prompt )
+     */
+    static final String PROPERTY_MMS_TRANSACTION = "mms.transaction";
+
+    /**
+     * Property to store default subscription.
+     */
+    static final String PROPERTY_DEFAULT_SUBSCRIPTION = "persist.default.subscription";
 }

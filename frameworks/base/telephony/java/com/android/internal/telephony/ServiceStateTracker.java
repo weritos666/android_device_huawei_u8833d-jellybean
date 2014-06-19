@@ -30,7 +30,6 @@ import android.util.TimeUtils;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
-import com.android.internal.telephony.cdma.CdmaSubscriptionSourceManager;
 import com.android.internal.telephony.uicc.IccRecords;
 import com.android.internal.telephony.uicc.UiccCardApplication;
 import com.android.internal.telephony.uicc.UiccController;
@@ -89,10 +88,9 @@ public abstract class ServiceStateTracker extends Handler {
     protected RegistrantList mPsRestrictDisabledRegistrants = new RegistrantList();
 
     /* Radio power off pending flag and tag counter */
-    private boolean mPendingRadioPowerOffAfterDataOff = false;
-    private int mPendingRadioPowerOffAfterDataOffTag = 0;
-    
-    protected CdmaSubscriptionSourceManager mCdmaSSM;
+    protected boolean mPendingRadioPowerOffAfterDataOff = false;
+    protected int mPendingRadioPowerOffAfterDataOffTag = 0;
+
     protected  static final boolean DBG = true;
 
     /** Signal strength poll rate. */
@@ -142,7 +140,7 @@ public abstract class ServiceStateTracker extends Handler {
     protected static final int EVENT_CDMA_SUBSCRIPTION_SOURCE_CHANGED  = 39;
     protected static final int EVENT_CDMA_PRL_VERSION_CHANGED          = 40;
     protected static final int EVENT_RADIO_ON                          = 41;
-    protected static final int EVENT_ICC_CHANGED                          = 42;
+    public static final int EVENT_ICC_CHANGED                          = 42;
     protected static final int EVENT_ICC_RECORD_EVENTS                 = 43;
 
     protected static final String TIMEZONE_PROPERTY = "persist.sys.timezone";

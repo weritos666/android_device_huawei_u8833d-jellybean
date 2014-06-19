@@ -33,20 +33,16 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.provider.Settings;
-import android.provider.Settings.SettingNotFoundException;
 import android.telephony.MSimTelephonyManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Slog;
 
 import com.android.internal.telephony.DataConnectionTracker;
 import com.android.internal.telephony.ITelephony;
+import com.android.internal.telephony.msim.ITelephonyMSim;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.TelephonyIntents;
-import com.android.internal.telephony.msim.ITelephonyMSim;
-//import com.android.internal.telephony.msim.MSimPhoneFactory;
 import com.android.internal.util.AsyncChannel;
 
 import java.io.CharArrayWriter;
@@ -68,7 +64,7 @@ public class MobileDataStateTracker implements NetworkStateTracker {
     private Phone.DataState mMobileDataState;
     private ITelephony mPhoneService;
     private ITelephonyMSim mMSimPhoneService;
-    
+
     private String mApnType;
     private NetworkInfo mNetworkInfo;
     private boolean mTeardownRequested = false;
@@ -94,33 +90,10 @@ public class MobileDataStateTracker implements NetworkStateTracker {
      * @param tag the name of this network
      */
     public MobileDataStateTracker(int netType, String tag) {
-    	//DSDS
-    /*	if (MSimTelephonyManager.getDefault().isMultiSimEnabled()){
-    		int sub = 0;// MSimPhoneFactory.getDataSubscription();
-    	
-    		mNetworkInfo = new NetworkInfo(netType,
-    				MSimTelephonyManager.getNetworkType(sub), tag,
-    				MSimTelephonyManager.getNetworkTypeName(sub));
-    		mApnType = networkTypeToApnType(netType);
-    	}else{*/
-    		mNetworkInfo = new NetworkInfo(netType,
-                    TelephonyManager.getDefault().getNetworkType(), tag,
-                    TelephonyManager.getDefault().getNetworkTypeName());
-            mApnType = networkTypeToApnType(netType);
-    	//}
-    }
-    
-    private void getPhoneService(boolean forceRefresh) {
-    	//DSDS
-    	if (MSimTelephonyManager.getDefault().isMultiSimEnabled()){
-    	      if ((mMSimPhoneService == null) || (forceRefresh)){
-    	    	  mMSimPhoneService = ITelephonyMSim.Stub.asInterface(ServiceManager.getService("phone_msim"));
-    	      }
-    	}else{
-    		if ((mPhoneService == null) || forceRefresh) {
-                mPhoneService = ITelephony.Stub.asInterface(ServiceManager.getService("phone"));
-            }	
-    	}
+        mNetworkInfo = new NetworkInfo(netType,
+                TelephonyManager.getDefault().getNetworkType(), tag,
+                TelephonyManager.getDefault().getNetworkTypeName());
+        mApnType = networkTypeToApnType(netType);
     }
 
     /**
@@ -332,7 +305,18 @@ public class MobileDataStateTracker implements NetworkStateTracker {
         }
     }
 
-
+    private void getPhoneService(boolean forceRefresh) {
+        if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
+            if (mMSimPhoneService == null || forceRefresh) {
+                mMSimPhoneService = ITelephonyMSim.Stub.asInterface(
+                        ServiceManager.getService("phone_msim"));
+            }
+            return;
+        }
+        if ((mPhoneService == null) || forceRefresh) {
+            mPhoneService = ITelephony.Stub.asInterface(ServiceManager.getService("phone"));
+        }
+    }
 
     /**
      * Report whether data connectivity is possible.
@@ -347,110 +331,56 @@ public class MobileDataStateTracker implements NetworkStateTracker {
      */
     public String getTcpBufferSizesPropName() {
         String networkTypeStr = "unknown";
-        //DSDS
-        if(MSimTelephonyManager.getDefault().isMultiSimEnabled()){
-        	MSimTelephonyManager mSimTM = new MSimTelephonyManager(mContext);
-        	switch (MSimTelephonyManager.getNetworkType(0/*MSimPhoneFactory.getDataSubscription()*/)) {
-        	 case TelephonyManager.NETWORK_TYPE_GPRS:
-                 networkTypeStr = "gprs";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_EDGE:
-                 networkTypeStr = "edge";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_UMTS:
-                 networkTypeStr = "umts";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_HSDPA:
-                 networkTypeStr = "hsdpa";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_HSUPA:
-                 networkTypeStr = "hsupa";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_HSPA:
-                 networkTypeStr = "hspa";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_HSPAP:
-                 networkTypeStr = "hspap";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_CDMA:
-                 networkTypeStr = "cdma";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_1xRTT:
-                 networkTypeStr = "1xrtt";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_EVDO_0:
-                 networkTypeStr = "evdo";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_EVDO_A:
-                 networkTypeStr = "evdo";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_EVDO_B:
-                 networkTypeStr = "evdo_b";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_IDEN:
-                 networkTypeStr = "iden";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_LTE:
-                 networkTypeStr = "lte";
-                 break;
-             case TelephonyManager.NETWORK_TYPE_EHRPD:
-                 networkTypeStr = "ehrpd";
-                 break;
-             default:
-                 loge("unknown network type: " + MSimTelephonyManager.getNetworkType(0/*MSimPhoneFactory.getDataSubscription()*/));
-             }
-        }else{
-        	TelephonyManager tm = new TelephonyManager(mContext);
-        	 //TODO We have to edit the parameter for getNetworkType regarding CDMA
-            switch(tm.getNetworkType()) {
-            case TelephonyManager.NETWORK_TYPE_GPRS:
-                networkTypeStr = "gprs";
-                break;
-            case TelephonyManager.NETWORK_TYPE_EDGE:
-                networkTypeStr = "edge";
-                break;
-            case TelephonyManager.NETWORK_TYPE_UMTS:
-                networkTypeStr = "umts";
-                break;
-            case TelephonyManager.NETWORK_TYPE_HSDPA:
-                networkTypeStr = "hsdpa";
-                break;
-            case TelephonyManager.NETWORK_TYPE_HSUPA:
-                networkTypeStr = "hsupa";
-                break;
-            case TelephonyManager.NETWORK_TYPE_HSPA:
-                networkTypeStr = "hspa";
-                break;
-            case TelephonyManager.NETWORK_TYPE_HSPAP:
-                networkTypeStr = "hspap";
-                break;
-            case TelephonyManager.NETWORK_TYPE_CDMA:
-                networkTypeStr = "cdma";
-                break;
-            case TelephonyManager.NETWORK_TYPE_1xRTT:
-                networkTypeStr = "1xrtt";
-                break;
-            case TelephonyManager.NETWORK_TYPE_EVDO_0:
-                networkTypeStr = "evdo";
-                break;
-            case TelephonyManager.NETWORK_TYPE_EVDO_A:
-                networkTypeStr = "evdo";
-                break;
-            case TelephonyManager.NETWORK_TYPE_EVDO_B:
-                networkTypeStr = "evdo_b";
-                break;
-            case TelephonyManager.NETWORK_TYPE_IDEN:
-                networkTypeStr = "iden";
-                break;
-            case TelephonyManager.NETWORK_TYPE_LTE:
-                networkTypeStr = "lte";
-                break;
-            case TelephonyManager.NETWORK_TYPE_EHRPD:
-                networkTypeStr = "ehrpd";
-                break;
-            default:
-                loge("unknown network type: " + tm.getNetworkType());
-            }
+        TelephonyManager tm = new TelephonyManager(mContext);
+        //TODO We have to edit the parameter for getNetworkType regarding CDMA
+        switch(tm.getNetworkType()) {
+        case TelephonyManager.NETWORK_TYPE_GPRS:
+            networkTypeStr = "gprs";
+            break;
+        case TelephonyManager.NETWORK_TYPE_EDGE:
+            networkTypeStr = "edge";
+            break;
+        case TelephonyManager.NETWORK_TYPE_UMTS:
+            networkTypeStr = "umts";
+            break;
+        case TelephonyManager.NETWORK_TYPE_HSDPA:
+            networkTypeStr = "hsdpa";
+            break;
+        case TelephonyManager.NETWORK_TYPE_HSUPA:
+            networkTypeStr = "hsupa";
+            break;
+        case TelephonyManager.NETWORK_TYPE_HSPA:
+            networkTypeStr = "hspa";
+            break;
+        case TelephonyManager.NETWORK_TYPE_HSPAP:
+            networkTypeStr = "hspap";
+            break;
+        case TelephonyManager.NETWORK_TYPE_CDMA:
+            networkTypeStr = "cdma";
+            break;
+        case TelephonyManager.NETWORK_TYPE_1xRTT:
+            networkTypeStr = "1xrtt";
+            break;
+        case TelephonyManager.NETWORK_TYPE_EVDO_0:
+            networkTypeStr = "evdo";
+            break;
+        case TelephonyManager.NETWORK_TYPE_EVDO_A:
+            networkTypeStr = "evdo";
+            break;
+        case TelephonyManager.NETWORK_TYPE_EVDO_B:
+            networkTypeStr = "evdo_b";
+            break;
+        case TelephonyManager.NETWORK_TYPE_IDEN:
+            networkTypeStr = "iden";
+            break;
+        case TelephonyManager.NETWORK_TYPE_LTE:
+            networkTypeStr = "lte";
+            break;
+        case TelephonyManager.NETWORK_TYPE_EHRPD:
+            networkTypeStr = "ehrpd";
+            break;
+        default:
+            loge("unknown network type: " + tm.getNetworkType());
         }
         return "net.tcp.buffersize." + networkTypeStr;
     }
@@ -542,33 +472,34 @@ public class MobileDataStateTracker implements NetworkStateTracker {
          * RemoteException and need to re-reference the service.
          */
         for (int retry = 0; retry < 2; retry++) {
-        	
-        	//DSDS
-        	if(MSimTelephonyManager.getDefault().isMultiSimEnabled()){
-        		if(mMSimPhoneService == null){
-        			  loge("Ignoring mobile radio request because could not acquire mMSimPhoneService");
-                      break;
-        		}
-        		 try {
-        			 boolean ok = false;
-        			 for(int j = 0; j < MSimTelephonyManager.getDefault().getPhoneCount(); j++){
-        				 ok = mMSimPhoneService.setRadio(turnOn,j);
-        			 }
-                     return ok;
-                 } catch (RemoteException e) {
-                     if (retry == 0) getPhoneService(true);
-                 }
-        	}else{
-        		if (mPhoneService == null) {
+            if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
+                if (mMSimPhoneService == null) {
+                    loge("Ignoring mobile radio request because "
+                            + "could not acquire MSim Phone Service");
+                    break;
+                }
+
+                try {
+                    boolean result = true;
+                    for (int i = 0; i < MSimTelephonyManager.getDefault().getPhoneCount(); i++) {
+                        result = result && mMSimPhoneService.setRadio(turnOn, i);
+                    }
+                    return result;
+                } catch (RemoteException e) {
+                    if (retry == 0) getPhoneService(true);
+                }
+            } else {
+                if (mPhoneService == null) {
                     loge("Ignoring mobile radio request because could not acquire PhoneService");
                     break;
                 }
+
                 try {
                     return mPhoneService.setRadio(turnOn);
                 } catch (RemoteException e) {
                     if (retry == 0) getPhoneService(true);
                 }
-        	}
+            }
         }
 
         loge("Could not set radio power to " + (turnOn ? "on" : "off"));
@@ -639,64 +570,61 @@ public class MobileDataStateTracker implements NetworkStateTracker {
          * RemoteException and need to re-reference the service.
          */
         for (int retry = 0; retry < 2; retry++) {
-        	//DSDS
-        	 if (MSimTelephonyManager.getDefault().isMultiSimEnabled()){
-        		 if (this.mMSimPhoneService == null){
-        			 loge("Ignoring feature request because could not acquire MSim Phone Service");
-        			 break;
-        		 }
-        		   try {
-                       if (enable) {
-                           return mMSimPhoneService.enableApnType(apnType);
-                       } else {
-                           return mMSimPhoneService.disableApnType(apnType);
-                       }
-                   } catch (RemoteException e) {
-                       if (retry == 0) getPhoneService(true);
-                   }
-        	 }else{
-        		 if (mPhoneService == null) {
-                     loge("Ignoring feature request because could not acquire PhoneService");
-                     break;
-                 }
-                 try {
-                     if (enable) {
-                         return mPhoneService.enableApnType(apnType);
-                     } else {
-                         return mPhoneService.disableApnType(apnType);
-                     }
-                 } catch (RemoteException e) {
-                     if (retry == 0) getPhoneService(true);
-                 }
-        	 }
+            if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
+                if (mMSimPhoneService == null) {
+                    loge("Ignoring feature request because could not acquire MSim Phone Service");
+                    break;
+                }
+
+                try {
+                    if (enable) {
+                        return mMSimPhoneService.enableApnType(apnType);
+                    } else {
+                        return mMSimPhoneService.disableApnType(apnType);
+                    }
+                } catch (RemoteException e) {
+                    if (retry == 0) getPhoneService(true);
+                }
+            } else {
+                if (mPhoneService == null) {
+                    loge("Ignoring feature request because could not acquire PhoneService");
+                    break;
+                }
+
+                try {
+                    if (enable) {
+                        return mPhoneService.enableApnType(apnType);
+                    } else {
+                        return mPhoneService.disableApnType(apnType);
+                    }
+                } catch (RemoteException e) {
+                    if (retry == 0) getPhoneService(true);
+                }
+            }
         }
+
         loge("Could not " + (enable ? "enable" : "disable") + " APN type \"" + apnType + "\"");
         return Phone.APN_REQUEST_FAILED;
     }
 
     public static String networkTypeToApnType(int netType) {
         switch(netType) {
-            case ConnectivityManager.TYPE_MOBILE: //0
+            case ConnectivityManager.TYPE_MOBILE:
                 return Phone.APN_TYPE_DEFAULT;  // TODO - use just one of these
-            case ConnectivityManager.TYPE_MOBILE_MMS: //2
+            case ConnectivityManager.TYPE_MOBILE_MMS:
                 return Phone.APN_TYPE_MMS;
-            case ConnectivityManager.TYPE_MOBILE_SUPL: //3
+            case ConnectivityManager.TYPE_MOBILE_SUPL:
                 return Phone.APN_TYPE_SUPL;
-            case ConnectivityManager.TYPE_MOBILE_DUN: //4
+            case ConnectivityManager.TYPE_MOBILE_DUN:
                 return Phone.APN_TYPE_DUN;
-            case ConnectivityManager.TYPE_MOBILE_HIPRI: //5
+            case ConnectivityManager.TYPE_MOBILE_HIPRI:
                 return Phone.APN_TYPE_HIPRI;
-            case ConnectivityManager.TYPE_MOBILE_FOTA: //10
+            case ConnectivityManager.TYPE_MOBILE_FOTA:
                 return Phone.APN_TYPE_FOTA;
-            case ConnectivityManager.TYPE_MOBILE_IMS: //11
+            case ConnectivityManager.TYPE_MOBILE_IMS:
                 return Phone.APN_TYPE_IMS;
-            case ConnectivityManager.TYPE_MOBILE_CBS:  //12
+            case ConnectivityManager.TYPE_MOBILE_CBS:
                 return Phone.APN_TYPE_CBS;
-            case 1:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
             default:
                 sloge("Error mapping networkType " + netType + " to apnType.");
                 return null;

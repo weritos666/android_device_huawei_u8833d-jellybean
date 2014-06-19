@@ -446,7 +446,7 @@ public class CallCard extends LinearLayout
      * (ie. the stuff in the primaryCallInfo block) based on the specified Call.
      */
     private void displayMainCallStatus(CallManager cm, Call call) {
-        if (DBG) log("displayMainCallStatus(call " + call + ")...");
+        log("displayMainCallStatus(call " + call + ")...");
 
         if (call == null) {
             // There's no call to display, presumably because the phone is idle.
@@ -456,7 +456,7 @@ public class CallCard extends LinearLayout
         mPrimaryCallInfo.setVisibility(View.VISIBLE);
 
         Call.State state = call.getState();
-        if (DBG) log("  - call.state: " + call.getState());
+        log("  - call.state: " + call.getState());
 
         switch (state) {
             case ACTIVE:
@@ -484,14 +484,14 @@ public class CallCard extends LinearLayout
             case DIALING:
             case ALERTING:
                 // Stop getting timer ticks from a previous call
-                mCallTime.cancelTimer();
+                cancelTimer(call);
 
                 break;
 
             case INCOMING:
             case WAITING:
                 // Stop getting timer ticks from a previous call
-                mCallTime.cancelTimer();
+                cancelTimer(call);
 
                 break;
 
@@ -603,7 +603,7 @@ public class CallCard extends LinearLayout
                         String connAddress = conn.getAddress();
                         String number = PhoneNumberUtils.stripSeparators(ci.phoneNumber);
                         if (!(ci.isEmergencyNumber() || ci.isVoiceMailNumber()) &&
-                            (!connAddress.equals(number))) {
+                            (connAddress != null && !connAddress.equals(number))) {
                             log("- displayMainCallStatus: Phone number modified!!");
                             CallerInfo newCi = CallerInfo.getCallerInfo(getContext(), connAddress);
                             if (newCi != null) {
@@ -611,13 +611,14 @@ public class CallCard extends LinearLayout
                                 conn.setUserData(ci);
                             }
                         }
-                        // Update CNAP information if Phone state change occurred
+                        // Update CNAP information and phone number if Phone state change occurred
                         ci.cnapName = conn.getCnapName();
                         ci.numberPresentation = conn.getNumberPresentation();
                         ci.namePresentation = conn.getCnapNamePresentation();
                         if (DBG) log("- displayMainCallStatus: CNAP data from Connection: "
                                 + "CNAP name=" + ci.cnapName
-                                + ", Number/Name Presentation=" + ci.numberPresentation);
+                                + ", Number/Name Presentation=" + ci.numberPresentation
+                                + ", Number=" + ci.phoneNumber);
                         if (DBG) log("   ==> Got CallerInfo; updating display: ci = " + ci);
                         updateDisplayForPerson(ci, presentation, false, call, conn);
                     } else if (o instanceof PhoneUtils.CallerInfoToken){

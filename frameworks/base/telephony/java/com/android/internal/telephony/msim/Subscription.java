@@ -56,7 +56,7 @@ public final class Subscription {
      * Subscription activation status
      */
     public enum SubscriptionStatus {
-    		SUB_DEACTIVATE,
+        SUB_DEACTIVATE,
             SUB_ACTIVATE,
             SUB_ACTIVATED,
             SUB_DEACTIVATED,

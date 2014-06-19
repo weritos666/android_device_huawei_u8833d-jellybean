@@ -333,19 +333,6 @@
     <!-- Activity label of BluetoothPermissionActivity [CHAR LIMIT=none]-->
     <string name="bluetooth_connection_permission_request">"Bluetooth connection request"</string>
 
-    <!-- Activity label of BluetoothPermissionActivity for PBAP [CHAR LIMIT=none]-->
-    <string name="bluetooth_pbap_connection_permission_request">"Pbap connection request"</string>
-
-    <!-- Activity label of BluetoothPermissionActivity for FTP [CHAR LIMIT=none]-->
-    <string name="bluetooth_ftp_connection_permission_request">"Ftp connection request"</string>
-
-    <!-- Activity label of BluetoothPermissionActivity for MAP [CHAR LIMIT=none]-->
-    <string name="bluetooth_map_connection_permission_request">"Map connection request"</string>
-
-    <!-- Activity label of BluetoothPermissionActivity for SAP [CHAR LIMIT=none]-->
-    <string name="bluetooth_sap_connection_permission_request">"Sap connection request"</string>
-
-    <string name="bluetooth_dun_connection_permission_request">"Dun connection request"</string>
     <!-- Notification message when a remote Bluetooth device wants to connect to a Bluetooth profile [CHAR LIMIT=none]-->
     <string name="bluetooth_connection_notif_message">"Touch to connect to \u0022<xliff:g id="device_name">%1$s</xliff:g>\u0022."</string>
 
@@ -361,15 +348,6 @@
     <!-- Bluetooth phone book permission Alert Activity checkbox text [CHAR LIMIT=none] -->
     <string name="bluetooth_pb_remember_choice">Don\'t ask again</string>
 
-    <!-- Activity label of BluetoothFtpPermissionActivity, also used as Strings in the permission dialog [CHAR LIMIT=none] -->
-    <string name="bluetooth_ftp_request">"Ftp request"</string>
-
-    <!-- Bluetooth FTP permission Alert Activity text [CHAR LIMIT=none] -->
-    <string name="bluetooth_ftp_acceptance_dialog_text">%1$s would like to access your files and folders. Give access to %2$s?</string>
-
-    <!-- Bluetooth FTP permission Alert Activity checkbox text [CHAR LIMIT=none] -->
-    <string name="bluetooth_ftp_remember_choice">Don\'t ask again</string>
-
     <!-- Activity label of BluetoothMasPermissionActivity, also used as Strings in the permission dialog [CHAR LIMIT=none] -->
     <string name="bluetooth_mas_request">"Message Access request"</string>
 
@@ -378,19 +356,6 @@
 
     <!-- Bluetooth MAS permission Alert Activity checkbox text [CHAR LIMIT=none] -->
     <string name="bluetooth_mas_remember_choice">Don\'t ask again</string>
-    <!-- Activity label of BluetoothSapPermissionActivity, also used as Strings in the permission di
-alog [CHAR LIMIT=none] -->
-    <string name="bluetooth_sap_request">"SAP request"</string>
-    <!-- Bluetooth SAP permission Alert Activity text [CHAR LIMIT=none] -->
-    <string name="bluetooth_sap_acceptance_dialog_text">%1$s would like to access your SIM. Give access to %2$s?</string>
-    <!-- Bluetooth SAP permission Alert Activity checkbox text [CHAR LIMIT=none] -->
-    <string name="bluetooth_sap_remember_choice">Don\'t ask again</string>
-
-    <string name="bluetooth_dun_request">"DUN request"</string>
-    <!-- Bluetooth DUN permission Alert Activity text [CHAR LIMIT=none] -->
-    <string name="bluetooth_dun_acceptance_dialog_text">%1$s would like to use DUN. Give access to %2$s?</string>
-    <!-- Bluetooth DUN permission Alert Activity checkbox text [CHAR LIMIT=none] -->
-    <string name="bluetooth_dun_remember_choice">Don\'t ask again</string>
 
     <!-- Date & time settings screen title -->
     <string name="date_and_time">Date &amp; time settings</string>
@@ -1042,9 +1007,6 @@ alog [CHAR LIMIT=none] -->
     <!-- Message when bluetooth dialog for pin entry is showing. [CHAR LIMIT=NONE] -->
     <string name="bluetooth_enter_pin_msg">To pair with:<xliff:g id="bold">&lt;br>&lt;b></xliff:g><xliff:g id="device_name">%1$s</xliff:g><xliff:g id="end_bold">&lt;/b>&lt;br>&lt;br></xliff:g>Type the device\'s required PIN:</string>
 
-    <!-- Message when bluetooth dialog for pin entry is showing  when HIGH security enabled-->
-    <string name="bluetooth_enter_pin_msg_hs">\nType PIN to pair with \u0022<xliff:g id="device_name">%1$s</xliff:g>\u0022. [High Security Enabled: Needs 16 character key] </string>
-
     <!-- Message when bluetooth dialog for passkey entry is showing. [CHAR LIMIT=NONE] -->
     <string name="bluetooth_enter_passkey_msg">To pair with:<xliff:g id="bold">&lt;br>&lt;b></xliff:g><xliff:g id="device_name">%1$s</xliff:g><xliff:g id="end_bold">&lt;/b>&lt;br>&lt;br></xliff:g>Type the device\'s required passkey:</string>
 
@@ -1135,10 +1097,7 @@ alog [CHAR LIMIT=none] -->
     <string name="bluetooth_profile_pan">Internet access</string>
     <!-- Bluetooth settings. The user-visible string that is used whenever referring to the PAN profile (sharing this device's Internet connection). [CHAR LIMIT=40]-->
     <string name="bluetooth_profile_pan_nap">Internet connection sharing</string>
-    <!-- Bluetooth settings.  The user-visible string that is used whenever referring to the SAP profile. -->
-    <string name="bluetooth_profile_sap">SIM Access</string>
-    <!-- Bluetooth settings.  The user-visible string that is used whenever referring to the DUN profile. -->
-    <string name="bluetooth_profile_dun">Dial-up Network Access</string>
+
     <!-- Bluetooth settings.  Message for disconnecting from the A2DP profile. [CHAR LIMIT=80] -->
     <string name="bluetooth_disconnect_a2dp_profile"><xliff:g id="device_name">%1$s</xliff:g> will be disconnected from media audio.</string>
     <!-- Bluetooth settings.  Message for disconnecting from the headset profile. [CHAR LIMIT=80] -->
@@ -1170,16 +1129,8 @@ alog [CHAR LIMIT=none] -->
     <string name="bluetooth_headset_profile_summary_connected">Connected to phone audio</string>
     <!-- Bluetooth settings.  Connection options screen.  The summary for the OPP checkbox preference when OPP is connected. -->
     <string name="bluetooth_opp_profile_summary_connected">Connected to file transfer server</string>
-    <!-- Bluetooth settings.  Connection options screen.  The summary for the SAP checkbox preference when SAP is connected. -->
-    <string name="bluetooth_sap_profile_summary_connected">Connected to SIM Access Server</string>
-    <!-- Bluetooth settings.  Connection options screen.  The summary for the DUN checkbox preference when DUN is connected. -->
-    <string name="bluetooth_dun_profile_summary_connected">Connected to DUN Server</string>
     <!-- Bluetooth settings.  Connection options screen.  The summary for the OPP checkbox preference when OPP is not connected. -->
     <string name="bluetooth_opp_profile_summary_not_connected">Not connected to file transfer server</string>
-    <!-- Bluetooth settings.  Connection options screen.  The summary for the SAP checkbox preference when SAP is not connected. -->
-    <string name="bluetooth_sap_profile_summary_not_connected">Not connected to SIM Access Server</string>
-    <!-- Bluetooth settings.  Connection options screen.  The summary for the DUN checkbox preference when DUN is not connected. -->
-    <string name="bluetooth_dun_profile_summary_not_connected">Not connected to DUN Server</string>
     <!-- Bluetooth settings. Connection options screen. The summary for the HID checkbox preference when HID is connected. -->
     <string name="bluetooth_hid_profile_summary_connected">Connected to input device</string>
     <!-- Bluetooth settings. Connection options screen. The summary for the checkbox preference when PAN is connected (user role). [CHAR LIMIT=25]-->
@@ -1193,10 +1144,6 @@ alog [CHAR LIMIT=none] -->
     <string name="bluetooth_headset_profile_summary_use_for">Use for phone audio</string>
     <!-- Bluetooth settings.  Connection options screen.  The summary for the OPP checkbox preference that describes how checking it will set the OPP profile as preferred. -->
     <string name="bluetooth_opp_profile_summary_use_for">Use for file transfer</string>
-    <!-- Bluetooth settings.  Connection options screen.  The summary for the SAP checkbox preference that describes how checking it will set the SAP profile as preferred. -->
-    <string name="bluetooth_sap_profile_summary_use_for">Use for SIM Access</string>
-    <!-- Bluetooth settings.  Connection options screen.  The summary for the DUN checkbox preference that describes how checking it will set the DUN profile as preferred. -->
-    <string name="bluetooth_dun_profile_summary_use_for">Use for Dial-up Network Access</string>
     <!-- Bluetooth settings. Connection options screen. The summary
          for the HID checkbox preference that describes how checking it
          will set the HID profile as preferred. -->
@@ -1508,12 +1455,6 @@ alog [CHAR LIMIT=none] -->
     <string name="wifi_p2p_menu_searching">Searching\u2026</string>
     <!-- Menu option to Rename-->
     <string name="wifi_p2p_menu_rename">Rename device</string>
-    <!-- Menu option to create a group-->
-    <string name="wifi_p2p_menu_create_group">Create group</string>
-    <!-- Menu option to remove a group-->
-    <string name="wifi_p2p_menu_remove_group">Remove group</string>
-    <!-- Menu option to Wi-Fi p2p advanced settings -->
-    <string name="wifi_p2p_menu_advanced">Advanced</string>
     <!-- Title for available p2p devices -->
     <string name="wifi_p2p_peer_devices">Peer devices</string>
     <!-- Toast text for a failed connection initiation -->
@@ -1663,8 +1604,6 @@ alog [CHAR LIMIT=none] -->
     <string name="media_volume_summary">Set volume for music and videos</string>
     <!-- Sound settings screen, alarm volume slider title -->
     <string name="alarm_volume_title">Alarm</string>
-    <!-- Sound settings screen, dock settings summary-->
-    <string name="dock_settings_summary">Audio settings for the attached dock</string>
     <!-- Sound settings screen, setting check box label -->
     <string name="dtmf_tone_enable_title">Dial pad touch tones</string>
     <!-- Sound settings screen, setting check box label -->
@@ -1699,6 +1638,8 @@ alog [CHAR LIMIT=none] -->
     <string name="dock_settings">Dock</string>
     <!-- Dock settings title -->
     <string name="dock_settings_title">Dock settings</string>
+    <!-- Sound settings screen, dock settings summary-->
+    <string name="dock_settings_summary">Bluetooth audio settings for the attached dock</string>
     <!-- Dock audio settings -->
     <string name="dock_audio_settings_title">Dock Bluetooth audio</string>
     <!-- Dock audio summary for docked to desk dock -->
@@ -1795,11 +1736,11 @@ alog [CHAR LIMIT=none] -->
     <string name="dialog_title_font_size">Font size</string>
 
     <!-- SIM lock settings title -->
-    <string name="sim_lock_settings">SIM card lock settings</string>
+    <string name="sim_lock_settings">SIM/RUIM card lock settings</string>
     <!-- Security & location settings screen, setting option name -->
-    <string name="sim_lock_settings_category">Set up SIM card lock</string>
+    <string name="sim_lock_settings_category">Set up SIM/RUIM card lock</string>
     <!-- Security & location settings screen, section heading for settings related to sim card locking -->
-    <string name="sim_lock_settings_title">SIM card lock</string>
+    <string name="sim_lock_settings_title">SIM/RUIM card lock</string>
     <!-- SIM card lock settings screen, setting check box label -->
     <string name="sim_pin_toggle">Lock SIM card</string>
     <!-- SIM card lock settings screen, setting option summary text when SIM lock check box is selected -->
@@ -1829,6 +1770,8 @@ alog [CHAR LIMIT=none] -->
     <string name="sim_bad_pin">Incorrect PIN</string>
     <!-- SIM card lock settings screen, SIM PIN dialog message when PINs don't match -->
     <string name="sim_pins_dont_match">PINs don\'t match</string>
+    <!-- SIM card lock settings screen, SIM PIN dialog message when SIM card is absent-->
+    <string name="sim_absent">No SIM/RUIM</string>
     <!-- SIM card lock settings screen, toast after not entering correct SIM PIN -->
     <string name="sim_change_failed">Can\'t change PIN.\nPossibly incorrect PIN.</string>
     <!-- SIM card lock settings screen, SIM PIN dialog message when the entered PIN is correct-->
@@ -1855,8 +1798,6 @@ alog [CHAR LIMIT=none] -->
     <!-- Advanced (used for diagnostics) device info activity title -->
     <string name="device_info_settings" product="default">Phone status</string>
 
-   
-
     <!-- About phone screen, status item label -->
     <string name="firmware_version">Android version</string>
     <!-- About phone screen, status item label-->
@@ -1869,7 +1810,6 @@ alog [CHAR LIMIT=none] -->
     <string name="kernel_version">Kernel version</string>
     <!-- About phone screen,  setting option name-->
     <string name="build_number">Build number</string>
-
     <!-- About phone screen, show when a value of some status item is unavailable. -->
     <string name="device_info_not_available">Not available</string>
     <!-- About phone screen, phone status screen title -->
@@ -1877,12 +1817,12 @@ alog [CHAR LIMIT=none] -->
     <!-- About phone screen, title of the item to go into the Phone status screen -->
     <string name="device_status">Status</string>
     <!-- About tablet screen, summary of the item that takes you to tablet status screen -->
-    <string name="device_status_summary" product="tablet">Status of the battery, network, and other information</string>
+    <string name="device_status_summary">Battery Status, battery level, etc.</string>
     <!-- About phone screen, summary of the item to go into the phone status screen -->
-    <string name="device_status_summary" product="default">Phone number, signal, etc.</string>
- <!-- In About phone->Status screen, title of the item to go into the subscription status screen -->
-    <string name="device_additional_status">Additional Status Info</string> <!-- In About phone->Status screen, title of the item to go into the subscription status screen -->   
-	<!-- Main settings screen item's title to go into the storage settings screen [CHAR LIMIT=25] -->
+    <string name="device_additional_status_summary">Phone number, Signal, IMEI, etc.</string>
+    <!-- In About phone->Status screen, title of the item to go into the subscription status screen -->
+    <string name="device_additional_status">Additional Status Info</string>
+    <!-- Main settings screen item's title to go into the storage settings screen [CHAR LIMIT=25] -->
     <string name="storage_settings" >Storage</string>
     <!-- Storage settings screen title -->
     <string name="storage_settings_title">Storage settings</string>
@@ -1903,9 +1843,10 @@ alog [CHAR LIMIT=none] -->
     <!-- About phone, status item title.  The phone MSID number of the current device.-->
     <string name="status_msid_number">MSID</string>
     <!-- About phone, status item title.  The phone PRL Version of the current device.-->
-    <string name="status_prl_version">PRL version</string>
+    <string name="status_prl_version">PRL Version</string>
     <!-- About phone, status item title.  The phone ESN number of the current device.-->
     <string name="status_esn_number">ESN</string>
+
     <!-- About phone, status item title.  The phone MEID number of the current LTE/CDMA device. [CHAR LIMIT=30] -->
     <string name="status_meid_number">MEID</string>
     <!-- About phone, status item title.  The ICCID of the current LTE device. [CHAR LIMIT=30] -->

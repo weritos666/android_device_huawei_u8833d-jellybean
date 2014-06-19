@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
- * Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2011-2012, The Linux Foundation. All rights reserved.
  *
  * Not a Contribution, Apache license notifications and license are retained
  * for attribution purposes only
@@ -65,8 +65,8 @@ import com.android.systemui.R;
 public class NetworkController extends BroadcastReceiver {
     // debug
     static final String TAG = "StatusBar.NetworkController";
-    static final boolean DEBUG = false;
-    static final boolean CHATTY = false; // additional diagnostics, but not logspew
+    static final boolean DEBUG = true;
+    static final boolean CHATTY = true; // additional diagnostics, but not logspew
 
     // telephony
     boolean mHspaDataDistinguishable;
@@ -104,8 +104,8 @@ public class NetworkController extends BroadcastReceiver {
     String mContentDescriptionDataType;
 
     // wifi
-    final WifiManager mWifiManager;
-    AsyncChannel mWifiChannel;
+    protected WifiManager mWifiManager;
+    protected AsyncChannel mWifiChannel;
     boolean mWifiEnabled, mWifiConnected;
     int mWifiRssi, mWifiLevel;
     String mWifiSsid;
@@ -130,12 +130,6 @@ public class NetworkController extends BroadcastReceiver {
     protected int mDataServiceState = ServiceState.STATE_OUT_OF_SERVICE;
     // data connectivity (regardless of state, can we access the internet?)
     // state of inet connection - 0 not connected, 100 connected
-/*    private boolean mConnected = false;
-    private int mConnectedNetworkType = ConnectivityManager.TYPE_NONE;
-    private String mConnectedNetworkTypeName;
-    private int mInetCondition = 0;
-    private static final int INET_CONDITION_THRESHOLD = 50;
-*/
     protected boolean mConnected = false;
     protected int mConnectedNetworkType = ConnectivityManager.TYPE_NONE;
     protected String mConnectedNetworkTypeName;
@@ -146,7 +140,7 @@ public class NetworkController extends BroadcastReceiver {
     protected boolean mLastAirplaneMode = true;
 
     // our ui
-    Context mContext;
+    protected Context mContext;
     ArrayList<ImageView> mPhoneSignalIconViews = new ArrayList<ImageView>();
     ArrayList<ImageView> mDataDirectionIconViews = new ArrayList<ImageView>();
     ArrayList<ImageView> mDataDirectionOverlayIconViews = new ArrayList<ImageView>();
@@ -213,14 +207,7 @@ public class NetworkController extends BroadcastReceiver {
                 com.android.internal.R.string.lockscreen_carrier_default);
         mNetworkName = mNetworkNameDefault;
 
-        // wifi
-        mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        Handler handler = new WifiHandler();
-        mWifiChannel = new AsyncChannel();
-        Messenger wifiMessenger = mWifiManager.getWifiServiceMessenger();
-        if (wifiMessenger != null) {
-            mWifiChannel.connect(mContext, handler, wifiMessenger);
-        }
+        createWifiHandler();
 
         // broadcasts
         IntentFilter filter = new IntentFilter();
@@ -252,6 +239,18 @@ public class NetworkController extends BroadcastReceiver {
     public boolean hasMobileDataFeature() {
         return mHasMobileDataFeature;
     }
+
+    protected void createWifiHandler() {
+        // wifi
+        mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+        Handler handler = new WifiHandler();
+        mWifiChannel = new AsyncChannel();
+        Messenger wifiMessenger = mWifiManager.getWifiServiceMessenger();
+        if (wifiMessenger != null) {
+            mWifiChannel.connect(mContext, handler, wifiMessenger);
+        }
+    }
+
     protected void registerPhoneStateListener(Context context) {
         // telephony
         mPhone = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -262,7 +261,7 @@ public class NetworkController extends BroadcastReceiver {
                         | PhoneStateListener.LISTEN_DATA_CONNECTION_STATE
                         | PhoneStateListener.LISTEN_DATA_ACTIVITY);
     }
-	
+
     public boolean isEmergencyOnly() {
         return (mServiceState != null && mServiceState.isEmergencyOnly());
     }
@@ -404,9 +403,19 @@ public class NetworkController extends BroadcastReceiver {
         @Override
         public void onServiceStateChanged(ServiceState state) {
             if (DEBUG) {
-                Slog.d(TAG, "onServiceStateChanged state=" + state.getState());
+                Slog.d(TAG, "onServiceStateChanged state=" + state);
             }
             mServiceState = state;
+            if (SystemProperties.getBoolean("ro.config.combined_signal", true)) {
+                /*
+                 * if combined_signal is set to true only then consider data
+                 * service state for signal display
+                 */
+                mDataServiceState = mServiceState.getDataState();
+                if (DEBUG) {
+                    Slog.d(TAG, "Combining data service state" + mDataServiceState + "for signal");
+                }
+            }
             updateTelephonySignalStrength();
             updateDataNetType();
             updateDataIcon();
@@ -469,7 +478,7 @@ public class NetworkController extends BroadcastReceiver {
                 mSimState = IccCard.State.PUK_REQUIRED;
             }
             else {
-                mSimState = IccCard.State.NETWORK_LOCKED;
+                mSimState = IccCard.State.PERSO_LOCKED;
             }
         } else {
             mSimState = IccCard.State.UNKNOWN;
@@ -501,13 +510,17 @@ public class NetworkController extends BroadcastReceiver {
     }
 
     private final void updateTelephonySignalStrength() {
-        if (!hasService()) {
-            if (CHATTY) Slog.d(TAG, "updateTelephonySignalStrength: !hasService()");
+        if (!hasService() &&
+                (mDataServiceState != ServiceState.STATE_IN_SERVICE)) {
+            if (DEBUG) Slog.d(TAG, " No service");
             mPhoneSignalIconId = R.drawable.stat_sys_signal_null;
             mDataSignalIconId = R.drawable.stat_sys_signal_null;
         } else {
-            if (mSignalStrength == null) {
-                if (CHATTY) Slog.d(TAG, "updateTelephonySignalStrength: mSignalStrength == null");
+            if ((mSignalStrength == null) || (mServiceState == null)) {
+                if (DEBUG) {
+                    Slog.d(TAG, " Null object, mSignalStrength= " + mSignalStrength
+                            + " mServiceState " + mServiceState);
+                }
                 mPhoneSignalIconId = R.drawable.stat_sys_signal_null;
                 mDataSignalIconId = R.drawable.stat_sys_signal_null;
                 mContentDescriptionPhoneSignal = mContext.getString(
@@ -524,20 +537,13 @@ public class NetworkController extends BroadcastReceiver {
                     mLastSignalLevel = iconLevel = mSignalStrength.getLevel();
                 }
 
-                if (isCdma()) {
-                    if (isCdmaEri()) {
-                        iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH_ROAMING[mInetCondition];
-                    } else {
-                        iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH[mInetCondition];
-                    }
+                // Though mPhone is a Manager, this call is not an IPC
+                if ((isCdma() && isCdmaEri()) || mPhone.isNetworkRoaming()) {
+                    iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH_ROAMING[mInetCondition];
                 } else {
-                    // Though mPhone is a Manager, this call is not an IPC
-                    if (mPhone.isNetworkRoaming()) {
-                        iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH_ROAMING[mInetCondition];
-                    } else {
-                        iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH[mInetCondition];
-                    }
+                    iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH[mInetCondition];
                 }
+
                 mPhoneSignalIconId = iconList[iconLevel];
                 mContentDescriptionPhoneSignal = mContext.getString(
                         AccessibilityContentDescriptions.PHONE_SIGNAL_STRENGTH[iconLevel]);
@@ -556,6 +562,9 @@ public class NetworkController extends BroadcastReceiver {
         } else {
             switch (mDataNetType) {
                 case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+                    if (DEBUG) {
+                        Slog.e(TAG, "updateDataNetType NETWORK_TYPE_UNKNOWN");
+                    }
                     if (!mShowAtLeastThreeGees) {
                         mDataIconList = TelephonyIcons.DATA_G[mInetCondition];
                         mDataTypeIconId = 0;
@@ -638,7 +647,7 @@ public class NetworkController extends BroadcastReceiver {
                     mContentDescriptionDataType = mContext.getString(
                             R.string.accessibility_data_connection_4g);
                     break;
-                default:
+                case TelephonyManager.NETWORK_TYPE_GPRS:
                     if (!mShowAtLeastThreeGees) {
                         mDataIconList = TelephonyIcons.DATA_G[mInetCondition];
                         mDataTypeIconId = R.drawable.stat_sys_data_connected_g;
@@ -650,6 +659,13 @@ public class NetworkController extends BroadcastReceiver {
                         mContentDescriptionDataType = mContext.getString(
                                 R.string.accessibility_data_connection_3g);
                     }
+                    break;
+                default:
+                    if (DEBUG) {
+                        Slog.e(TAG, "updateDataNetType unknown radio:" + mDataNetType);
+                    }
+                    mDataNetType = TelephonyManager.NETWORK_TYPE_UNKNOWN;
+                    mDataTypeIconId = 0;
                     break;
             }
         }
@@ -664,7 +680,8 @@ public class NetworkController extends BroadcastReceiver {
     }
 
     boolean isCdmaEri() {
-        if (mServiceState != null) {
+        if ((mServiceState != null)
+                && (hasService() || (mDataServiceState == ServiceState.STATE_IN_SERVICE))) {
             final int iconIndex = mServiceState.getCdmaEriIconIndex();
             if (iconIndex != EriInfo.ROAMING_INDICATOR_OFF) {
                 final int iconMode = mServiceState.getCdmaEriIconMode();
@@ -688,13 +705,15 @@ public class NetworkController extends BroadcastReceiver {
     }
 
     private final void updateDataIcon() {
-        int iconId;
+        int iconId = 0;
         boolean visible = true;
-
-        if (!isCdma()) {
+        if (mDataNetType == TelephonyManager.NETWORK_TYPE_UNKNOWN) {
+            // If data network type is unknown do not display data icon
+            visible = false;
+        } else if (!isCdma()) {
             // GSM case, we have to check also the sim state
             if (mSimState == IccCard.State.READY || mSimState == IccCard.State.UNKNOWN) {
-                if (hasService() && mDataState == TelephonyManager.DATA_CONNECTED) {
+                if (mDataState == TelephonyManager.DATA_CONNECTED) {
                     switch (mDataActivity) {
                         case TelephonyManager.DATA_ACTIVITY_IN:
                             iconId = mDataIconList[1];
@@ -720,7 +739,7 @@ public class NetworkController extends BroadcastReceiver {
             }
         } else {
             // CDMA case, mDataActivity can be also DATA_ACTIVITY_DORMANT
-            if (hasService() && mDataState == TelephonyManager.DATA_CONNECTED) {
+            if (mDataState == TelephonyManager.DATA_CONNECTED) {
                 switch (mDataActivity) {
                     case TelephonyManager.DATA_ACTIVITY_IN:
                         iconId = mDataIconList[1];
@@ -1116,7 +1135,10 @@ public class NetworkController extends BroadcastReceiver {
                 mHasMobileDataFeature ? mDataSignalIconId : mWifiIconId;
             mContentDescriptionCombinedSignal = mHasMobileDataFeature
                 ? mContentDescriptionDataType : mContentDescriptionWifi;
+        }
 
+        if (!mDataConnected) {
+            Slog.d(TAG, "refreshViews: Data not connected!! Set no data type icon");
             mDataTypeIconId = 0;
             if (isCdma()) {
                 if (isCdmaEri()) {

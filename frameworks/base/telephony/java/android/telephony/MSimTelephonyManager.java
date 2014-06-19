@@ -76,6 +76,7 @@ public class MSimTelephonyManager {
             } else {
                 sContext = context;
             }
+
             sRegistryMsim = ITelephonyRegistryMSim.Stub.asInterface(ServiceManager.getService(
                     "telephony.msim.registry"));
         }
@@ -83,7 +84,6 @@ public class MSimTelephonyManager {
 
     /** @hide */
     private MSimTelephonyManager() {
-    	
     }
 
     private static MSimTelephonyManager sInstance = new MSimTelephonyManager();
@@ -100,7 +100,7 @@ public class MSimTelephonyManager {
     }
 
     public boolean isMultiSimEnabled() {
-        return (multiSimConfig.equals("1") || multiSimConfig.equals("dsds") || multiSimConfig.equals("dsda"));
+        return (multiSimConfig.equals("dsds") || multiSimConfig.equals("dsda"));
     }
 
     /**
@@ -344,29 +344,30 @@ public class MSimTelephonyManager {
      *
      * @see #SIM_STATE_UNKNOWN
      * @see #SIM_STATE_ABSENT
+     * @see #SIM_STATE_PIN_REQUIRED
+     * @see #SIM_STATE_PUK_REQUIRED
+     * @see #SIM_STATE_NETWORK_LOCKED
+     * @see #SIM_STATE_READY
      * @see #SIM_STATE_CARD_IO_ERROR
      */
     public int getSimState(int slotId) {
 
         String prop =
             getTelephonyProperty(TelephonyProperties.PROPERTY_SIM_STATE, slotId, "");
+
         if ("ABSENT".equals(prop)) {
             return TelephonyManager.SIM_STATE_ABSENT;
-        }else if("PIN_REQUIRED".equals(prop)){
-        	return TelephonyManager.SIM_STATE_PIN_REQUIRED;
-        }else if("PUK_REQUIRED".equals(prop)){
-        	return TelephonyManager.SIM_STATE_PUK_REQUIRED;
-        }else if("PERSO_LOCKED".equals(prop)){
-        	return TelephonyManager.SIM_STATE_NETWORK_LOCKED;
-        }else if( "READY".equals(prop)){
-        	return TelephonyManager.SIM_STATE_READY;
+        } else if ("PIN_REQUIRED".equals(prop)) {
+            return TelephonyManager.SIM_STATE_PIN_REQUIRED;
+        } else if ("PUK_REQUIRED".equals(prop)) {
+            return TelephonyManager.SIM_STATE_PUK_REQUIRED;
+        } else if ("PERSO_LOCKED".equals(prop)) {
+            return TelephonyManager.SIM_STATE_NETWORK_LOCKED;
+        } else if ("READY".equals(prop)) {
+            return TelephonyManager.SIM_STATE_READY;
         } else if ("CARD_IO_ERROR".equals(prop)) {
             return TelephonyManager.SIM_STATE_CARD_IO_ERROR;
-        }else if("NOT_READY".equals(prop)){
-        	 return 7;
-        }else if ("DEACTIVED".equals(prop)){
-        	return 8;
-        }else {
+        } else {
             return TelephonyManager.SIM_STATE_UNKNOWN;
         }
     }
@@ -390,6 +391,24 @@ public class MSimTelephonyManager {
         } catch (NullPointerException ex) {
             // This could happen before phone restarts due to crashing
             return Phone.LTE_ON_CDMA_UNKNOWN;
+        }
+    }
+
+    /**
+     * Returns the serial number for the given subscription, if applicable. Return null if it is
+     * unavailable.
+     * <p>
+     * Requires Permission:
+     *   {@link android.Manifest.permission#READ_PHONE_STATE READ_PHONE_STATE}
+     */
+    public String getSimSerialNumber(int subscription) {
+        try {
+            return getMSimSubscriberInfo().getIccSerialNumber(subscription);
+        } catch (RemoteException ex) {
+            return null;
+        } catch (NullPointerException ex) {
+            // This could happen before phone restarts due to crashing
+            return null;
         }
     }
 
@@ -828,6 +847,20 @@ public class MSimTelephonyManager {
             return MSimConstants.DEFAULT_SUBSCRIPTION;
         } catch (NullPointerException ex) {
             return MSimConstants.DEFAULT_SUBSCRIPTION;
+        }
+    }
+
+    /*
+     * Get subscription is activated or not
+     * @return true if subscription is activated
+     */
+    public boolean isSubActive(int subscription) {
+        try {
+            return getITelephonyMSim().isSubActive(subscription);
+        } catch (RemoteException ex) {
+            return false;
+        } catch (NullPointerException ex) {
+            return false;
         }
     }
 }

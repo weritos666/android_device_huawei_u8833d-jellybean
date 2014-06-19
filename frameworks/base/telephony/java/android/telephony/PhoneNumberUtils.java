@@ -1492,6 +1492,13 @@ public class PhoneNumberUtils
      * @hide
      */
     public static String normalizeNumber(String phoneNumber) {
+        // chop off CLIR prefix
+        if (phoneNumber.startsWith(CLIR_ON)) {
+            phoneNumber = phoneNumber.substring(CLIR_ON.length() - 1);
+        } else if (phoneNumber.startsWith(CLIR_OFF)) {
+            phoneNumber = phoneNumber.substring(CLIR_OFF.length() - 1);
+        }
+
         StringBuilder sb = new StringBuilder();
         int len = phoneNumber.length();
         for (int i = 0; i < len; i++) {
@@ -1690,9 +1697,17 @@ public class PhoneNumberUtils
         // to the list.
         number = extractNetworkPortionAlt(number);
 
-        // retrieve the list of emergency numbers
-        // check read-write ecclist property first
-        String numbers = SystemProperties.get("ril.ecclist");
+        String numbers = "";
+        for (int i = 0; i < MSimTelephonyManager.getDefault().getPhoneCount(); i++) {
+            // retrieve the list of emergency numbers
+            // check read-write ecclist property first
+            String ecclist = (i == 0) ? "ril.ecclist" : ("ril.ecclist" + i);
+            if (!TextUtils.isEmpty(numbers)) {
+                numbers = numbers + ",";
+            }
+            numbers = numbers + SystemProperties.get(ecclist);
+        }
+
         if (TextUtils.isEmpty(numbers)) {
             // then read-only ecclist property since old RIL only uses this
             numbers = SystemProperties.get("ro.ril.ecclist");

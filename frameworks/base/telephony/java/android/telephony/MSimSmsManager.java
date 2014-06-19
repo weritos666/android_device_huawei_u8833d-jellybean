@@ -24,7 +24,6 @@ import android.app.PendingIntent;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.internal.telephony.msim.ISmsMSim;
 import com.android.internal.telephony.SmsRawData;
@@ -97,16 +96,11 @@ public class MSimSmsManager {
         try {
             ISmsMSim iccISms = ISmsMSim.Stub.asInterface(ServiceManager.getService("isms_msim"));
             if (iccISms != null) {
-            	Log.e("******************>","============>destinationAddress = " + destinationAddress + 
-            			" ,scAddress = " + scAddress + " ,  text = " + text +
-            			" , sentIntent = " + sentIntent + 
-            			" , deliveryIntent = " + deliveryIntent + "subscription = " + subscription);
                 iccISms.sendText(destinationAddress, scAddress, text, sentIntent,
                                     deliveryIntent, subscription);
             }
         } catch (RemoteException ex) {
             // ignore it
-        	ex.printStackTrace();
         }
     }
 

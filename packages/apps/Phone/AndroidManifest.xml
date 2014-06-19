@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Copyright (C) 2007 The Android Open Source Project
+     Copyright (C) 2010-2012, The Linux Foundation. All rights reserved.
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -34,6 +35,7 @@
     <protected-broadcast android:name="android.intent.action.NETWORK_SET_TIMEZONE" />
     <protected-broadcast android:name="android.intent.action.ACTION_SHOW_NOTICE_ECM_BLOCK_OTHERS" />
     <protected-broadcast android:name="android.intent.action.ACTION_MDN_STATE_CHANGED" />
+    <protected-broadcast android:name="android.intent.action.SAFE_WIFI_CHANNELS_CHANGED" />
     <protected-broadcast android:name="android.provider.Telephony.SPN_STRINGS_UPDATED" />
 
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
@@ -94,14 +96,12 @@
                  android:persistent="true"
                  android:label="@string/phoneAppLabel"
                  android:icon="@drawable/ic_launcher_phone">
-
-        <provider android:name="IccProvider"
-                  android:authorities="icc"
-                  android:multiprocess="true"
-                  android:readPermission="android.permission.READ_CONTACTS"
-                  android:writePermission="android.permission.WRITE_CONTACTS" />
-
- <provider android:name="MSimIccProvider"
+            <provider android:name="IccProvider"
+                      android:authorities="icc"
+                      android:multiprocess="true"
+                      android:readPermission="android.permission.READ_CONTACTS"
+                      android:writePermission="android.permission.WRITE_CONTACTS" />
+            <provider android:name="MSimIccProvider"
                       android:authorities="iccmsim"
                       android:multiprocess="true"
                       android:readPermission="android.permission.READ_CONTACTS"
@@ -461,6 +461,15 @@
         android:label="@string/delete_fdn_contact">
         </activity>
 
+        <activity android:name="XDivertPhoneNumbers"
+                android:configChanges="mcc|mnc"
+                android:label="@string/phone_numbers">
+        </activity>
+
+        <activity android:name="XDivertSetting"
+                android:label="@string/xdivert_setting">
+        </activity>
+
         <activity android:name="DataRoamingReenable" android:label="@string/android:dialog_alert_title"
             android:theme="@android:style/Theme.Holo.Dialog">
             <intent-filter>
@@ -483,70 +492,6 @@
                 android:theme="@android:style/Theme.Holo.DialogWhenLarge">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-
-       <!-- "Mobile network settings" screen, used on both
-             non-voice-capable tablets and regular phone devices. -->
-        <activity android:name="MSimMobileNetworkSettings"
-            android:label="@string/settings_label"
-            android:theme="@style/Theme.Settings">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.settings.DATA_ROAMING_SETTINGS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity-alias android:name="Settings"
-            android:targetActivity="MSimMobileNetworkSettings" />
-
-       <!-- MSim Mobile Network Settings per subscription -->
-       <activity android:name="MSimMobileNetworkSubSettings"
-                android:label="@string/settings_label"
-                android:theme="@style/Theme.Settings">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <!-- MSim Call Feature Settings -->
-        <activity android:name="MSimCallFeaturesSetting"
-            android:label="@string/call_settings"
-            android:configChanges="orientation|keyboardHidden"
-            android:theme="@android:style/Theme.Holo.DialogWhenLarge">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="com.android.phone.CallFeaturesSetting.ADD_VOICEMAIL"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <!-- MSim Call Feature Sub Settings -->
-        <activity android:name="MSimCallFeaturesSubSetting"
-            android:label="@string/call_settings"
-            android:configChanges="orientation|keyboardHidden"
-            android:theme="@android:style/Theme.Holo.DialogWhenLarge">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <!-- Select Subscription -->
-        <activity android:name="SelectSubscription"
-            android:label="@string/callind_multi_sim"
-            android:configChanges="orientation|keyboardHidden"
-            android:theme="@android:style/Theme.Holo.DialogWhenLarge">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -673,8 +618,7 @@
                   android:name=".sip.SipSettings"
                   android:theme="@android:style/Theme.Holo.DialogWhenLarge"
                   android:launchMode="singleTop"
-                  android:configChanges="orientation|screenSize|keyboardHidden"
-                  android:uiOptions="splitActionBarWhenNarrow">
+                  android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.net.sip.NOTIFY" />
@@ -682,8 +626,7 @@
         </activity>
         <activity android:name=".sip.SipEditor"
                 android:theme="@android:style/Theme.Holo.DialogWhenLarge"
-                android:configChanges="orientation|screenSize|keyboardHidden"
-                android:uiOptions="splitActionBarWhenNarrow">
+                android:configChanges="orientation|screenSize|keyboardHidden">
         </activity>
         <activity android:name=".SipCallOptionHandler"
                 android:theme="@style/SipCallOptionHandlerTheme"

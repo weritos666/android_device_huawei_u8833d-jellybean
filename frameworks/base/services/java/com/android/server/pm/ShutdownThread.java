@@ -1,5 +1,9 @@
 /*
  * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2011-12 Code Aurora Forum. All rights reserved.
+ *
+ * Not a Contribution, Apache license notifications and license are retained
+ * for attribution purposes only
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,17 +46,21 @@ import android.os.SystemVibrator;
 import android.os.storage.IMountService;
 import android.os.storage.IMountShutdownObserver;
 import android.telephony.MSimTelephonyManager;
-import com.android.internal.telephony.msim.ITelephonyMSim;
+
 import com.android.internal.telephony.ITelephony;
+import com.android.internal.telephony.msim.ITelephonyMSim;
 import com.android.server.PowerManagerService;
 
 import android.util.Log;
 import android.view.WindowManager;
 import android.view.KeyEvent;
 
+import java.io.FileInputStream;
+
 public final class ShutdownThread extends Thread {
     // constants
     private static final String TAG = "ShutdownThread";
+    private static final int MAX_NUM_PHONE_STATE_READS = 16;
     private static final int PHONE_STATE_POLL_SLEEP_MSEC = 500;
     // maximum time we wait for the shutdown broadcast before going on.
     private static final int MAX_BROADCAST_TIME = 10*1000;
@@ -72,9 +80,13 @@ public final class ShutdownThread extends Thread {
 
     // Provides shutdown assurance in case the system_server is killed
     public static final String SHUTDOWN_ACTION_PROPERTY = "sys.shutdown.requested";
+    public static final String RADIO_SHUTDOWN_PROPERTY = "sys.radio.shutdown";
 
     // Indicates whether we are rebooting into safe mode
     public static final String REBOOT_SAFEMODE_PROPERTY = "persist.sys.safemode";
+
+    private static final String SYSFS_MSM_EFS_SYNC_COMPLETE = "/sys/devices/platform/rs300000a7.65536/sync_sts";
+    private static final String SYSFS_MDM_EFS_SYNC_COMPLETE = "/sys/devices/platform/rs300100a7.65536/sync_sts";
 
     // static instance of this thread
     private static final ShutdownThread sInstance = new ShutdownThread();
@@ -311,6 +323,8 @@ public final class ShutdownThread extends Thread {
      * Shuts off power regardless of radio and bluetooth state if the alloted time has passed.
      */
     public void run() {
+	boolean msmEfsSyncDone = false, mdmEfsSyncDone = false;
+
         BroadcastReceiver br = new BroadcastReceiver() {
             @Override public void onReceive(Context context, Intent intent) {
                 // We don't allow apps to cancel this, so ignore the result.
@@ -371,6 +385,47 @@ public final class ShutdownThread extends Thread {
 
         // Shutdown radios.
         shutdownRadios(MAX_RADIO_WAIT_TIME);
+
+		SystemProperties.set(RADIO_SHUTDOWN_PROPERTY, "true");
+			        Log.i(TAG, "Waiting for radio file system sync to complete ...");
+
+			        // Wait a max of 8 seconds
+			        for (int i = 0; i < MAX_NUM_PHONE_STATE_READS; i++) {
+			            if (!msmEfsSyncDone) {
+			                try {
+			                    FileInputStream fis = new FileInputStream(SYSFS_MSM_EFS_SYNC_COMPLETE);
+			                    int result = fis.read();
+			                    fis.close();
+			                    if (result == '1')
+			                                        {
+			                        msmEfsSyncDone = true;
+			                                        }
+			                } catch (Exception ex) {
+			                    Log.e(TAG, "Exception during msmEfsSyncDone", ex);
+			                    msmEfsSyncDone = true;
+			                }
+			            }
+			            if (!mdmEfsSyncDone) {
+			                try {
+			                    FileInputStream fis = new FileInputStream(SYSFS_MDM_EFS_SYNC_COMPLETE);
+			                    int result = fis.read();
+			                    fis.close();
+			                    if (result == '1')
+			                                        {
+			                        mdmEfsSyncDone = true;
+			                                        }
+			                } catch (Exception ex) {
+			                    Log.e(TAG, "Exception during mdmEfsSyncDone", ex);
+			                    mdmEfsSyncDone = true;
+			                }
+			            }
+			            if (msmEfsSyncDone && mdmEfsSyncDone) {
+			                Log.i(TAG, "Radio file system sync complete.");
+			                break;
+			            }
+			            Log.i(TAG, "Radio file system sync incomplete - retry.");
+			            SystemClock.sleep(PHONE_STATE_POLL_SLEEP_MSEC);
+			        }
 
         // Shutdown MountService to ensure media is in a safe state
         IMountShutdownObserver observer = new IMountShutdownObserver.Stub() {
@@ -502,13 +557,15 @@ public final class ShutdownThread extends Thread {
                     }
                     if (!radioOff) {
                         try {
+                            boolean subRadioOff = true;
                             if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
                                 final ITelephonyMSim mphone = ITelephonyMSim.Stub.asInterface(
                                         ServiceManager.checkService("phone_msim"));
                                 for (int i = 0; i < MSimTelephonyManager.getDefault().
                                         getPhoneCount(); i++) {
-                                    radioOff = radioOff && !mphone.isRadioOn(i);
+                                    subRadioOff = subRadioOff && !mphone.isRadioOn(i);
                                 }
+                                radioOff = subRadioOff;
                             } else {
                                 radioOff = !phone.isRadioOn();
                             }

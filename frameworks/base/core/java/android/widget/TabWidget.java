@@ -330,7 +330,8 @@ public class TabWidget extends LinearLayout implements OnFocusChangeListener {
             return;
         }
 
-        final View selectedChild = getChildTabViewAt(mSelectedTab);
+        if(mSelectedTab != -1) {
+           final View selectedChild = getChildTabViewAt(mSelectedTab);
 
         final Drawable leftStrip = mLeftStrip;
         final Drawable rightStrip = mRightStrip;
@@ -350,8 +351,9 @@ public class TabWidget extends LinearLayout implements OnFocusChangeListener {
             mStripMoved = false;
         }
 
-        leftStrip.draw(canvas);
-        rightStrip.draw(canvas);
+           leftStrip.draw(canvas);
+           rightStrip.draw(canvas);
+        }
     }
 
     /**
@@ -510,7 +512,7 @@ public class TabWidget extends LinearLayout implements OnFocusChangeListener {
 
     /** {@inheritDoc} */
     public void onFocusChange(View v, boolean hasFocus) {
-        if (v == this && hasFocus && getTabCount() > 0) {
+        if (v == this && hasFocus && getTabCount() > 0 && mSelectedTab != -1) {
             getChildTabViewAt(mSelectedTab).requestFocus();
             return;
         }

@@ -121,7 +121,7 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
         // Unregister from all events
         mPhone.mCM.unregisterForAvailable(this);
         mPhone.mCM.unregisterForOffOrNotAvailable(this);
-        IccRecords r = mIccRecords;
+        IccRecords r = mIccRecords.get();
         if (r != null) { r.unregisterForRecordsLoaded(this);}
         mPhone.mCM.unregisterForDataNetworkStateChanged(this);
         mCdmaPhone.mCT.unregisterForVoiceCallEnded(this);
@@ -172,7 +172,10 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
 
     @Override
     public synchronized State getState(String apnType) {
-        return mState;
+        if (isApnTypeActive(apnType)) {
+            return mState;
+        }
+        return State.IDLE;
     }
 
     @Override
@@ -193,7 +196,7 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
         boolean subscriptionFromNv = (mCdmaSSM.getCdmaSubscriptionSource()
                                        == CdmaSubscriptionSourceManager.SUBSCRIPTION_FROM_NV);
 
-        IccRecords r = mIccRecords;
+        IccRecords r = mIccRecords.get();
         boolean allowed = true;
 
         if (mCheckForConnectivity) {
@@ -254,7 +257,7 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
     private boolean trySetupData(String reason) {
         if (DBG) log("***trySetupData due to " + (reason == null ? "(unspecified)" : reason));
 
-        /**if (mPhone.getSimulatedRadioControl() != null) {
+        if (mPhone.getSimulatedRadioControl() != null) {
             // Assume data is connected on the simulator
             // FIXME  this can be improved
             setState(State.CONNECTED);
@@ -263,7 +266,7 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
 
             log("(fix?) We're on the simulator; assuming data is connected");
             return true;
-        }*/
+        }
 
         if ((mState == State.IDLE || mState == State.SCANNING) &&
                 isDataAllowed() && getAnyDataEnabled() && !isEmergency()) {
@@ -660,8 +663,7 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
      */
     @Override
     protected void onRadioAvailable() {
-/**        
-		if (mPhone.getSimulatedRadioControl() != null) {
+        if (mPhone.getSimulatedRadioControl() != null) {
             // Assume data is connected on the simulator
             // FIXME  this can be improved
             setState(State.CONNECTED);
@@ -669,7 +671,7 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
 
             log("We're on the simulator; assuming data is connected");
         }
-**/
+
         notifyOffApnsOfAvailability(null);
 
         if (mState != State.IDLE) {
@@ -683,16 +685,15 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
     @Override
     protected void onRadioOffOrNotAvailable() {
         mDataConnections.get(0).resetRetryCount();
-/**
+
         if (mPhone.getSimulatedRadioControl() != null) {
             // Assume data is connected on the simulator
             // FIXME  this can be improved
             log("We're on the simulator; assuming radio off is meaningless");
         } else {
-**/
             if (DBG) log("Radio is off and clean up all connection");
             cleanUpAllConnections(null);
- /**       }*/
+        }
     }
 
     /**
@@ -972,6 +973,13 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
                     }
 
                     break;
+                } else {
+                    /* Check if this was brought down due to a tethered call */
+                    if (FailCause.fromInt(dcState.status) == FailCause.TETHERED_CALL_ACTIVE) {
+                        // Mark apn as busy in a tethered call
+                        if (DBG) log("setTetheredCallOn for apn:" + mActiveApn.toString());
+                        mActiveApn.setTetheredCallOn(true);
+                    }
                 }
             }
 
@@ -1076,16 +1084,16 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
         IccRecords newIccRecords = getUiccCardApplication();
         if (newIccRecords == null) return;
 
-        IccRecords r = mIccRecords;
+        IccRecords r = mIccRecords.get();
         if (r != newIccRecords) {
             if (r != null) {
                 log("Removing stale icc objects.");
                 r.unregisterForRecordsLoaded(this);
-                mIccRecords=null;
+                mIccRecords.set(null);
             }
             if (newIccRecords != null) {
                 log("New records found");
-                mIccRecords=newIccRecords;
+                mIccRecords.set(newIccRecords);
                 newIccRecords.registerForRecordsLoaded(this, EVENT_RECORDS_LOADED, null);
             }
         }
@@ -1118,6 +1126,12 @@ public class CdmaDataConnectionTracker extends DataConnectionTracker {
     @Override
     protected DataConnection getActiveDataConnection(String type) {
         return mState == State.CONNECTED ? mPendingDataConnection : null;
+    }
+
+    @Override
+    protected void clearTetheredStateOnStatus() {
+        if (DBG) log("clearTetheredStateOnStatus()");
+        if (mActiveApn != null) mActiveApn.setTetheredCallOn(false);
     }
 
     @Override

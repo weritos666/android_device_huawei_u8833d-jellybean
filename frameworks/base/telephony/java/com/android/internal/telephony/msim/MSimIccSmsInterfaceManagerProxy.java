@@ -121,8 +121,6 @@ public class MSimIccSmsInterfaceManagerProxy extends ISmsMSim.Stub {
 
     public void sendText(String destAddr, String scAddr,
             String text, PendingIntent sentIntent, PendingIntent deliveryIntent, int subscription) {
-    	
-    	//Log.e("============>","send Text===============>subscription = "+ subscription + " ,text =  " + text);
         MSimIccSmsInterfaceManager iccSmsIntMgr = getIccSmsInterfaceManager(subscription);
         if (iccSmsIntMgr != null) {
             iccSmsIntMgr.sendText(destAddr, scAddr, text, sentIntent, deliveryIntent);

@@ -109,7 +109,7 @@ public abstract class IccPhoneBookInterfaceManager extends IIccPhoneBook.Stub {
 
     public IccPhoneBookInterfaceManager(PhoneBase phone) {
         this.phone = phone;
-        IccRecords r = phone.mIccRecords;
+        IccRecords r = phone.mIccRecords.get();
         if (r != null) {
             adnCache = r.getAdnCache();
         }

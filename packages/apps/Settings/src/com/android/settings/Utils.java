@@ -30,7 +30,6 @@ import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.os.BatteryManager;
 import android.os.Bundle;
-import android.os.SystemProperties;
 import android.preference.Preference;
 import android.preference.PreferenceActivity.Header;
 import android.preference.PreferenceFrameLayout;
@@ -86,11 +85,9 @@ public class Utils {
     private static final int DEVICE_PHONE = 0;
     private static final int DEVICE_HYBRID = 1;
     private static final int DEVICE_TABLET = 2;
-    
+
     // Device type reference
     private static int mDeviceType = -1;
-
-    
 
     /**
      * Finds a matching activity for a preference's intent. If a matching

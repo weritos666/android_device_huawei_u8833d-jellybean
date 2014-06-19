@@ -24,6 +24,7 @@ import android.net.LocalServerSocket;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.os.SystemProperties;
 import android.telephony.MSimTelephonyManager;
 import android.content.Intent;
 import android.provider.Settings.SettingNotFoundException;
@@ -34,10 +35,12 @@ import com.android.internal.telephony.MSimConstants;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneProxy;
 import com.android.internal.telephony.PhoneFactory;
-import com.android.internal.telephony.QualcommSharedRIL;
 import com.android.internal.telephony.RIL;
 import com.android.internal.telephony.RILConstants;
+import com.android.internal.telephony.sip.SipPhone;
+import com.android.internal.telephony.sip.SipPhoneFactory;
 import com.android.internal.telephony.TelephonyIntents;
+import static com.android.internal.telephony.TelephonyProperties.PROPERTY_DEFAULT_SUBSCRIPTION;
 import com.android.internal.telephony.uicc.UiccController;
 
 /**
@@ -59,7 +62,6 @@ public class MSimPhoneFactory extends PhoneFactory {
     //***** Class Methods
 
     public static void makeMultiSimDefaultPhones(Context context) {
-    	//Log.e(LOG_TAG, "------MSimPhoneFactory.java----------->makeMultiSimDefaultPhones()....");
         makeMultiSimDefaultPhone(context);
     }
 
@@ -88,7 +90,6 @@ public class MSimPhoneFactory extends PhoneFactory {
                     }
 
                     if ( !hasException ) {
-                    	Log.e(LOG_TAG, "------MSimPhoneFactory.java----------->hasException = false ");
                         break;
                     } else if (retryCount > SOCKET_OPEN_MAX_RETRY) {
                         throw new RuntimeException("MSimPhoneFactory probably already running");
@@ -106,7 +107,6 @@ public class MSimPhoneFactory extends PhoneFactory {
                 int preferredNetworkMode = RILConstants.PREFERRED_NETWORK_MODE;
                 if (BaseCommands.getLteOnCdmaModeStatic() == Phone.LTE_ON_CDMA_TRUE) {
                     preferredNetworkMode = Phone.NT_MODE_GLOBAL;
-                   // Log.i(LOG_TAG, "===========---------> preferredNetworkMode ---------> " + preferredNetworkMode + " = Phone.NT_MODE_GLOBAL");
                 }
 
                 // Get cdmaSubscription
@@ -116,27 +116,27 @@ public class MSimPhoneFactory extends PhoneFactory {
                 int cdmaSubscription = Settings.Secure.getInt(context.getContentResolver(),
                         Settings.Secure.CDMA_SUBSCRIPTION_MODE,
                         preferredCdmaSubscription);
-                //Log.i(LOG_TAG, "============---------> Cdma Subscription set to ---------> " + cdmaSubscription);
+                Log.i(LOG_TAG, "Cdma Subscription set to " + cdmaSubscription);
 
                 /* In case of multi SIM mode two instances of PhoneProxy, RIL are created,
                    where as in single SIM mode only instance. isMultiSimEnabled() function checks
                    whether it is single SIM or multi SIM mode */
                 int numPhones = MSimTelephonyManager.getDefault().getPhoneCount();
-                //Log.i(LOG_TAG, "=====================---------> numPhones ---------> " + numPhones);
                 int[] networkModes = new int[numPhones];
                 sProxyPhones = new MSimPhoneProxy[numPhones];
                 sCommandsInterfaces = new RIL[numPhones];
 
                 for (int i = 0; i < numPhones; i++) {
+                    //reads the system properties and makes commandsinterface
                     try {
                         networkModes[i]  = Settings.Secure.getIntAtIndex(
                                 context.getContentResolver(),
                                 Settings.Secure.PREFERRED_NETWORK_MODE, i);
                     } catch (SettingNotFoundException snfe) {
-                        //Log.e(LOG_TAG, "111111111111-----> Settings Exception Reading Value At Index", snfe);
+                        Log.e(LOG_TAG, "Settings Exception Reading Value At Index", snfe);
                         networkModes[i] = preferredNetworkMode;
                     }
-                    //Log.i(LOG_TAG, "22222222222222222--------> Network Mode set to -------> :::: " + Integer.toString(networkModes[i]));
+                    Log.i(LOG_TAG, "Network Mode set to " + Integer.toString(networkModes[i]));
                     sCommandsInterfaces[i] = new RIL(context, networkModes[i],
                             cdmaSubscription, i);
                 }
@@ -151,14 +151,13 @@ public class MSimPhoneFactory extends PhoneFactory {
 
                 for (int i = 0; i < numPhones; i++) {
                     int phoneType = getPhoneType(networkModes[i]);
-                    //Log.e(LOG_TAG, "--------------> ::::phoneType =  " + phoneType);
                     if (phoneType == Phone.PHONE_TYPE_GSM) {
-                        //Log.e(LOG_TAG, "-----------> Creating MSimGSMPhone sub = " + i);
+                        Log.i(LOG_TAG, "Creating MSimGSMPhone sub = " + i);
                         sProxyPhones[i] = new MSimPhoneProxy(new MSimGSMPhone(context,
                                 sCommandsInterfaces[i], sPhoneNotifier, i));
                     } else if (phoneType == Phone.PHONE_TYPE_CDMA) {
-                        //Log.e(LOG_TAG, "---------->Creating MSimCDMAPhone sub = " + i);
-                        sProxyPhones[i] = new MSimPhoneProxy(new MSimCDMAPhone(context,
+                        Log.i(LOG_TAG, "Creating MSimCDMALTEPhone sub = " + i);
+                        sProxyPhones[i] = new MSimPhoneProxy(new MSimCDMALTEPhone(context,
                                 sCommandsInterfaces[i], sPhoneNotifier, i));
                     }
                 }
@@ -179,7 +178,7 @@ public class MSimPhoneFactory extends PhoneFactory {
     public static Phone getMSimCdmaPhone(int subscription) {
         Phone phone;
         synchronized(PhoneProxy.lockForRadioTechnologyChange) {
-            phone = new MSimCDMAPhone(sContext, sCommandsInterfaces[subscription],
+            phone = new MSimCDMALTEPhone(sContext, sCommandsInterfaces[subscription],
                     sPhoneNotifier, subscription);
         }
         return phone;
@@ -215,8 +214,7 @@ public class MSimPhoneFactory extends PhoneFactory {
      * are active the first instance "0" is set as default subscription
      */
     public static void setDefaultSubscription(int subscription) {
-        Settings.System.putInt(sContext.getContentResolver(),
-                Settings.System.DEFAULT_SUBSCRIPTION, subscription);
+        SystemProperties.set(PROPERTY_DEFAULT_SUBSCRIPTION, Integer.toString(subscription));
 
         // Set the default phone in base class
         if (subscription >= 0 && subscription < sProxyPhones.length) {
@@ -236,15 +234,7 @@ public class MSimPhoneFactory extends PhoneFactory {
 
     /* Gets the default subscription */
     public static int getDefaultSubscription() {
-        int subscription = 0;
-        try {
-            subscription = Settings.System.getInt(sContext.getContentResolver(),
-                    Settings.System.DEFAULT_SUBSCRIPTION);
-        } catch (SettingNotFoundException snfe) {
-            // Settings Exception Reading Default Subscription
-        }
-
-        return subscription;
+        return SystemProperties.getInt(PROPERTY_DEFAULT_SUBSCRIPTION, 0);
     }
 
     /* Gets User preferred Voice subscription setting*/

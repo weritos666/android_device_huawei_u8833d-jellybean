@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (c) 2010-2012, Code Aurora Forum. All rights reserved.
+ * Not a Contribution, Apache license notifications and license are retained
+ * for attribution purposes only
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +51,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceActivity.Header;
 import android.preference.PreferenceFragment;
 import android.text.TextUtils;
+import android.telephony.MSimTelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -377,6 +381,7 @@ public class Settings extends PreferenceActivity
 
     private void updateHeaderList(List<Header> target) {
         int i = 0;
+
         while (i < target.size()) {
             Header header = target.get(i);
             // Ids are integers, so downcasting
@@ -435,6 +440,9 @@ public class Settings extends PreferenceActivity
                         || Utils.isMonkeyRunning()) {
                     target.remove(header);
                 }
+            } else if (id == R.id.multi_sim_settings) {
+                if (!MSimTelephonyManager.getDefault().isMultiSimEnabled())
+                    target.remove(header);
             }
             if (UserId.MU_ENABLED && UserId.myUserId() != 0
                     && !ArrayUtils.contains(SETTINGS_FOR_RESTRICTED, id)) {

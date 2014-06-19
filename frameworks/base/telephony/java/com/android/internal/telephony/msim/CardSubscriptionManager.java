@@ -189,6 +189,7 @@ public class CardSubscriptionManager extends Handler {
             Integer slot = new Integer(i);
             mCi[i].registerForOffOrNotAvailable(this, EVENT_RADIO_OFF_OR_NOT_AVAILABLE, slot);
             mCi[i].registerForOn(this, EVENT_RADIO_ON, slot);
+
             // Register for SIM Refresh events
             mCi[i].registerForIccRefresh(this, EVENT_SIM_REFRESH, new Integer(i));
         }
@@ -233,7 +234,7 @@ public class CardSubscriptionManager extends Handler {
                 logd("EVENT_READ_ICCID_DONE");
                 handleGetIccIdDone((AsyncResult)msg.obj);
                 break;
-                
+
             case EVENT_UPDATE_UICC_STATUS:
                 logd("EVENT_UPDATE_UICC_STATUS");
                 onUpdateUiccStatus((Integer)msg.arg2, ((String)msg.obj));
@@ -302,7 +303,7 @@ public class CardSubscriptionManager extends Handler {
      * Process the ICC_CHANGED notification.
      */
     private void handleIccChanged(AsyncResult ar) {
-        //boolean iccIdsAvailable = false;
+        boolean iccIdsAvailable = false;
         boolean cardStateChanged = false;
 
         logd("handleIccChanged: ENTER");
@@ -366,14 +367,14 @@ public class CardSubscriptionManager extends Handler {
     /**
      * Return true if there is any read ICCID request is in progress otherwise false.
      */
-/*    private boolean isIccIdAvailable(int cardIndex) {
+    private boolean isIccIdAvailable(int cardIndex) {
         CardInfo cardInfo = mUiccCardList.get(cardIndex);
         if (cardInfo.getCardState() == CardState.CARDSTATE_PRESENT
                 && cardInfo.getIccId() != null) {
             return true;
         }
         return false;
-    }*/
+    }
 
     /** Resets the card subscriptions */
     private void resetCardInfo(int cardIndex) {

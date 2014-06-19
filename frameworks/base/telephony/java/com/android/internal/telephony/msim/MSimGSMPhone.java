@@ -19,6 +19,7 @@
 
 package com.android.internal.telephony.msim;
 
+import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -26,6 +27,7 @@ import android.database.SQLException;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.provider.Telephony;
 import android.telephony.MSimTelephonyManager;
 import android.text.TextUtils;
@@ -38,6 +40,7 @@ import com.android.internal.telephony.msim.SubscriptionManager;
 import com.android.internal.telephony.gsm.GSMPhone;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneNotifier;
+import com.android.internal.telephony.ServiceStateTracker;
 import com.android.internal.telephony.TelephonyProperties;
 
 import com.android.internal.telephony.uicc.IccRecords;
@@ -48,261 +51,269 @@ import static com.android.internal.telephony.MSimConstants.EVENT_SUBSCRIPTION_AC
 import static com.android.internal.telephony.MSimConstants.EVENT_SUBSCRIPTION_DEACTIVATED;
 
 public class MSimGSMPhone extends GSMPhone {
-	// Key used to read/write voice mail number
-	public String mVmNumGsmKey = null;
-	public String mVmImsi = null;
+    // Holds the subscription information
+    private Subscription mSubscriptionData = null;
+    private int mSubscription = 0;
+    NotificationManager mNotificationManager;
 
-	// Holds the subscription information
-	private Subscription mSubscriptionData = null;
-	private int mSubscription = 0;
+    // Call Forward icons. Values have to be same as mentioned in
+    // NotificationMgr.java
+    private static final int CALL_FORWARD_NOTIFICATION = 6;
+    private static final int CALL_FORWARD_NOTIFICATION_SUB2 = 21;
 
-	public MSimGSMPhone(Context context, CommandsInterface ci,
-			PhoneNotifier notifier, int subscription) {
-		this(context, ci, notifier, false, subscription);
-	}
+    public
+    MSimGSMPhone (Context context, CommandsInterface ci, PhoneNotifier notifier, int subscription) {
+        this(context, ci, notifier, false, subscription);
+    }
 
-	public MSimGSMPhone(Context context, CommandsInterface ci,
-			PhoneNotifier notifier, boolean unitTestMode, int subscription) {
-		super(context, ci, notifier, unitTestMode);
+    public
+    MSimGSMPhone (Context context, CommandsInterface ci,
+            PhoneNotifier notifier, boolean unitTestMode, int subscription) {
+        super(context, ci, notifier, unitTestMode);
 
-		mSubscription = subscription;
+        mSubscription = subscription;
 
-		Log.d(LOG_TAG, "MSimGSMPhone: constructor: sub = " + mSubscription);
+        Log.d(LOG_TAG, "MSimGSMPhone: constructor: sub = " + mSubscription);
 
-		mVmNumGsmKey = VM_NUMBER + mSubscription;
-		mVmImsi = VM_SIM_IMSI + mSubscription;
+        mNotificationManager = (NotificationManager) mContext
+                .getSystemService(Context.NOTIFICATION_SERVICE);
 
-		mDataConnectionTracker = new MSimGsmDataConnectionTracker(this);
+        mVmNumGsmKey = mVmNumGsmKey + mSubscription;
+        mVmCountKey = mVmCountKey + mSubscription;
+        mVmId = mVmId + mSubscription;
 
-		SubscriptionManager subMgr = SubscriptionManager.getInstance();
-		subMgr.registerForSubscriptionActivated(mSubscription, this,
-				EVENT_SUBSCRIPTION_ACTIVATED, null);
-		subMgr.registerForSubscriptionDeactivated(mSubscription, this,
-				EVENT_SUBSCRIPTION_DEACTIVATED, null);
+        mDataConnectionTracker = new MSimGsmDataConnectionTracker (this);
 
-		setProperties();
-	}
+        SubscriptionManager subMgr = SubscriptionManager.getInstance();
+        subMgr.registerForSubscriptionActivated(mSubscription,
+                this, EVENT_SUBSCRIPTION_ACTIVATED, null);
+        subMgr.registerForSubscriptionDeactivated(mSubscription,
+                this, EVENT_SUBSCRIPTION_DEACTIVATED, null);
 
-	@Override
-	public void dispose() {
-		super.dispose();
+        setProperties();
+    }
 
-		SubscriptionManager subMgr = SubscriptionManager.getInstance();
-		subMgr.unregisterForSubscriptionActivated(mSubscription, this);
-		subMgr.unregisterForSubscriptionDeactivated(mSubscription, this);
-	}
+    @Override
+    public void dispose() {
+        super.dispose();
 
-	@Override
-	public void handleMessage(Message msg) {
-		switch (msg.what) {
-		case EVENT_SUBSCRIPTION_ACTIVATED:
-			log("EVENT_SUBSCRIPTION_ACTIVATED");
-			onSubscriptionActivated();
-			break;
+        SubscriptionManager subMgr = SubscriptionManager.getInstance();
+        subMgr.unregisterForSubscriptionActivated(mSubscription, this);
+        subMgr.unregisterForSubscriptionDeactivated(mSubscription, this);
+    }
 
-		case EVENT_SUBSCRIPTION_DEACTIVATED:
-			log("EVENT_SUBSCRIPTION_DEACTIVATED");
-			onSubscriptionDeactivated();
-			break;
+    @Override
+    public void handleMessage(Message msg) {
+        switch (msg.what) {
+            case EVENT_SUBSCRIPTION_ACTIVATED:
+                log("EVENT_SUBSCRIPTION_ACTIVATED");
+                onSubscriptionActivated();
+                break;
 
-		default:
-			super.handleMessage(msg);
-		}
-	}
+            case EVENT_SUBSCRIPTION_DEACTIVATED:
+                log("EVENT_SUBSCRIPTION_DEACTIVATED");
+                onSubscriptionDeactivated();
+                break;
 
-	private void onSubscriptionActivated() {
-		SubscriptionManager subMgr = SubscriptionManager.getInstance();
-		mSubscriptionData = subMgr.getCurrentSubscription(mSubscription);
+            default:
+                super.handleMessage(msg);
+        }
+    }
 
-		log("SUBSCRIPTION ACTIVATED : slotId : " + mSubscriptionData.slotId
-				+ " appid : " + mSubscriptionData.m3gppIndex + " subId : "
-				+ mSubscriptionData.subId + " subStatus : "
-				+ mSubscriptionData.subStatus);
+    private void onSubscriptionActivated() {
+        SubscriptionManager subMgr = SubscriptionManager.getInstance();
+        mSubscriptionData = subMgr.getCurrentSubscription(mSubscription);
 
-		// Make sure properties are set for proper subscription.
-		setProperties();
+        log("SUBSCRIPTION ACTIVATED : slotId : " + mSubscriptionData.slotId
+                + " appid : " + mSubscriptionData.m3gppIndex
+                + " subId : " + mSubscriptionData.subId
+                + " subStatus : " + mSubscriptionData.subStatus);
 
-		onUpdateIccAvailability();
-		// mSST.sendMessage(obtainMessage(EVENT_ICC_CHANGED));
-		mSST.updateIcc();
+        // Make sure properties are set for proper subscription.
+        setProperties();
 
-		((MSimGsmDataConnectionTracker) mDataConnectionTracker).updateRecords();
+        onUpdateIccAvailability();
+        mSST.sendMessage(mSST.obtainMessage(ServiceStateTracker.EVENT_ICC_CHANGED));
+        ((MSimGsmDataConnectionTracker)mDataConnectionTracker).updateRecords();
 
-		// read the subscription specifics now
-		mCM.getIMEI(obtainMessage(EVENT_GET_IMEI_DONE));
-		mCM.getBasebandVersion(obtainMessage(EVENT_GET_BASEBAND_VERSION_DONE));
-		mCM.getIMEISV(obtainMessage(EVENT_GET_IMEISV_DONE));
-	}
+        // read the subscription specifics now
+        mCM.getIMEI(obtainMessage(EVENT_GET_IMEI_DONE));
+        mCM.getBasebandVersion(obtainMessage(EVENT_GET_BASEBAND_VERSION_DONE));
+        mCM.getIMEISV(obtainMessage(EVENT_GET_IMEISV_DONE));
+    }
 
-	private void onSubscriptionDeactivated() {
-		log("SUBSCRIPTION DEACTIVATED");
-		mSubscriptionData = null;
-		resetSubSpecifics();
-	}
+    private void onSubscriptionDeactivated() {
+        log("SUBSCRIPTION DEACTIVATED");
+        mSubscriptionData = null;
+        resetSubSpecifics();
+    }
 
-	public void resetSubSpecifics() {
-		mImei = null;
-		mImeiSv = null;
-	}
+    public void resetSubSpecifics() {
+        setVoiceMessageCount(0);
+        if (getCallForwardingIndicator()) {
+            int notificationId = (mSubscription == 0) ? CALL_FORWARD_NOTIFICATION :
+                    CALL_FORWARD_NOTIFICATION_SUB2;
+            mNotificationManager.cancel(notificationId);
+        }
 
-	// Gets Subscription information in the Phone Object
-	public Subscription getSubscriptionInfo() {
-		return mSubscriptionData;
-	}
+    }
 
-	/**
-	 * Returns the subscription id.
-	 */
-	@Override
-	public int getSubscription() {
-		return mSubscription;
-	}
+    //Gets Subscription information in the Phone Object
+    public Subscription getSubscriptionInfo() {
+        return mSubscriptionData;
+    }
 
-	/**
-	 * Initialize the MultiSim Specifics here. Should be called from the base
-	 * class constructor
-	 */
-	@Override
-	protected void initSubscriptionSpecifics() {
-		mSST = new MSimGsmServiceStateTracker(this);
-	}
+    /**
+     * Returns the subscription id.
+     */
+    @Override
+    public int getSubscription() {
+        return mSubscription;
+    }
 
-	// Set the properties per subscription
-	@Override
-	protected void setProperties() {
-		// Change the system property
-		MSimTelephonyManager.setTelephonyProperty(
-				TelephonyProperties.CURRENT_ACTIVE_PHONE, mSubscription,
-				new Integer(Phone.PHONE_TYPE_GSM).toString());
-	}
+    /**
+     * Initialize the MultiSim Specifics here.
+     * Should be called from the base class constructor
+     */
+    @Override
+    protected void initSubscriptionSpecifics() {
+        mSST = new MSimGsmServiceStateTracker(this);
+    }
 
-	@Override
-	protected void storeVoiceMailNumber(String number) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sp.edit();
-		editor.putString(mVmNumGsmKey, number);
-		editor.apply();
-		setVmSimImsi(getSubscriberId());
-	}
+    // Set the properties per subscription
+    @Override
+    protected void setProperties() {
+        //Change the system property
+        MSimTelephonyManager.setTelephonyProperty(TelephonyProperties.CURRENT_ACTIVE_PHONE,
+                mSubscription,
+                new Integer(Phone.PHONE_TYPE_GSM).toString());
+    }
 
-	@Override
-	public String getVoiceMailNumber() {
-		// Read from the SIM. If its null, try reading from the shared
-		// preference area.
-		IccRecords r = mIccRecords;
-		String number = (r != null) ? r.getVoiceMailNumber() : "";
-		if (TextUtils.isEmpty(number)) {
-			SharedPreferences sp = PreferenceManager
-					.getDefaultSharedPreferences(getContext());
-			number = sp.getString(mVmNumGsmKey, null);
-		}
-		return number;
-	}
+    @Override
+    protected UiccCardApplication getUiccCardApplication() {
+        if(mSubscriptionData != null) {
+            return  mUiccController.getUiccCardApplication(mSubscriptionData.slotId,
+                    UiccController.APP_FAM_3GPP);
+        }
+        return null;
+    }
 
-	private String getVmSimImsi() {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(getContext());
-		return sp.getString(mVmImsi, null);
-	}
+    @Override
+    public void setSystemProperty(String property, String value) {
+        if(getUnitTestMode()) {
+            return;
+        }
+        MSimTelephonyManager.setTelephonyProperty(property, mSubscription, value);
+    }
 
-	protected void setVmSimImsi(String imsi) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(getContext());
-		SharedPreferences.Editor editor = sp.edit();
-		editor.putString(mVmImsi, imsi);
-		editor.apply();
-	}
+    public String getSystemProperty(String property, String defValue) {
+        if(getUnitTestMode()) {
+            return null;
+        }
+        return MSimTelephonyManager.getTelephonyProperty(property, mSubscription, defValue);
+    }
 
-	@Override
-	protected UiccCardApplication getUiccCardApplication() {
-		if (mSubscriptionData != null) {
-			return mUiccController.getUiccCardApplication(
-					mSubscriptionData.slotId, UiccController.APP_FAM_3GPP);
-		}
-		return null;
-	}
+    public void updateDataConnectionTracker() {
+        ((MSimGsmDataConnectionTracker)mDataConnectionTracker).update();
+    }
 
-	@Override
-	public void setSystemProperty(String property, String value) {
-		if (getUnitTestMode()) {
-			return;
-		}
-		MSimTelephonyManager.setTelephonyProperty(property, mSubscription,
-				value);
-	}
+    public void setInternalDataEnabled(boolean enable, Message onCompleteMsg) {
+        ((MSimGsmDataConnectionTracker)mDataConnectionTracker)
+                .setInternalDataEnabled(enable, onCompleteMsg);
+    }
 
-	public String getSystemProperty(String property, String defValue) {
-		if (getUnitTestMode()) {
-			return null;
-		}
-		return MSimTelephonyManager.getTelephonyProperty(property,
-				mSubscription, defValue);
-	}
 
-	public void updateDataConnectionTracker() {
-		((MSimGsmDataConnectionTracker) mDataConnectionTracker).update();
-	}
+    public boolean setInternalDataEnabledFlag(boolean enable) {
+        return ((MSimGsmDataConnectionTracker)mDataConnectionTracker)
+                .setInternalDataEnabledFlag(enable);
+    }
 
-	public void setInternalDataEnabled(boolean enable, Message onCompleteMsg) {
-		((MSimGsmDataConnectionTracker) mDataConnectionTracker)
-				.setInternalDataEnabled(enable, onCompleteMsg);
-	}
+    /**
+     * @return operator numeric.
+     */
+    public String getOperatorNumeric() {
+        String operatorNumeric = null;
+        IccRecords r = mIccRecords.get();
+        if (r != null) {
+            operatorNumeric = r.getOperatorNumeric();
+        }
+        return operatorNumeric;
+    }
 
-	public boolean setInternalDataEnabledFlag(boolean enable) {
-		return ((MSimGsmDataConnectionTracker) mDataConnectionTracker)
-				.setInternalDataEnabledFlag(enable);
-	}
+    /**
+     * Sets the "current" field in the telephony provider according to the operator numeric.
+     *
+     * @return true for success; false otherwise.
+     */
+    public boolean updateCurrentCarrierInProvider() {
+        int currentDds = MSimPhoneFactory.getDataSubscription();
+        String operatorNumeric = getOperatorNumeric();
 
-	/**
-	 * @return operator numeric.
-	 */
-	public String getOperatorNumeric() {
-		String operatorNumeric = null;
-		IccRecords r = mIccRecords;
-		if (r != null) {
-			operatorNumeric = r.getOperatorNumeric();
-		}
-		return operatorNumeric;
-	}
+        Log.d(LOG_TAG, "updateCurrentCarrierInProvider: mSubscription = " + getSubscription()
+                + " currentDds = " + currentDds + " operatorNumeric = " + operatorNumeric);
 
-	/**
-	 * Sets the "current" field in the telephony provider according to the
-	 * operator numeric.
-	 * 
-	 * @return true for success; false otherwise.
-	 */
-	public boolean updateCurrentCarrierInProvider() {
-		int currentDds = MSimPhoneFactory.getDataSubscription();
-		String operatorNumeric = getOperatorNumeric();
+        if (!TextUtils.isEmpty(operatorNumeric) && (getSubscription() == currentDds)) {
+            try {
+                Uri uri = Uri.withAppendedPath(Telephony.Carriers.CONTENT_URI, "current");
+                ContentValues map = new ContentValues();
+                map.put(Telephony.Carriers.NUMERIC, operatorNumeric);
+                mContext.getContentResolver().insert(uri, map);
+                return true;
+            } catch (SQLException e) {
+                Log.e(LOG_TAG, "Can't store current operator", e);
+            }
+        }
+        return false;
+    }
 
-		Log.d(LOG_TAG, "updateCurrentCarrierInProvider: mSubscription = "
-				+ getSubscription() + " currentDds = " + currentDds
-				+ " operatorNumeric = " + operatorNumeric);
+    @Override
+    protected String getVmSimImsi() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+        return sp.getString((VM_SIM_IMSI + mSubscription), null);
+    }
 
-		if (!TextUtils.isEmpty(operatorNumeric)
-				&& (getSubscription() == currentDds)) {
-			try {
-				Uri uri = Uri.withAppendedPath(Telephony.Carriers.CONTENT_URI,
-						"current");
-				ContentValues map = new ContentValues();
-				map.put(Telephony.Carriers.NUMERIC, operatorNumeric);
-				mContext.getContentResolver().insert(uri, map);
-				return true;
-			} catch (SQLException e) {
-				Log.e(LOG_TAG, "Can't store current operator", e);
-			}
-		}
-		return false;
-	}
+    @Override
+    protected void setVmSimImsi(String imsi) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString((VM_SIM_IMSI + mSubscription), imsi);
+        editor.apply();
+    }
 
-	public void registerForAllDataDisconnected(Handler h, int what, Object obj) {
-		((MSimGsmDataConnectionTracker) mDataConnectionTracker)
-				.registerForAllDataDisconnected(h, what, obj);
-	}
+    /**
+     * This method stores the CF_ENABLED flag in preferences
+     * @param enabled
+     */
+    @Override
+    protected void setCallForwardingPreference(boolean enabled) {
+        if (LOCAL_DEBUG) Log.d(LOG_TAG, "Set callforwarding info to perferences for sub = "
+                + mSubscription + " enabled = " + enabled);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putBoolean((CF_ENABLED + mSubscription), enabled);
+        edit.commit();
 
-	public void unregisterForAllDataDisconnected(Handler h) {
-		((MSimGsmDataConnectionTracker) mDataConnectionTracker)
-				.unregisterForAllDataDisconnected(h);
-	}
+        // Using the same method as VoiceMail to be able to track when the sim card is changed.
+        setVmSimImsi(getSubscriberId());
+    }
+
+    @Override
+    protected boolean getCallForwardingPreference() {
+        if (LOCAL_DEBUG) Log.d(LOG_TAG, "Get callforwarding info from perferences for sub = "
+                + mSubscription);
+
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
+        boolean cf = sp.getBoolean((CF_ENABLED + mSubscription), false);
+        if (LOCAL_DEBUG) Log.d(LOG_TAG, "CF enabled = " + cf);
+        return cf;
+    }
+
+    public void registerForAllDataDisconnected(Handler h, int what, Object obj) {
+        ((MSimGsmDataConnectionTracker)mDataConnectionTracker)
+                .registerForAllDataDisconnected(h, what, obj);
+    }
+
+    public void unregisterForAllDataDisconnected(Handler h) {
+        ((MSimGsmDataConnectionTracker)mDataConnectionTracker).unregisterForAllDataDisconnected(h);
+    }
 }

@@ -26,6 +26,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -39,6 +40,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.SystemProperties;
+import android.provider.Settings;
 import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.provider.Telephony.Sms.Intents;
@@ -46,20 +48,26 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.ServiceState;
 import android.telephony.SmsCbMessage;
 import android.telephony.SmsMessage;
+import android.telephony.SmsMessage.SubmitPdu;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.WindowManager;
 
 import com.android.internal.R;
 import com.android.internal.telephony.SmsMessageBase.TextEncodingDetails;
+import com.android.internal.telephony.uicc.IccUtils;
 import com.android.internal.util.HexDump;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import static android.telephony.SmsManager.RESULT_ERROR_FDN_CHECK_FAILURE;
@@ -140,6 +148,8 @@ public abstract class SMSDispatcher extends Handler {
 
     protected final WapPushOverSms mWapPush;
 
+    private final MockSmsReceiver mMockSmsReceiver;
+
     protected static final Uri mRawUri = Uri.withAppendedPath(Telephony.Sms.CONTENT_URI, "raw");
 
     /** Maximum number of times to retry sending a failed SMS. */
@@ -209,6 +219,10 @@ public abstract class SMSDispatcher extends Handler {
         mUsageMonitor = usageMonitor;
         mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
 
+        // Register the mock SMS receiver to simulate the reception of SMS
+        mMockSmsReceiver = new MockSmsReceiver();
+        mMockSmsReceiver.registerReceiver();
+
         createWakelock();
 
         mSmsCapable = mContext.getResources().getBoolean(
@@ -250,6 +264,7 @@ public abstract class SMSDispatcher extends Handler {
 
     @Override
     protected void finalize() {
+        mMockSmsReceiver.unregisterReceiver();
         Log.d(TAG, "SMSDispatcher finalized");
     }
 
@@ -372,6 +387,22 @@ public abstract class SMSDispatcher extends Handler {
         // receivers time to take their own wake locks.
         mWakeLock.acquire(WAKE_LOCK_TIMEOUT);
         mContext.sendOrderedBroadcast(intent, permission, mResultReceiver,
+                this, Activity.RESULT_OK, null, null);
+    }
+
+    /**
+     * Grabs a wake lock and sends intent as an ordered broadcast.
+     * Used for setting a custom result receiver for CDMA SCPD.
+     *
+     * @param intent intent to broadcast
+     * @param permission Receivers are required to have this permission
+     * @param resultReceiver the result receiver to use
+     */
+    public void dispatch(Intent intent, String permission, BroadcastReceiver resultReceiver) {
+        // Hold a wake lock for WAKE_LOCK_TIMEOUT seconds, enough to give any
+        // receivers time to take their own wake locks.
+        mWakeLock.acquire(WAKE_LOCK_TIMEOUT);
+        mContext.sendOrderedBroadcast(intent, permission, resultReceiver,
                 this, Activity.RESULT_OK, null, null);
     }
 
@@ -562,12 +593,14 @@ public abstract class SMSDispatcher extends Handler {
 
         Log.d(TAG, " Storing Voice Mail Count = " + mwi
                     + " for imsi = " + imsi
+                    + " for mVmCountKey = " + ((PhoneBase)mPhone).mVmCountKey
+                    + " vmId = " + ((PhoneBase)mPhone).mVmId
                     + " in preferences.");
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
         SharedPreferences.Editor editor = sp.edit();
-        editor.putInt(((PhoneBase)mPhone).VM_COUNT, mwi);
-        editor.putString(((PhoneBase)mPhone).VM_ID, imsi);
+        editor.putInt(((PhoneBase)mPhone).mVmCountKey, mwi);
+        editor.putString(((PhoneBase)mPhone).mVmId, imsi);
         editor.commit();
 
     }
@@ -933,46 +966,31 @@ public abstract class SMSDispatcher extends Handler {
     protected void sendRawPdu(SmsTracker tracker) {
         HashMap map = tracker.mData;
         byte pdu[] = (byte[]) map.get("pdu");
-        Log.e(TAG, "==aaaaaaaaaaaa=================> failed to send error result");
+
         PendingIntent sentIntent = tracker.mSentIntent;
-        Log.e(TAG, "==bbbbbbbb=================> failed to send error result");
         if (mSmsSendDisabled) {
             if (sentIntent != null) {
                 try {
-                	Log.e(TAG, "==cccccccccc=================> failed to send error result");
                     sentIntent.send(RESULT_ERROR_NO_SERVICE);
-                } catch (CanceledException ex) {
-                	Log.e(TAG, "==0000000=================> failed to send error result");
-                	ex.printStackTrace();
-                }
+                } catch (CanceledException ex) {}
             }
-            Log.e(TAG, "==ddddddd=================> failed to send error result");
             Log.d(TAG, "Device does not support sending sms.");
             return;
         }
 
-        Log.e(TAG, "==eeeeeeeeee=================> failed to send error result");
-        
         if (pdu == null) {
             if (sentIntent != null) {
                 try {
                     sentIntent.send(RESULT_ERROR_NULL_PDU);
-                } catch (CanceledException ex) {
-                	Log.e(TAG, "==1111111==========44444=======>d error result");
-                	ex.printStackTrace();
-                }
+                } catch (CanceledException ex) {}
             }
-            Log.e(TAG, "==222222=============4444444====>r result");
             return;
         }
 
-        Log.e(TAG, "==ffffffffffff=================> failed to send error result");
         // Get calling app package name via UID from Binder call
         PackageManager pm = mContext.getPackageManager();
         String[] packageNames = pm.getPackagesForUid(Binder.getCallingUid());
 
-        Log.e(TAG, "==gggggggggggggg=================> failed to send error result");
-        
         if (packageNames == null || packageNames.length == 0) {
             // Refuse to send SMS if we can't get the calling package name.
             Log.e(TAG, "Can't get calling app package name: refusing to send SMS");
@@ -981,31 +999,23 @@ public abstract class SMSDispatcher extends Handler {
                     sentIntent.send(RESULT_ERROR_GENERIC_FAILURE);
                 } catch (CanceledException ex) {
                     Log.e(TAG, "failed to send error result");
-                    ex.printStackTrace();
                 }
             }
-            Log.e(TAG, "==333333=#####===========111111=====> failed to send error result");
             return;
         }
-        
-        Log.e(TAG, "==hhhhhhhh=================> failed mUsageMonitor = " + mUsageMonitor);
 
         // check for excessive outgoing SMS usage by this app
-        if ((mUsageMonitor!=null)&&!mUsageMonitor.check(tracker.mAppPackage, SINGLE_PART_SMS)) {
-        	Log.e(TAG, "==111111=================> failed to send error result");
-        	sendMessage(obtainMessage(EVENT_SEND_LIMIT_REACHED_CONFIRMATION, tracker));
+        if (!mUsageMonitor.check(tracker.mAppPackage, SINGLE_PART_SMS)) {
+            sendMessage(obtainMessage(EVENT_SEND_LIMIT_REACHED_CONFIRMATION, tracker));
             return;
         }
 
-        Log.e(TAG, "==44444=#####==========22222=====> failed to send error result");
         int ss = mPhone.getServiceState().getState();
 
         // if sms over IMS is not supported on data and voice is not available...
         if (!isIms() && ss != ServiceState.STATE_IN_SERVICE) {
-        	Log.e(TAG, "===222222================> failed to send error result");
             handleNotInService(ss, tracker.mSentIntent);
         } else {
-        	Log.e(TAG, "****333333*********** > failed to send error result");
             sendSms(tracker);
         }
     }
@@ -1298,4 +1308,249 @@ public abstract class SMSDispatcher extends Handler {
     public abstract boolean isIms();
 
     public abstract String getImsSmsFormat();
+
+    /**
+     * A private class that allow simulating the receive of SMS.<br/>
+     * <br/>
+     * A developer must use {@link Context#sendBroadcast(Intent)}, using the action
+     * {@link Intents#MOCK_SMS_RECEIVED_ACTION}. The application requires
+     * {@linkplain "android.permission.SEND_MOCK_SMS"} permission.<br/>
+     * <br/>
+     * This receiver should be used in the next way:<br/>
+     * <pre>
+     * Intent in = new Intent(Intents.MOCK_SMS_RECEIVED_ACTION);
+     * in.putExtra("scAddr", "+01123456789");
+     * in.putExtra("senderAddr", "+01123456789");
+     * in.putExtra("msg", "This is a mock SMS message.");
+     * sendBroadcast(in);
+     * </pre><br/>
+     * or<br/>
+     * <pre>
+     * String pdu = "07914151551512f2040B916105551511f100006060605130308A04D4F29C0E";
+     * byte[][] pdus = new byte[1][];
+     * pdus[0] = HexDump.hexStringToByteArray(pdu);
+     * Intent in = new Intent(Intents.MOCK_SMS_RECEIVED_ACTION);
+     * intent.putExtra("pdus", pdus);
+     * sendBroadcast(in);
+     * </pre><br/>
+     */
+    private final class MockSmsReceiver extends BroadcastReceiver {
+        private static final String TAG = "MockSmsReceiver";
+
+        private static final String SEND_MOCK_SMS_PERMISSION =
+                                        "android.permission.SEND_MOCK_SMS";
+
+        /**
+         * Method that register the MockSmsReceiver class as a BroadcastReceiver
+         */
+        public final void registerReceiver() {
+            try {
+                Handler handler = new Handler();
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(Intents.MOCK_SMS_RECEIVED_ACTION);
+                mContext.registerReceiver(this, filter, SEND_MOCK_SMS_PERMISSION, handler);
+                Log.d(TAG, "Registered MockSmsReceiver");
+            } catch (Exception ex) {
+                Log.e(TAG, "Failed to register MockSmsReceiver", ex);
+            }
+        }
+
+        /**
+         * Method that unregister the MockSmsReceiver class as a BroadcastReceiver
+         */
+        public final void unregisterReceiver() {
+            try {
+                mContext.unregisterReceiver(this);
+            } catch (Exception ex) {
+                Log.e(TAG, "Failed to unregister MockSmsReceiver", ex);
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public final void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "New mock SMS reception request. Intent: " + intent);
+
+            try {
+                // Check that developer option is enabled, and mock
+                // messages are allowed
+                boolean allowMockSMS = Settings.Secure.getInt(mContext.getContentResolver(),
+                        Settings.Secure.ALLOW_MOCK_SMS, 0) == 1;
+                if (!allowMockSMS) {
+                    // Mock SMS is not allowed. This
+                    Log.w(TAG,
+                            "Mock SMS is not allowed. Enable Mock SMS on Settings/Delevelopment.");
+                    return;
+                }
+
+                // Extract PDUs
+                byte[][] pdus = null;
+                Object[] messages = (Object[]) intent.getSerializableExtra("pdus");
+                if (messages != null && messages.length > 0) {
+                    // Use the PDUs from the intent
+                    pdus = new byte[messages.length][];
+                    for (int i = 0; i < messages.length; i++) {
+                        pdus[i] = (byte[]) messages[i];
+                    }
+
+                } else {
+                    // Build the PDUs from SMS data
+                    String scAddress = intent.getStringExtra("scAddr");
+                    String senderAddress = intent.getStringExtra("senderAddr");
+                    String msg = intent.getStringExtra("msg");
+
+                    // Check that values are valid. Otherwise fill will default values
+                    if (TextUtils.isEmpty(scAddress)) {
+                        scAddress = "+01123456789";
+                    }
+                    if (TextUtils.isEmpty(senderAddress)) {
+                        senderAddress = "+01123456789";
+                    }
+                    if (TextUtils.isEmpty(msg)) {
+                        msg = "This is a mock SMS message.";
+                    }
+                    Log.d(TAG,
+                            String.format(
+                                    "Mock SMS. scAddress: %s, senderAddress: %s, msg: %s",
+                                    scAddress, senderAddress, msg));
+
+                    // Create the PDUs
+                    pdus = getPdus(scAddress, senderAddress, msg);
+                }
+
+                // How messages are going to send?
+                Log.d(TAG,
+                        String.format(
+                                "Mock SMS. Number of msg: %d",
+                                pdus.length));
+
+                // Send messages
+                Intent mockSmsIntent = new Intent(Intents.SMS_RECEIVED_ACTION);
+                mockSmsIntent.putExtra("pdus", pdus );
+                mockSmsIntent.putExtra("format", android.telephony.SmsMessage.FORMAT_3GPP );
+                dispatch(mockSmsIntent, SMSDispatcher.RECEIVE_SMS_PERMISSION);
+
+                // Set result (messages were sent)
+                setResultCode(android.app.Activity.RESULT_OK);
+
+            } catch (Exception ex) {
+                Log.e(TAG, "Failed to dispatch SMS", ex);
+
+                // Set result (messages were not sent)
+                setResultCode(android.app.Activity.RESULT_CANCELED);
+            }
+        }
+
+        /**
+         * Method that convert the basic SMS string data to a PDUs messages
+         *
+         * @param scAddress The mock the SC address
+         * @param senderAddress The mock the sender address
+         * @param message The mock message body
+         * @return byte[] The array of bytes of the PDU
+         */
+        private byte[][] getPdus(String scAddress, String senderAddress, String message) {
+
+            // Fragment the text in message according to SMS length
+            List<String> msgs = android.telephony.SmsMessage.fragmentText(message);
+
+            // Create the array of PDUs to return
+            byte[][] pdus = new byte[msgs.size()][];
+
+            // Retrieve a PDU for every fragmented message
+            for (int i=0; i<msgs.size(); i++) {
+                String msg = msgs.get(i);
+
+                // Get a SubmitPdu
+                SubmitPdu submitPdu =
+                        android.telephony.SmsMessage.getSubmitPdu(
+                                                            scAddress,
+                                                            senderAddress,
+                                                            msg,
+                                                            false);
+
+                // Translate the submit data to a received PDU
+                int dataLen = android.telephony.SmsMessage.calculateLength(msg, true)[1];
+
+                // Locate protocol + data encoding scheme
+                byte[] pds = {(byte)0, (byte)0, (byte)dataLen};
+                int dataPos = new String(submitPdu.encodedMessage).indexOf(new String(pds), 4) + 2;
+
+                // Set arrays dimension
+                byte[] encSc = submitPdu.encodedScAddress;
+                byte[] encMsg = new byte[submitPdu.encodedMessage.length - dataPos];
+                System.arraycopy(
+                        submitPdu.encodedMessage, dataPos,
+                        encMsg, 0, submitPdu.encodedMessage.length - dataPos);
+                byte[] encSender = new byte[dataPos - 4];
+                System.arraycopy(
+                        submitPdu.encodedMessage, 2,
+                        encSender, 0, dataPos - 4);
+                byte[] encTs = bcdTimestamp();
+                byte[] pdu = new byte[
+                                      encSc.length +
+                                      1 +       /** SMS-DELIVER **/
+                                      encSender.length +
+                                      2 +       /** Protocol + Data Encoding Scheme **/
+                                      encTs.length +
+                                      encMsg.length];
+
+                // Copy the SC address
+                int c = 0;
+                System.arraycopy(encSc, 0, pdu, c, encSc.length);
+                c+=encSc.length;
+                // SMS-DELIVER
+                pdu[c] = 0x04;
+                c++;
+                // Sender
+                System.arraycopy(encSender, 0, pdu, c, encSender.length);
+                c+=encSender.length;
+                // Protocol + Data encoding scheme
+                pdu[c] = 0x00;
+                c++;
+                pdu[c] = 0x00;
+                c++;
+                // Timestamp
+                System.arraycopy(encTs, 0, pdu, c, encTs.length);
+                c+=encTs.length;
+                // Message
+                System.arraycopy(encMsg, 0, pdu, c, encMsg.length);
+
+                // Store the PDU
+                pdus[i] = pdu;
+            }
+
+            // Return the PDUs
+            return pdus;
+        }
+
+        /**
+         * Method that return the current timestamp in a BCD format
+         *
+         * @return byte[] The BCD timestamp
+         */
+        private byte[] bcdTimestamp() {
+            Calendar c = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("yy"); //$NON-NLS-1$
+            SimpleDateFormat sdf2 = new SimpleDateFormat("Z"); //$NON-NLS-1$
+            byte year = (byte)Integer.parseInt(
+                            String.valueOf(Integer.parseInt(sdf.format(c.getTime()))), 16);
+            byte month = (byte)Integer.parseInt(String.valueOf(c.get(Calendar.MONTH) + 1), 16);
+            byte day = (byte)Integer.parseInt(String.valueOf(c.get(Calendar.DAY_OF_MONTH)), 16);
+            byte hour = (byte)Integer.parseInt(String.valueOf(c.get(Calendar.HOUR)), 16);
+            byte minute = (byte)Integer.parseInt(String.valueOf(c.get(Calendar.MINUTE)), 16);
+            byte second = (byte)Integer.parseInt(String.valueOf(c.get(Calendar.SECOND)), 16);
+            String tz = sdf2.format(c.getTime()).substring(1);
+            int timezone = Integer.parseInt(tz) / 100;
+            if (timezone < 0) {
+                timezone += 0x80;
+            }
+            byte[] data = {year, month, day, hour, minute, second, 0};
+            byte[] ts = IccUtils.hexStringToBytes(IccUtils.bcdToString(data, 0, data.length));
+            ts[6] = (byte)Integer.parseInt(String.valueOf(timezone), 16);
+            return ts;
+        }
+    }
 }

@@ -110,10 +110,10 @@ public class SubscriptionManager extends Handler {
     private static final int EVENT_SUBSCRIPTION_STATUS_CHANGED = 5;
     private static final int EVENT_SET_DATA_SUBSCRIPTION_DONE = 6;
     private static final int EVENT_CLEANUP_DATA_CONNECTION_DONE = 7;
-    private static final int EVENT_DISABLE_DATA_CONNECTION_DONE = 8;
-    private static final int EVENT_ALL_DATA_DISCONNECTED = 9;
-    private static final int EVENT_RADIO_ON = 10;
-    private static final int EVENT_RADIO_OFF_OR_NOT_AVAILABLE = 11;
+    private static final int EVENT_ALL_DATA_DISCONNECTED = 8;
+    private static final int EVENT_RADIO_ON = 9;
+    private static final int EVENT_RADIO_OFF_OR_NOT_AVAILABLE = 10;
+    private static final int EVENT_PROCESS_AVAILABLE_CARDS = 11;
 
 
     // Set Subscription Return status
@@ -130,10 +130,8 @@ public class SubscriptionManager extends Handler {
     private static final int SUB_STATUS_ACTIVATED = 1;
 
     private RegistrantList[] mSubDeactivatedRegistrants;
-    private RegistrantList[] mSubDeactivatedRegistrantsOnSlot;
     private RegistrantList[] mSubActivatedRegistrants;
-    private RegistrantList[] mSubActivatedRegistrantsOnSlot;
-    
+
     private Context mContext;
     private CommandsInterface[] mCi;
 
@@ -193,7 +191,7 @@ public class SubscriptionManager extends Handler {
     public static SubscriptionManager getInstance(Context context,
             UiccController uiccController, CommandsInterface[] ci)
     {
-        //Log.d(LOG_TAG, "=============================> getInstance");
+        Log.d(LOG_TAG, "getInstance");
         if (sSubscriptionManager == null) {
             sSubscriptionManager = new SubscriptionManager(context, uiccController, ci);
         }
@@ -216,7 +214,7 @@ public class SubscriptionManager extends Handler {
      */
     private SubscriptionManager(Context context, UiccController uiccController,
             CommandsInterface[] ci) {
-        //logd("111111=============>----------:::: Constructor - Enter");
+        logd("Constructor - Enter");
 
         mContext = context;
 
@@ -243,13 +241,9 @@ public class SubscriptionManager extends Handler {
 
         mSubDeactivatedRegistrants = new RegistrantList[MSimConstants.RIL_MAX_CARDS];
         mSubActivatedRegistrants = new RegistrantList[MSimConstants.RIL_MAX_CARDS];
-        mSubDeactivatedRegistrantsOnSlot = new RegistrantList[2];
-        mSubActivatedRegistrantsOnSlot = new RegistrantList[2];
         for (int i = 0; i < MSimConstants.RIL_MAX_CARDS; i++) {
             mSubDeactivatedRegistrants[i] = new RegistrantList();
             mSubActivatedRegistrants[i] = new RegistrantList();
-            mSubDeactivatedRegistrantsOnSlot[i] = new RegistrantList();
-            mSubActivatedRegistrantsOnSlot[i] =  new RegistrantList();
         }
         mActivatePending = new HashMap<SubscriptionId, Subscription>();
         mDeactivatePending = new HashMap<SubscriptionId, Subscription>();
@@ -261,14 +255,13 @@ public class SubscriptionManager extends Handler {
         //mMSimProxyManager = MSimProxyManager.getInstance();
         // Get the current active dds
         mCurrentDds =  MSimPhoneFactory.getDataSubscription();
-        //logd("222222=================>----------:::: In MSimProxyManager constructor current active dds is:" + mCurrentDds);
+        logd("In MSimProxyManager constructor current active dds is:" + mCurrentDds);
 
         mCurrentSubscriptions = new HashMap<SubscriptionId, PhoneSubscriptionInfo>();
         for (SubscriptionId t : SubscriptionId.values()) {
-        	//logd("222222=================>----------:::=========================put ------------------------>");
             mCurrentSubscriptions.put(t, new PhoneSubscriptionInfo());
         }
-        //logd("333333==================>----------:::: Constructor - Exit");
+        logd("Constructor - Exit");
     }
 
     @Override
@@ -283,7 +276,7 @@ public class SubscriptionManager extends Handler {
                 mRadioOn[subId] = false;
                 if (!isAllRadioOn()) {
                     mSetSubscriptionInProgress = false;
-                    //mSetDdsRequired = true;
+                    mSetDdsRequired = true;
                 }
                 break;
 
@@ -338,12 +331,12 @@ public class SubscriptionManager extends Handler {
                 Log.d(LOG_TAG, "EVENT_ALL_DATA_DISCONNECTED");
                 processAllDataDisconnected((AsyncResult)msg.obj);
                 break;
-           
-            case EVENT_DISABLE_DATA_CONNECTION_DONE:
-                Log.d(LOG_TAG, "EVENT_DISABLE_DATA_CONNECTION_DONE");
-                processDisableDataConnectionDone((AsyncResult)msg.obj);
+
+            case EVENT_PROCESS_AVAILABLE_CARDS:
+                Log.d(LOG_TAG, "EVENT_PROCESS_AVAILABLE_CARDS");
+                processAvailableCards();
                 break;
-            
+
             default:
                 break;
         }
@@ -359,24 +352,33 @@ public class SubscriptionManager extends Handler {
      * @param ar
      */
     private void processAllDataDisconnected(AsyncResult ar) {
+        if (ar == null) {
+            logd("processAllDataDisconnected: ar is null!! return!!");
+            return;
+        }
+
+        Integer sub = (Integer)ar.userObj;
+        logd("processAllDataDisconnected: sub = " + sub);
+        MSimProxyManager.getInstance().unregisterForAllDataDisconnected(sub, this);
+
         /*
          * Check if the DDS switch is in progress. If so update the DDS
          * subscription.
          */
         if (mDisableDdsInProgress) {
             processDisableDataConnectionDone(ar);
+            return;
         }
 
-        Integer sub = (Integer)ar.userObj;
         SubscriptionId subId = SubscriptionId.values()[sub];
-        logd("processAllDataDisconnected: sub = " + sub
-                + " - subscriptionReadiness[" + sub + "] = "
+        logd("processAllDataDisconnected: subscriptionReadiness[" + sub + "] = "
                 + getCurrentSubscriptionReadiness(subId));
         if (!getCurrentSubscriptionReadiness(subId)) {
             resetCurrentSubscription(subId);
             // Update the subscription preferences
             updateSubPreferences();
             notifySubscriptionDeactivated(sub);
+            triggerUpdateFromAvaialbleCards();
         }
     }
 
@@ -385,42 +387,64 @@ public class SubscriptionManager extends Handler {
      * @param ar
      */
     private void processSetDataSubscriptionDone(AsyncResult ar) {
-    	boolean isSuccess = false;
         if (ar.exception == null) {
             logd("Register for the all data disconnect");
-            MSimPhoneFactory.setDataSubscription(this.mQueuedDds);
-            if (this.mCurrentDds != this.mQueuedDds){
-            	MSimProxyManager.getInstance().updateDataConnectionTracker(this.mCurrentDds);
-            	 this.mCurrentDds = this.mQueuedDds;
-                 MSimProxyManager.getInstance().updateDataConnectionTracker(this.mCurrentDds);
-            	//MSimProxyManager.getInstance().registerForAllDataDisconnected(mCurrentDds, this,
-               //     EVENT_ALL_DATA_DISCONNECTED, new Integer(mCurrentDds));
-                 MSimProxyManager.getInstance().enableDataConnectivity(mCurrentDds);
-                 this.mDataActive = true;
-            }
-            isSuccess = true;
+            MSimProxyManager.getInstance().registerForAllDataDisconnected(mCurrentDds, this,
+                    EVENT_ALL_DATA_DISCONNECTED, new Integer(mCurrentDds));
         } else {
             Log.d(LOG_TAG, "setDataSubscriptionSource Failed : ");
-            isSuccess = false;
+            // Reset the flag.
+            mDisableDdsInProgress = false;
+
+            // Send the message back to callee with result.
+            if (mSetDdsCompleteMsg != null) {
+                AsyncResult.forMessage(mSetDdsCompleteMsg, false, null);
+                logd("posting failure message");
+                mSetDdsCompleteMsg.sendToTarget();
+                mSetDdsCompleteMsg = null;
+            }
+
+            MSimProxyManager.getInstance().enableDataConnectivity(mCurrentDds);
         }
-        
+    }
+
+    private void processDisableDataConnectionDone(AsyncResult ar) {
+        //if SUCCESS
+        if (ar != null) {
+            // Mark this as the current dds
+            MSimPhoneFactory.setDataSubscription(mQueuedDds);
+
+            if (mCurrentDds != mQueuedDds) {
+                // The current DDS is changed.  Call update to unregister for all the
+                // events in DCT to avoid unnecessary processings in the non-DDS.
+                MSimProxyManager.getInstance().updateDataConnectionTracker(mCurrentDds);
+            }
+
+            mCurrentDds = mQueuedDds;
+
+            // Update the DCT corresponds to the new DDS.
+            MSimProxyManager.getInstance().updateDataConnectionTracker(mCurrentDds);
+
+            // Enable the data connectivity on new dds.
+            logd("setDataSubscriptionSource is Successful"
+                    + "  Enable Data Connectivity on Subscription " + mCurrentDds);
+            MSimProxyManager.getInstance().enableDataConnectivity(mCurrentDds);
+            mDataActive = true;
+        } else {
+            //This should not occur as it is a self posted message
+            Log.d(LOG_TAG, "Disabling Data Subscription Failed");
+        }
+
         // Reset the flag.
         mDisableDdsInProgress = false;
-        // Send the message back to callee with result.
+
+        // Send the message back to callee.
         if (mSetDdsCompleteMsg != null) {
-            AsyncResult.forMessage(mSetDdsCompleteMsg, isSuccess, null);
+            AsyncResult.forMessage(mSetDdsCompleteMsg, true, null);
             logd("Enable Data Connectivity Done!! Sending the cnf back!");
             mSetDdsCompleteMsg.sendToTarget();
             mSetDdsCompleteMsg = null;
         }
-        
-    }
-
-    private void processDisableDataConnectionDone(AsyncResult ar)
-    {
-      Message msgSetDdsDone = Message.obtain(this, EVENT_SET_DATA_SUBSCRIPTION_DONE, new Integer(this.mQueuedDds));
-      //Log.d("SubscriptionManager", "===============>Set DDS to " + this.mQueuedDds + " Calling cmd interface setDataSubscription");
-      this.mCi[this.mQueuedDds].setDataSubscription(msgSetDdsDone);
     }
 
     /**
@@ -484,6 +508,7 @@ public class SubscriptionManager extends Handler {
                 resetCurrentSubscription(SubscriptionId.values()[subId]);
                 updateSubPreferences();
                 notifySubscriptionDeactivated(subId);
+                triggerUpdateFromAvaialbleCards();
             }
         } else {
             logd("handleSubscriptionStatusChanged INVALID");
@@ -514,7 +539,11 @@ public class SubscriptionManager extends Handler {
                     .getCommandError();
                 if (error != null &&
                         error ==  CommandException.Error.SUBSCRIPTION_NOT_SUPPORTED) {
-                    cause = SUB_DEACTIVATE_NOT_SUPPORTED;
+                    if (setSubParam.subStatus == SubscriptionStatus.SUB_ACTIVATE) {
+                        cause = SUB_ACTIVATE_NOT_SUPPORTED;
+                    } else if (setSubParam.subStatus == SubscriptionStatus.SUB_DEACTIVATE) {
+                        cause = SUB_DEACTIVATE_NOT_SUPPORTED;
+                    }
                 }
             }
 
@@ -683,7 +712,7 @@ public class SubscriptionManager extends Handler {
                     // ready event receives, it will set the dds properly.
                     mSetDdsRequired = true;
                     mCurrentDds = activeSub.subId;
-                    MSimPhoneFactory.setDataSubscription(mCurrentDds);
+                    //MSimPhoneFactory.setDataSubscription(mCurrentDds);
                 }
             }
         }
@@ -724,6 +753,39 @@ public class SubscriptionManager extends Handler {
             processActivateRequests();
         }
 
+        notifyIfAnyNewCardsAvailable();
+    }
+
+    /**
+     * Sends a message to itself to process the available cards
+     */
+    private void triggerUpdateFromAvaialbleCards() {
+        sendMessage(obtainMessage(EVENT_PROCESS_AVAILABLE_CARDS));
+    }
+
+    /**
+     * Handles EVENT_PROCESS_AVAILABLE_CARDS
+     */
+    private void processAvailableCards() {
+        if (!isAllRadioOn()) {
+           logd("processAvailableCards: Radio Not Available ");
+           return;
+        }
+        if (mSetSubscriptionInProgress) {
+           logd("processAvailableCards: set subscription in progress!!");
+           return;
+        }
+
+        for (int cardIndex = 0; cardIndex < MSimConstants.RIL_MAX_CARDS; cardIndex++) {
+            updateActivatePendingList(cardIndex);
+        }
+
+        processActivateRequests();
+
+        notifyIfAnyNewCardsAvailable();
+    }
+
+    private void notifyIfAnyNewCardsAvailable() {
         if (isNewCardAvailable()) {
             // NEW CARDs Available!!!
             // Notify the USER HERE!!!
@@ -731,6 +793,51 @@ public class SubscriptionManager extends Handler {
             for (int i = 0; i < mIsNewCard.length; i++) {
                 mIsNewCard[i] = false;
             }
+        }
+    }
+
+    private void updateActivatePendingList(int cardIndex) {
+        if (mCardInfoAvailable[cardIndex]) {
+            SubscriptionData cardSubInfo = mCardSubMgr.getCardSubscriptions(cardIndex);
+
+            logd("updateActivatePendingList: cardIndex = " + cardIndex
+                    + "\n Card Sub Info = " + cardSubInfo);
+
+            Subscription userSub = mUserPrefSubs.subscription[cardIndex];
+            int subId = userSub.subId;
+            Subscription currentSub = getCurrentSubscription(SubscriptionId.values()[subId]);
+
+            logd("updateActivatePendingList: subId = " + subId
+                    + "\n user pref sub = " + userSub
+                    + "\n current sub   = " + currentSub);
+
+            if ((userSub.subStatus == SubscriptionStatus.SUB_ACTIVATED)
+                    && (currentSub.subStatus != SubscriptionStatus.SUB_ACTIVATED)
+                    && (cardSubInfo.hasSubscription(userSub))
+                    && !isPresentInActivatePendingList(userSub)){
+                logd("updateActivatePendingList: subId = " + subId + " need to activate!!!");
+
+                // Need to activate this Subscription!!! - userSub.subId
+                // Push to the queue, so that start the SET_UICC_SUBSCRIPTION
+                // only when the both cards are ready.
+                Subscription sub = new Subscription();
+                sub.copyFrom(cardSubInfo.getSubscription(userSub));
+                sub.slotId = cardIndex;
+                sub.subId = subId;
+                sub.subStatus = SubscriptionStatus.SUB_ACTIVATE;
+                mActivatePending.put(SubscriptionId.values()[subId], sub);
+            }
+
+            // If this is a new card(no user preferred subscriptions are from
+            // this card), then notify a prompt to user.  Let user select
+            // the subscriptions from new card!
+            if (cardSubInfo.hasSubscription(userSub)) {
+                mIsNewCard[cardIndex] = false;
+            } else {
+                mIsNewCard [cardIndex] = true;
+            }
+            logd("updateActivatePendingList: mIsNewCard [" + cardIndex + "] = "
+                    + mIsNewCard [cardIndex]);
         }
     }
 
@@ -749,50 +856,13 @@ public class SubscriptionManager extends Handler {
 
         mCardInfoAvailable[cardIndex] = true;
 
+        logd("processCardInfoAvailable: CARD:" + cardIndex + " is available");
+
         // Card info on slot cardIndex is available.
         // Check if any user preferred subscriptions are available in
         // this card.  If there is any, and which are not yet activated,
         // activate them!
-        SubscriptionData cardSubInfo = mCardSubMgr.getCardSubscriptions(cardIndex);
-
-        logd("processCardInfoAvailable: cardIndex = " + cardIndex
-                + "\n Card Sub Info = " + cardSubInfo);
-
-        Subscription userSub = mUserPrefSubs.subscription[cardIndex];
-        int subId = userSub.subId;
-        Subscription currentSub = getCurrentSubscription(SubscriptionId.values()[subId]);
-
-        logd("processCardInfoAvailable: subId = " + subId
-                + "\n user pref sub = " + userSub
-                + "\n current sub   = " + currentSub);
-
-        if ((userSub.subStatus == SubscriptionStatus.SUB_ACTIVATED)
-                && (currentSub.subStatus != SubscriptionStatus.SUB_ACTIVATED)
-                && (cardSubInfo.hasSubscription(userSub))
-                && !isPresentInActivatePendingList(userSub)){
-            logd("processCardInfoAvailable: subId = " + subId + " need to activate!!!");
-
-            // Need to activate this Subscription!!! - userSub.subId
-            // Push to the queue, so that start the SET_UICC_SUBSCRIPTION
-            // only when the both cards are ready.
-            Subscription sub = new Subscription();
-            sub.copyFrom(cardSubInfo.getSubscription(userSub));
-            sub.slotId = cardIndex;
-            sub.subId = subId;
-            sub.subStatus = SubscriptionStatus.SUB_ACTIVATE;
-            mActivatePending.put(SubscriptionId.values()[subId], sub);
-        }
-
-        // If this is a new card(no user preferred subscriptions are from
-        // this card), then notify a prompt to user.  Let user select
-        // the subscriptions from new card!
-        if (cardSubInfo.hasSubscription(userSub)) {
-            mIsNewCard[cardIndex] = false;
-        } else {
-            mIsNewCard [cardIndex] = true;
-        }
-        logd("processCardInfoAvailable: mIsNewCard [" + cardIndex + "] = "
-                + mIsNewCard [cardIndex]);
+        updateActivatePendingList(cardIndex);
 
         if (!isAllCardsInfoAvailable()) {
             logd("All cards info not available!! Waiting for all info before processing");
@@ -806,14 +876,7 @@ public class SubscriptionManager extends Handler {
             processActivateRequests();
         }
 
-        if (isNewCardAvailable()) {
-            // NEW CARDs Available!!!
-            // Notify the USER HERE!!!
-            notifyNewCardsAvailable();
-            for (int i = 0; i < mIsNewCard.length; i++) {
-                mIsNewCard[i] = false;
-            }
-        }
+        notifyIfAnyNewCardsAvailable();
     }
 
     private boolean isPresentInActivatePendingList(Subscription userSub) {
@@ -856,7 +919,6 @@ public class SubscriptionManager extends Handler {
         }
         return result || mAllCardsStatusAvailable;
     }
-   
     private boolean isNewCardAvailable() {
         boolean result = false;
         for (boolean isNew : mIsNewCard) {
@@ -1103,15 +1165,13 @@ public class SubscriptionManager extends Handler {
 
     private void updateSubscriptionReadiness(int subId, boolean ready) {
         SubscriptionId sub = SubscriptionId.values()[subId];
-        logd("-----------11111111111------->updateSubscriptionReadiness(" + subId + "," + ready + ")");
+        logd("updateSubscriptionReadiness(" + subId + "," + ready + ")");
 
         // Set subscription ready to true only if subscription is activated!
         if (ready && getCurrentSubscription(sub).subStatus == SubscriptionStatus.SUB_ACTIVATED) {
-        	logd("------------------2222222>updateSubscriptionReadiness(" + subId + "," + ready + ")");
             mCurrentSubscriptions.get(sub).subReady = true;
             return;
         }
-        logd("------------------3333333>updateSubscriptionReadiness(" + subId + "," + ready + ")");
         // Subscription is not activated.  So irrespective of the ready, set to false.
         mCurrentSubscriptions.get(sub).subReady = false;
     }
@@ -1278,29 +1338,7 @@ public class SubscriptionManager extends Handler {
         return ret;
     }
 
-  /*  public void setDataSubscription(int paramInt, Message paramMessage) {
-	      logd("setDataSubscription: mCurrentDds = " + this.mCurrentDds + " new subscription = " + paramInt);
-	      if (!getCurrentSubscriptionReadiness(SubscriptionId.values()[paramInt])){
-	        loge("setDataSubscription: requested SUB:" + paramInt + " is not yet activated, returning failure");
-	        AsyncResult.forMessage(paramMessage, Boolean.valueOf(false), new RuntimeException("Subscription not active"));
-	        paramMessage.sendToTarget();
-	      }else{
-	    	   this.mSetDdsCompleteMsg = paramMessage;
-	           this.mQueuedDds = paramInt;
-	           if (!this.mDisableDdsInProgress){
-	             Message localMessage = obtainMessage(8);
-	             MSimProxyManager.getInstance().disableDataConnectivity(this.mCurrentDds, localMessage);
-	             this.mDisableDdsInProgress = true;
-	           }
-	      }
-    }*/
-    
-    /*public void setDataSubscription(int subscription, Message onCompleteMsg) {
-        boolean result = false;
-        RuntimeException exception;
-        
-    }*/
-  /***
+    /**
      * Sets the designated data subscription source(DDS).
      * @param subscription
      * @param onCompleteMsg
@@ -1311,57 +1349,27 @@ public class SubscriptionManager extends Handler {
 
         logd("setDataSubscription: mCurrentDds = "
                 + mCurrentDds + " new subscription = " + subscription);
-        if (!getCurrentSubscriptionReadiness(SubscriptionId.values()[subscription])) {
-            logd("setDataSubscription: requested SUB:" + subscription
-                    + " is not yet activated, returning failure");
-            exception = new RuntimeException("Subscription not active");
-         // Send the message back to callee with result.
-            if (onCompleteMsg != null) {
-                AsyncResult.forMessage(onCompleteMsg, result, exception);
-                onCompleteMsg.sendToTarget();
-            }
-            return;
-        } 
-        
+
         if (!mDisableDdsInProgress) {
-        	 if (mCurrentDds != subscription) {
-
-        		  mSetDdsCompleteMsg = onCompleteMsg;
-                  mQueuedDds = subscription;
-                  mDisableDdsInProgress = true;
-
-                  //先断开所有链接
-                  Message msg = obtainMessage(EVENT_DISABLE_DATA_CONNECTION_DONE);
-                  MSimProxyManager.getInstance().disableDataConnectivity(this.mCurrentDds, msg);
-                  return;
-                  }else{
-                	  if (onCompleteMsg != null) {
-                          AsyncResult.forMessage(onCompleteMsg, true, null);
-                          onCompleteMsg.sendToTarget();
-                          return ;
-                      }
-                  }
-        }
-        
-        /////////////////////////////////////////////////////////////////////////
-
-      /*  if (!mDisableDdsInProgress) {
 
             if (!getCurrentSubscriptionReadiness(SubscriptionId.values()[subscription])) {
                 logd("setDataSubscription: requested SUB:" + subscription
                         + " is not yet activated, returning failure");
                 exception = new RuntimeException("Subscription not active");
             } else if (mCurrentDds != subscription) {
-               // boolean flag = MSimProxyManager.getInstance()
-               //         .disableDataConnectivityFlag(mCurrentDds);
+                boolean flag = MSimProxyManager.getInstance()
+                         .disableDataConnectivityFlag(mCurrentDds);
                 mSetDdsCompleteMsg = onCompleteMsg;
                 mQueuedDds = subscription;
                 mDisableDdsInProgress = true;
 
-                //先断开所有链接
-                Message msg = obtainMessage(EVENT_DISABLE_DATA_CONNECTION_DONE);
-                MSimProxyManager.getInstance().disableDataConnectivity(this.mCurrentDds, msg);
-                
+                // Set the DDS in cmd interface
+                Message msgSetDataSub = Message.obtain(this,
+                        EVENT_SET_DATA_SUBSCRIPTION_DONE,
+                        new Integer(mQueuedDds));
+                Log.d(LOG_TAG, "Set DDS to " + mQueuedDds
+                        + " Calling cmd interface setDataSubscription");
+                mCi[mQueuedDds].setDataSubscription(msgSetDataSub);
                 return;
             } else {
                 logd("Current subscription is same as requested Subscription");
@@ -1377,7 +1385,7 @@ public class SubscriptionManager extends Handler {
         if (onCompleteMsg != null) {
             AsyncResult.forMessage(onCompleteMsg, result, exception);
             onCompleteMsg.sendToTarget();
-        }*/
+        }
     }
 
 
@@ -1412,6 +1420,11 @@ public class SubscriptionManager extends Handler {
         Registrant r = new Registrant (h, what, obj);
         synchronized (mSubActivatedRegistrants[subId]) {
             mSubActivatedRegistrants[subId].add(r);
+            if (isSubActive(subId)) {
+                mSubActivatedRegistrants[subId].notifyRegistrants();
+            } else {
+                Log.d(LOG_TAG, "registerForSubscriptionActivated: Subscription is not activated");
+            }
         }
     }
 

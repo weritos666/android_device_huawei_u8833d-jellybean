@@ -120,11 +120,9 @@ public class SipBroadcastReceiver extends BroadcastReceiver {
                                 mSipSharedPreferences.getPrimaryAccount())) {
                             continue;
                         }
-                        if(sipManager!=null){
                         sipManager.open(profile,
                                 SipUtil.createIncomingCallPendingIntent(),
                                 null);
-                        }
                     } catch (SipException e) {
                         Log.e(TAG, "failed" + profile.getProfileName(), e);
                     }

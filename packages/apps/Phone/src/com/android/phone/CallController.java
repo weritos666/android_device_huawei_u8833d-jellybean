@@ -307,6 +307,9 @@ public class CallController extends Handler {
         //   and if so simply call updateInCallScreen() instead.
 
         mApp.displayCallScreen();
+
+        // enable noise suppression
+        PhoneUtils.turnOnNoiseSuppression(mApp.getApplicationContext(), true);
     }
 
     /**
@@ -363,8 +366,14 @@ public class CallController extends Handler {
             if (VDBG) log("- got Phone instance: " + phone + ", class = " + phone.getClass());
 
             // update okToCallStatus based on new phone
-            okToCallStatus = checkIfOkToInitiateOutgoingCall(
-                    phone.getServiceState().getState());
+            if (phone.getServiceState() != null) {
+                okToCallStatus = checkIfOkToInitiateOutgoingCall(
+                        phone.getServiceState().getState());
+            }
+            else {
+                log(">>>> phone.getServiceState == NULL, setting CallStatusCode.OUT_OF_SERVICE");
+                return CallStatusCode.OUT_OF_SERVICE;
+            }
 
         } catch (PhoneUtils.VoiceMailNumberMissingException ex) {
             // If the call status is NOT in an acceptable state, it
@@ -420,6 +429,8 @@ public class CallController extends Handler {
                 || (okToCallStatus == CallStatusCode.OUT_OF_SERVICE))) {
             if (DBG) log("placeCall: Emergency number detected with status = " + okToCallStatus);
             okToCallStatus = CallStatusCode.SUCCESS;
+            int sub = mApp.getVoiceSubscriptionInService();
+            phone = mApp.getPhone(sub);
             if (DBG) log("==> UPDATING status to: " + okToCallStatus);
         }
 
@@ -506,6 +517,12 @@ public class CallController extends Handler {
                 // in-call UI while the new call is dialing, and when it
                 // first gets connected.)
                 inCallUiState.showDialpad = voicemailUriSpecified;
+
+                // For voicemails, we add context text to let the user know they
+                // are dialing their voicemail.
+                // TODO: This is only set here and becomes problematic when swapping calls
+                inCallUiState.dialpadContextText = voicemailUriSpecified ?
+                    phone.getVoiceMailAlphaTag() : "";
 
                 // Also, in case a previous call was already active (i.e. if
                 // we just did "Add call"), clear out the "history" of DTMF

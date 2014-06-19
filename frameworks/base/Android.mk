@@ -32,20 +32,23 @@ framework_res_source_path := APPS/framework-res_intermediates/src
 # These will be included in framework2 to avoid issues with the limit
 # on the number of classes/dex
 SECONDARY_FRAMEWORKS_SUBDIRS := \
-       media/mca/effect \
-       media/mca/filterfw \
-       media/mca/filterpacks \
         core/java/android/test \
         core/java/android/gesture \
         core/java/android/speech/srec \
         media/java/android/media/videoeditor \
         media/java/android/media/audiofx \
+        media/mca/effect/java/android/media/effect \
+        media/mca/effect/java/android/media/effect/effects \
+        media/mca/filterfw \
+        media/mca/filterpacks \
         voip/java/com/android/server/sip \
         core/java/com/android/internal/widget/multiwaveview \
         core/java/com/android/internal/util/weather \
         core/java/com/android/internal/http/multipart \
-	telephony/java/com/android/internal/telephony/msim \
-	telephony/java/com/android/internal/telephony/test
+        core/tests/utillib/src/android/test \
+        telephony/java/com/android/internal/telephony/msim
+
+
 
 include $(CLEAR_VARS)
 

@@ -92,7 +92,6 @@ public class CDMAPhone extends PhoneBase {
     // Default Emergency Callback Mode exit timer
     private static final int DEFAULT_ECM_EXIT_TIMER_VALUE = 300000;
 
-    protected static final String VM_NUMBER_CDMA = "vm_number_key_cdma";
     private String mVmNumber = null;
 
     static final int RESTART_ECM_TIMER = 0; // restart Ecm timer
@@ -108,7 +107,7 @@ public class CDMAPhone extends PhoneBase {
     protected PhoneSubInfo mSubInfo;
     protected EriManager mEriManager;
     protected WakeLock mWakeLock;
-    UiccCard mRuimCard = null;
+    protected UiccCard mRuimCard = null;
 
     // mEriFileLoadedRegistrants are informed after the ERI text has been loaded
     private final RegistrantList mEriFileLoadedRegistrants = new RegistrantList();
@@ -127,6 +126,7 @@ public class CDMAPhone extends PhoneBase {
     protected String mMeid;
     // string to define how the carrier specifies its own ota sp number
     protected String mCarrierOtaSpNumSchema;
+    protected String mVmNumCdmaKey = "vm_number_key_cdma";
 
     // A runnable which is used to automatically exit from Ecm after a period of time.
     private Runnable mExitEcmRunnable = new Runnable() {
@@ -521,7 +521,7 @@ public class CDMAPhone extends PhoneBase {
     }
 
     public boolean handlePinMmi(String dialString) {
-        CdmaMmiCode mmi = CdmaMmiCode.newFromDialString(dialString, this, mUiccApplication);
+        CdmaMmiCode mmi = CdmaMmiCode.newFromDialString(dialString, this, mUiccApplication.get());
 
         if (mmi == null) {
             Log.e(LOG_TAG, "Mmi is NULL!");
@@ -743,7 +743,7 @@ public class CDMAPhone extends PhoneBase {
         Message resp;
         mVmNumber = voiceMailNumber;
         resp = obtainMessage(EVENT_SET_VM_NUMBER_DONE, 0, 0, onComplete);
-        IccRecords r = mIccRecords;
+        IccRecords r = mIccRecords.get();
         if (r != null) {
             r.setVoiceMailNumber(alphaTag, mVmNumber, resp);
         }
@@ -757,9 +757,9 @@ public class CDMAPhone extends PhoneBase {
         // Read platform settings for dynamic voicemail number
         if (getContext().getResources().getBoolean(com.android.internal
                 .R.bool.config_telephony_use_own_number_for_voicemail)) {
-            number = sp.getString(VM_NUMBER_CDMA, getLine1Number());
+            number = sp.getString(mVmNumCdmaKey, getLine1Number());
         } else {
-            number = sp.getString(VM_NUMBER_CDMA, "*86");
+            number = sp.getString(mVmNumCdmaKey, "*86");
         }
         return number;
     }
@@ -772,7 +772,7 @@ public class CDMAPhone extends PhoneBase {
     /** gets the voice mail count from preferences */
     private int getStoredVoiceMessageCount() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
-        return (sp.getInt(VM_COUNT, 0));
+        return (sp.getInt(mVmCountKey, 0));
     }
 
     public String getVoiceMailAlphaTag() {
@@ -1090,25 +1090,25 @@ public class CDMAPhone extends PhoneBase {
 
         UiccCardApplication newUiccApplication = getUiccCardApplication();
 
-        UiccCardApplication app = mUiccApplication;
+        UiccCardApplication app = mUiccApplication.get();
         if (app != newUiccApplication) {
             if (app != null) {
                 log("Removing stale icc objects.");
-                if (mIccRecords != null) {
+                if (mIccRecords.get() != null) {
                     unregisterForRuimRecordEvents();
                     mRuimPhoneBookInterfaceManager.updateIccRecords(null);
                 }
-                mIccRecords=null;
-                mUiccApplication=null;
+                mIccRecords.set(null);
+                mUiccApplication.set(null);
                 mRuimCard = null;
             }
             if (newUiccApplication != null) {
                 log("New Uicc application found");
-                mUiccApplication=newUiccApplication;
-                mRuimCard = mUiccApplication.getCard();
-                mIccRecords=newUiccApplication.getIccRecords();
+                mUiccApplication.set(newUiccApplication);
+                mRuimCard = mUiccApplication.get().getCard();
+                mIccRecords.set(newUiccApplication.getIccRecords());
                 registerForRuimRecordEvents();
-                mRuimPhoneBookInterfaceManager.updateIccRecords(mIccRecords);
+                mRuimPhoneBookInterfaceManager.updateIccRecords(mIccRecords.get());
             }
         }
     }
@@ -1417,7 +1417,7 @@ public class CDMAPhone extends PhoneBase {
         // Update the preference value of voicemail number
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString(VM_NUMBER_CDMA, number);
+        editor.putString(mVmNumCdmaKey, number);
         editor.apply();
     }
 
@@ -1480,6 +1480,10 @@ public class CDMAPhone extends PhoneBase {
     }
 
     public void prepareEri() {
+        if (mEriManager == null) {
+            Log.e(LOG_TAG, "Trying to access stale objects");
+            return;
+        }
         mEriManager.loadEriFile();
         if(mEriManager.isEriFileLoaded()) {
             // when the ERI file is loaded
@@ -1493,7 +1497,7 @@ public class CDMAPhone extends PhoneBase {
     }
 
     protected void registerForRuimRecordEvents() {
-        IccRecords r = mIccRecords;
+        IccRecords r = mIccRecords.get();
         if (r == null) {
             return;
         }
@@ -1501,7 +1505,7 @@ public class CDMAPhone extends PhoneBase {
     }
 
     protected void unregisterForRuimRecordEvents() {
-        IccRecords r = mIccRecords;
+        IccRecords r = mIccRecords.get();
         if (r == null) {
             return;
         }

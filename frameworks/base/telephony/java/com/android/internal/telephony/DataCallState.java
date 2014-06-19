@@ -81,7 +81,7 @@ public class DataCallState {
            .append(" retry=").append(suggestedRetryTime)
            .append(" cid=").append(cid)
            .append(" active=").append(active)
-           .append(" type=").append(type)
+           .append(" type='").append(type)
            .append("' ifname='").append(ifname);
         sb.append("' addresses=[");
         for (String addr : addresses) {
@@ -134,7 +134,7 @@ public class DataCallState {
                         String [] ap = addr.split("/");
                         if (ap.length == 2) {
                             addr = ap[0];
-                            addrPrefixLen = Integer.parseInt(ap[1]);
+                            addrPrefixLen = Integer.parseInt(ap[1].replaceAll("[\\D]",""));
                         } else {
                             addrPrefixLen = 0;
                         }

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (c) 2012, Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2012, The Linux Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
     protected static NotificationMgr sInstance;
 
     private PhoneApp mApp;
-    private Phone mPhone;
+    protected Phone mPhone;
     private CallManager mCM;
 
     protected Context mContext;
@@ -132,6 +132,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
     // Currently-displayed resource IDs for some status bar icons (or zero
     // if no notification is active):
     private int mInCallResId;
+    protected int mVMResId = android.R.drawable.stat_notify_voicemail;
 
     // used to track the notification of selected network unavailable
     private boolean mSelectedUnavailableNotify = false;
@@ -470,13 +471,41 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
     }
 
     /**
-     * Configures a Notification to emit the blinky green message-waiting/
+     * Configures a Notification to emit the blinky message-waiting/
      * missed-call signal.
      * @param notificationType
      */
-    protected static void configureLedNotification(Notification note) {
-        note.flags |= Notification.FLAG_SHOW_LIGHTS;
-        note.defaults |= Notification.DEFAULT_LIGHTS;
+    protected static void configureLedNotification(Context context, int notificationType, Notification note) {
+
+        // get the default Notification light settings
+        ContentResolver resolver = context.getContentResolver();
+        boolean lightEnabled = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE, 0) == 1;
+        int color = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE_DEFAULT_COLOR, DEFAULT_COLOR);
+        int timeOn = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE_DEFAULT_LED_ON, DEFAULT_TIME);
+        int timeOff = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE_DEFAULT_LED_OFF, DEFAULT_TIME);
+
+        // Get Missed call and Voice mail values if they are to be used
+        boolean customEnabled = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE_CUSTOM_ENABLE, 0) == 1;
+        if (customEnabled) {
+            if (notificationType == MISSED_CALL_NOTIFICATION) {
+                color = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE_CALL_COLOR, DEFAULT_COLOR);
+                timeOn = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE_CALL_LED_ON, DEFAULT_TIME);
+                timeOff = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE_CALL_LED_OFF, DEFAULT_TIME);
+            } else if (notificationType == VOICEMAIL_NOTIFICATION) {
+                color = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE_VMAIL_COLOR, DEFAULT_COLOR);
+                timeOn = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE_VMAIL_LED_ON, DEFAULT_TIME);
+                timeOff = Settings.System.getInt(resolver, NOTIFICATION_LIGHT_PULSE_VMAIL_LED_OFF, DEFAULT_TIME);
+            }
+        }
+
+        // Set the LED flags if notification light is enabled
+        if (lightEnabled) {
+            note.ledARGB = color;
+            note.ledOnMS = timeOn;
+            note.ledOffMS = timeOff;
+            note.flags |= Notification.FLAG_SHOW_LIGHTS;
+            note.flags |= Notification.FLAG_FORCE_LED_SCREEN_OFF;
+        }
     }
 
     /**
@@ -589,7 +618,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         }
 
         Notification notification = builder.getNotification();
-        configureLedNotification(notification);
+        configureLedNotification(mContext, MISSED_CALL_NOTIFICATION, notification);
         mNotificationManager.notify(MISSED_CALL_NOTIFICATION, notification);
     }
 
@@ -1192,8 +1221,6 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         if (DBG) log("updateMwi(): " + visible);
 
         if (visible) {
-            int resId = android.R.drawable.stat_notify_voicemail;
-
             // This Notification can get a lot fancier once we have more
             // information about the current voicemail messages.
             // (For example, the current voicemail system can't tell
@@ -1280,7 +1307,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
             }
 
             Notification.Builder builder = new Notification.Builder(mContext);
-            builder.setSmallIcon(resId)
+            builder.setSmallIcon(mVMResId)
                     .setWhen(System.currentTimeMillis())
                     .setContentTitle(notificationTitle)
                     .setContentText(notificationText)
@@ -1300,7 +1327,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
             }
 
             notification.flags |= Notification.FLAG_NO_CLEAR;
-            configureLedNotification(notification);
+            configureLedNotification(mContext, VOICEMAIL_NOTIFICATION, notification);
             mNotificationManager.notify(VOICEMAIL_NOTIFICATION, notification);
         } else {
             mNotificationManager.cancel(VOICEMAIL_NOTIFICATION);

@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public final class Eons {
     static final String LOG_TAG = "GSM";
 
-    private static final boolean DBG = false;
+    private static final boolean DBG = true;
 
     /**
      * INITING: OPL or PNN records not read yet, in this state we do not

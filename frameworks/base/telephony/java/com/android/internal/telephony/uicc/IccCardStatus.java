@@ -16,22 +16,16 @@
 
 package com.android.internal.telephony.uicc;
 
+
+import java.util.ArrayList;
+
 /**
  * See also RIL_CardStatus in include/telephony/ril.h
  *
  * {@hide}
  */
 public class IccCardStatus {
-    
-	public static final int CARD_MAX_APPS = 8;
-	public  IccCardApplicationStatus[] mApplications;
-	public CardState  mCardState;
-	public int        mCdmaSubscriptionAppIndex;
-	public int        mGsmUmtsSubscriptionAppIndex;
-	public int        mImsSubscriptionAppIndex;
-
-    public PinState   mUniversalPinState;
-   // public int        mNumApplications;
+    public static final int CARD_MAX_APPS = 8;
 
     public enum CardState {
         CARDSTATE_ABSENT,
@@ -67,6 +61,14 @@ public class IccCardStatus {
             return this == PINSTATE_ENABLED_BLOCKED;
         }
     }
+
+    public CardState  mCardState;
+    public PinState   mUniversalPinState;
+    public int        mGsmUmtsSubscriptionAppIndex;
+    public int        mCdmaSubscriptionAppIndex;
+    public int        mImsSubscriptionAppIndex;
+
+    public IccCardApplicationStatus[] mApplications;
 
     public void setCardState(int state) {
         switch(state) {

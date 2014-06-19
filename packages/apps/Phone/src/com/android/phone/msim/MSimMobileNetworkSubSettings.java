@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (c) 2011-2012 Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2011-2012 The Linux Foundation. All rights reserved.
  *
  * Not a Contribution, Apache license notifications and license are retained
  * for attribution purposes only
@@ -153,9 +153,7 @@ public class MSimMobileNetworkSubSettings extends PreferenceActivity
             mButtonPreferredNetworkMode.setOnPreferenceChangeListener(this);
 
             //Get the networkMode from Settings.System and displays it
-            int settingsNetworkMode = android.provider.Settings.Secure.getInt(mPhone.getContext().
-                    getContentResolver(),android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
-                    preferredNetworkMode);
+            int settingsNetworkMode = getPreferredNetworkMode();
             mButtonPreferredNetworkMode.setValue(Integer.toString(settingsNetworkMode));
             mCdmaOptions = new CdmaOptions(this, prefSet, mPhone);
             mGsmUmtsOptions = new GsmUmtsOptions(this, prefSet, mSubscription);
@@ -172,10 +170,7 @@ public class MSimMobileNetworkSubSettings extends PreferenceActivity
                             R.array.preferred_network_mode_choices_lte);
                     mButtonPreferredNetworkMode.setEntryValues(
                             R.array.preferred_network_mode_values_lte);
-                    int settingsNetworkMode = android.provider.Settings.Secure.getInt(
-                            mPhone.getContext().getContentResolver(),
-                            android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
-                            preferredNetworkMode);
+                    int settingsNetworkMode = getPreferredNetworkMode();
                     mButtonPreferredNetworkMode.setValue(
                             Integer.toString(settingsNetworkMode));
                 }
@@ -204,6 +199,7 @@ public class MSimMobileNetworkSubSettings extends PreferenceActivity
             mPhone.getPreferredNetworkType(mHandler.obtainMessage(
                     MyHandler.MESSAGE_GET_PREFERRED_NETWORK_TYPE));
         }
+        if (mGsmUmtsOptions != null) mGsmUmtsOptions.enableScreen();
     }
 
     @Override
@@ -228,41 +224,11 @@ public class MSimMobileNetworkSubSettings extends PreferenceActivity
             buttonNetworkMode = Integer.valueOf((String) objValue).intValue();
             int settingsNetworkMode = getPreferredNetworkMode();
             if (buttonNetworkMode != settingsNetworkMode) {
-                int modemNetworkMode;
-                switch(buttonNetworkMode) {
-                    case Phone.NT_MODE_GLOBAL:
-                        modemNetworkMode = Phone.NT_MODE_GLOBAL;
-                        break;
-                    case Phone.NT_MODE_EVDO_NO_CDMA:
-                        modemNetworkMode = Phone.NT_MODE_EVDO_NO_CDMA;
-                        break;
-                    case Phone.NT_MODE_CDMA_NO_EVDO:
-                        modemNetworkMode = Phone.NT_MODE_CDMA_NO_EVDO;
-                        break;
-                    case Phone.NT_MODE_CDMA:
-                        modemNetworkMode = Phone.NT_MODE_CDMA;
-                        break;
-                    case Phone.NT_MODE_GSM_UMTS:
-                        modemNetworkMode = Phone.NT_MODE_GSM_UMTS;
-                        break;
-                    case Phone.NT_MODE_WCDMA_ONLY:
-                        modemNetworkMode = Phone.NT_MODE_WCDMA_ONLY;
-                        break;
-                    case Phone.NT_MODE_GSM_ONLY:
-                        modemNetworkMode = Phone.NT_MODE_GSM_ONLY;
-                        break;
-                    case Phone.NT_MODE_WCDMA_PREF:
-                        modemNetworkMode = Phone.NT_MODE_WCDMA_PREF;
-                        break;
-                    default:
-                        modemNetworkMode = Phone.PREFERRED_NT_MODE;
-                }
-
-                // If button has no valid selection && setting is LTE ONLY
-                // mode, let the setting stay in LTE ONLY mode. UI is not
-                // supported but LTE ONLY mode could be used in testing.
-                if ((modemNetworkMode == Phone.PREFERRED_NT_MODE) &&
-                    (settingsNetworkMode == Phone.NT_MODE_LTE_ONLY)) {
+                int modemNetworkMode = buttonNetworkMode;
+                // if new mode is invalid set mode to default preferred
+                if ((modemNetworkMode < Phone.NT_MODE_WCDMA_PREF)
+                        || (modemNetworkMode > Phone.NT_MODE_LTE_WCDMA)) {
+                    log("Invalid Network Mode (" + modemNetworkMode + ") Chosen. Ignore mode");
                     return true;
                 }
 
@@ -342,7 +308,12 @@ public class MSimMobileNetworkSubSettings extends PreferenceActivity
                         modemNetworkMode == Phone.NT_MODE_CDMA ||
                         modemNetworkMode == Phone.NT_MODE_CDMA_NO_EVDO ||
                         modemNetworkMode == Phone.NT_MODE_EVDO_NO_CDMA ||
-                        modemNetworkMode == Phone.NT_MODE_GLOBAL ) {
+                        modemNetworkMode == Phone.NT_MODE_GLOBAL ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_CDMA_AND_EVDO ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_GSM_WCDMA ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_ONLY ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_WCDMA) {
                     if (DBG) {
                         log("handleGetPreferredNetworkTypeResponse: if 1: modemNetworkMode = " +
                                 modemNetworkMode);
@@ -368,9 +339,6 @@ public class MSimMobileNetworkSubSettings extends PreferenceActivity
                     UpdatePreferredNetworkModeSummary(modemNetworkMode);
                     // changes the mButtonPreferredNetworkMode accordingly to modemNetworkMode
                     mButtonPreferredNetworkMode.setValue(Integer.toString(modemNetworkMode));
-                } else if (modemNetworkMode == Phone.NT_MODE_LTE_ONLY) {
-                    // LTE Only mode not yet supported on UI, but could be used for testing
-                    if (DBG) log("handleGetPreferredNetworkTypeResponse: lte only: no action");
                 } else {
                     if (DBG) log("handleGetPreferredNetworkTypeResponse: else: reset to default");
                     resetNetworkModeToDefault();
@@ -442,10 +410,33 @@ public class MSimMobileNetworkSubSettings extends PreferenceActivity
                 mButtonPreferredNetworkMode.setSummary(
                         R.string.preferred_network_mode_evdo_only_summary);
                 break;
+            case Phone.NT_MODE_LTE_ONLY:
+                mButtonPreferredNetworkMode.setSummary(
+                        R.string.preferred_network_mode_lte_summary);
+                break;
+            case Phone.NT_MODE_LTE_GSM_WCDMA:
+                mButtonPreferredNetworkMode.setSummary(
+                        R.string.preferred_network_mode_lte_gsm_wcdma_summary);
+                break;
+            case Phone.NT_MODE_LTE_CDMA_AND_EVDO:
+                mButtonPreferredNetworkMode.setSummary(
+                        R.string.preferred_network_mode_lte_cdma_evdo_summary);
+                break;
+            case Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA:
+                mButtonPreferredNetworkMode.setSummary(
+                        R.string.preferred_network_mode_global_summary);
+                break;
             case Phone.NT_MODE_GLOBAL:
+                mButtonPreferredNetworkMode.setSummary(
+                        R.string.preferred_network_mode_cdma_evdo_gsm_wcdma_summary);
+                break;
+            case Phone.NT_MODE_LTE_WCDMA:
+                mButtonPreferredNetworkMode.setSummary(
+                        R.string.preferred_network_mode_lte_wcdma_summary);
+                break;
             default:
                 mButtonPreferredNetworkMode.setSummary(
-                        R.string.preferred_network_mode_lte_cdma_summary);
+                        R.string.preferred_network_mode_global_summary);
         }
     }
 

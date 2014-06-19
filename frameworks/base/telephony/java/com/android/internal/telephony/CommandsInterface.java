@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (c) 2011, Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
+ * Not a Contribution.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,11 +113,10 @@ public interface CommandsInterface {
 
     //***** Methods
     RadioState getRadioState();
-    public abstract void setOnSS(Handler paramHandler, int paramInt, Object paramObject);
-    public abstract void unSetOnSS(Handler paramHandler);
+
     void getVoiceRadioTechnology(Message result);
 
-    /** new API phone ril DSDS add liuyongsheng
+    /**
      * response.obj.result is an int[2]
      *
      * response.obj.result[0] is registration state
@@ -140,11 +140,15 @@ public interface CommandsInterface {
 
     void registerForVoiceRadioTechChanged(Handler h, int what, Object obj);
     void unregisterForVoiceRadioTechChanged(Handler h);
-    
-    /** new API phone ril DSDS add liuyongsheng*/
     void registerForImsNetworkStateChanged(Handler h, int what, Object obj);
-    /** new API phone ril DSDS add liuyongsheng*/
     void unregisterForImsNetworkStateChanged(Handler h);
+
+    /**
+     * Indications for tethered mode calls. ON/OFF indications should trigger
+     * immediate data call retries.
+     */
+    void registerForTetheredModeStateChanged(Handler h, int what, Object obj);
+    void unregisterForTetheredModeStateChanged(Handler h);
 
     /**
      * Fires on any transition into RadioState.isOn()
@@ -198,10 +202,7 @@ public interface CommandsInterface {
     /** InCall voice privacy notifications */
     void registerForInCallVoicePrivacyOn(Handler h, int what, Object obj);
     void unregisterForInCallVoicePrivacyOn(Handler h);
-    
-    /** new API phone ril DSDS add liuyongsheng*/
     void registerForInCallVoicePrivacyOff(Handler h, int what, Object obj);
-    /** new API phone ril DSDS add liuyongsheng*/
     void unregisterForInCallVoicePrivacyOff(Handler h);
 
     /**
@@ -419,6 +420,28 @@ public interface CommandsInterface {
     //void unSetSuppServiceNotifications(Handler h);
 
     /**
+     * Sets the handler for Alpha Notification during STK Call Control.
+     * Unlike the register* methods, there's only one notification handler
+     *
+     * @param h Handler for notification message.
+     * @param what User-defined message code.
+     * @param obj User object.
+     */
+    void setOnCatCcAlphaNotify(Handler h, int what, Object obj);
+    void unSetOnCatCcAlphaNotify(Handler h);
+
+    /**
+     * Sets the handler for notifying SS Data during STK Call Control.
+     * Unlike the register* methods, there's only one notification handler
+     *
+     * @param h Handler for notification message.
+     * @param what User-defined message code.
+     * @param obj User object.
+     */
+    void setOnSS(Handler h, int what, Object obj);
+    void unSetOnSS(Handler h);
+
+    /**
      * Sets the handler for Event Notifications for CDMA Display Info.
      * Unlike the register* methods, there's only one notification handler
      *
@@ -568,7 +591,7 @@ public interface CommandsInterface {
       * @param h Handler for notification message.
       * @param what User-defined message code.
       * @param obj User object.
-      *  new API phone ril DSDS add liuyongsheng
+      *
       */
      void registerForExitEmergencyCallbackMode(Handler h, int what, Object obj);
      void unregisterForExitEmergencyCallbackMode(Handler h);
@@ -732,7 +755,7 @@ public interface CommandsInterface {
 
     void changeBarringPassword(String facility, String oldPwd, String newPwd, Message result);
 
-    void supplyNetworkDepersonalization(String netpin, Message result);
+    void supplyDepersonalization(String netpin, int type, Message result);
 
     /**
      *  returned message
@@ -1045,7 +1068,7 @@ public interface CommandsInterface {
      */
     void sendCdmaSms(byte[] pdu, Message response);
 
-    /**  new API phone ril DSDS add liuyongsheng
+    /**
      * send SMS over IMS with 3GPP/GSM SMS format
      * @param smscPDU is smsc address in PDU form GSM BCD format prefixed
      *      by a length byte (as expected by TS 27.005) or NULL for default SMSC
@@ -1059,7 +1082,7 @@ public interface CommandsInterface {
     void sendImsGsmSms (String smscPDU, String pdu, int retry, int messageRef,
             Message response);
 
-    /**  new API phone ril DSDS add liuyongsheng
+    /**
      * send SMS over IMS with 3GPP2/CDMA SMS format
      * @param pdu is CDMA-SMS in internal pseudo-PDU format
      * @param response sent when operation completes
@@ -1369,7 +1392,7 @@ public interface CommandsInterface {
      */
     void reportSmsMemoryStatus(boolean available, Message result);
 
-    /** 
+    /**
      * Indicates to the vendor ril that StkService is running
      * and is ready to receive RIL_UNSOL_STK_XXXX commands.
      *
@@ -1381,9 +1404,8 @@ public interface CommandsInterface {
 
     void invokeOemRilRequestStrings(String[] strings, Message response);
 
-    /**new API phone ril DSDS add liuyongsheng*/
     void setOnUnsolOemHookExtApp(Handler h, int what, Object obj);
-    /**new API phone ril DSDS add liuyongsheng*/
+
     void unSetOnUnsolOemHookExtApp(Handler h);
 
     /**
@@ -1601,8 +1623,6 @@ public interface CommandsInterface {
      */
     // TODO: Change the configValuesArray to a RIL_BroadcastSMSConfig
     public void setCdmaBroadcastConfig(int[] configValuesArray, Message result);
-    
-    /**new API phone ril DSDS add liuyongsheng*/
     public void setCdmaBroadcastConfig(CdmaSmsBroadcastConfigInfo[] configs, Message response);
 
     /**
@@ -1644,8 +1664,8 @@ public interface CommandsInterface {
      * @hide
      */
     public int getLteOnGsmMode();
-    
-    /**new API phone ril DSDS add liuyongsheng
+
+    /**
      * Get the data call profile information from the modem
      *
      * @param appType
@@ -1671,6 +1691,13 @@ public interface CommandsInterface {
      * Notifiy that we are testing an emergency call
      */
     public void testingEmergencyCall();
+
+    /**
+     * @hide
+     * CM-specific: Ask the RIL about the presence of back-compat flags
+     */
+    public boolean needsOldRilFeature(String feature);
+
     /**
      * Sets Quality of Service(QoS) parameters at Modem.
      * @param callId
@@ -1689,7 +1716,7 @@ public interface CommandsInterface {
      *          Callback message contains the information of SUCCESS/FAILURE.
     */
     public void releaseQos (int qosId, Message result);
-    
+
     /**
      * Modify an active Quality of Service(QoS).
      * @param qosId
@@ -1723,6 +1750,17 @@ public interface CommandsInterface {
     */
     public void getQosStatus (int qosId, Message result);
 
+    /**
+     * Sets the transmit power
+     *
+     * @param powerLevel Transmit power level to set. One of:
+     *            TRANSMIT_POWER_DEFAULT
+     *            TRANSMIT_POWER_WIFI_HOTSPOT
+     * @param result Callback message contains the information of
+     *            SUCCESS/FAILURE.
+     */
+    void setTransmitPower(int powerLevel, Message result);
+
    /**
      * Sets user selected subscription at Modem.
      *
@@ -1739,22 +1777,8 @@ public interface CommandsInterface {
      */
     public void setUiccSubscription(int slotId, int appIndex, int subId, int subStatus,
             Message result);
-    
+
     /**
-     * @hide
-     * CM-specific: Ask the RIL about the presence of back-compat flags
-     */
-    public boolean needsOldRilFeature(String feature);
-    
-    /**
-     * @hide
-     * samsung stk service implementation - set up registrant for sending
-     * sms send result from modem(RIL) to catService
-     */
-    void setOnCatSendSmsResult(Handler h, int what, Object obj);
-    void unSetOnCatSendSmsResult(Handler h);
-    
-    /**new API phone ril DSDS add liuyongsheng
      * Set Data Subscription preference at Modem.
      *
      * @param result
@@ -1762,7 +1786,7 @@ public interface CommandsInterface {
      */
     public void setDataSubscription (Message result);
 
-    /**new API phone ril DSDS add liuyongsheng
+    /**
      * Sets SingleStandByMode or DualStandBy mode at Modem.
      * @param subscriptionMode
                 1 for SingleStandBy (Single SIM functionality)
@@ -1771,11 +1795,5 @@ public interface CommandsInterface {
      *          Callback message contains the information of SUCCESS/FAILURE.
     */
     public void setSubscriptionMode (int subscriptionMode, Message result);
-    
-    public abstract void setOnCatCcAlphaNotify(Handler paramHandler, int paramInt, Object paramObject);
-    
-    public abstract void registerForDataCallListChanged(Handler paramHandler, int paramInt, Object paramObject);
-    
-    public abstract void unregisterForDataCallListChanged(Handler paramHandler);
 
 }

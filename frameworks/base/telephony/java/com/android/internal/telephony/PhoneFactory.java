@@ -16,8 +16,6 @@
 
 package com.android.internal.telephony;
 
-import java.lang.reflect.Constructor;
-
 import android.content.Context;
 import android.net.LocalServerSocket;
 import android.os.Looper;
@@ -32,6 +30,8 @@ import com.android.internal.telephony.gsm.GSMPhone;
 import com.android.internal.telephony.sip.SipPhone;
 import com.android.internal.telephony.sip.SipPhoneFactory;
 import com.android.internal.telephony.uicc.UiccController;
+
+import java.lang.reflect.Constructor;
 
 /**
  * {@hide}
@@ -83,14 +83,12 @@ public class PhoneFactory {
                     try {
                         // use UNIX domain socket to
                         // prevent subsequent initialization
-                    	Log.v(LOG_TAG, "2222222222222222222------------------makeDefaultPhone()...");
                         new LocalServerSocket("com.android.internal.telephony");
                     } catch (java.io.IOException ex) {
                         hasException = true;
                     }
 
                     if ( !hasException ) {
-                    	Log.v(LOG_TAG, "333333-----------hasException-------makeDefaultPhone()...");
                         break;
                     } else if (retryCount > SOCKET_OPEN_MAX_RETRY) {
                         throw new RuntimeException("PhoneFactory probably already running");
@@ -108,6 +106,9 @@ public class PhoneFactory {
                 int preferredNetworkMode = RILConstants.PREFERRED_NETWORK_MODE;
                 if (BaseCommands.getLteOnCdmaModeStatic() == Phone.LTE_ON_CDMA_TRUE) {
                     preferredNetworkMode = Phone.NT_MODE_GLOBAL;
+                }
+                if (BaseCommands.getLteOnGsmModeStatic() != 0) {
+                    preferredNetworkMode = Phone.NT_MODE_LTE_GSM_WCDMA;
                 }
                 int networkMode = Settings.Secure.getInt(context.getContentResolver(),
                         Settings.Secure.PREFERRED_NETWORK_MODE, preferredNetworkMode);
@@ -137,8 +138,9 @@ public class PhoneFactory {
                     throw new RuntimeException(e);
                 }
 
+                // Instantiate UiccController so that all other classes can just call getInstance()
                 UiccController.make(context, sCommandsInterface);
-                
+
                 int phoneType = getPhoneType(networkMode);
                 if (phoneType == Phone.PHONE_TYPE_GSM) {
                     Log.i(LOG_TAG, "Creating GSMPhone");

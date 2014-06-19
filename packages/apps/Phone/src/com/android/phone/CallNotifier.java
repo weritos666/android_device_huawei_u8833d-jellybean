@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (c) 2011-2012 Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2011-2012 The Linux Foundation. All rights reserved.
  *
  * Not a Contribution, Apache license notifications and license are retained
  * for attribution purposes only
@@ -35,6 +35,9 @@ import com.android.internal.telephony.cdma.CdmaCallWaitingNotification;
 import com.android.internal.telephony.cdma.CdmaInformationRecords.CdmaDisplayInfoRec;
 import com.android.internal.telephony.cdma.CdmaInformationRecords.CdmaSignalInfoRec;
 import com.android.internal.telephony.cdma.SignalToneUtil;
+import com.android.internal.telephony.CallManager;
+import com.android.phone.CallFeaturesSetting;
+import com.android.internal.telephony.gsm.SuppServiceNotification;
 
 import android.app.ActivityManagerNative;
 import android.content.Context;
@@ -46,6 +49,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemProperties;
+import android.os.SystemVibrator;
 import android.os.Vibrator;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
@@ -55,6 +59,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.EventLog;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Phone app module that listens for phone state changes and various other
@@ -148,6 +153,9 @@ public class CallNotifier extends Handler
     private static final int EVENT_OTA_PROVISION_CHANGE = 25;
     private static final int CDMA_CALL_WAITING_REJECT = 26;
     private static final int UPDATE_IN_CALL_NOTIFICATION = 27;
+    private static final int VIBRATE_45_SEC = 28;
+
+    private static final int SUPP_SERVICE_NOTIFY = 34;
 
     // Emergency call related defines:
     private static final int EMERGENCY_TONE_OFF = 0;
@@ -163,6 +171,8 @@ public class CallNotifier extends Handler
 
     // ToneGenerator instance for playing SignalInfo tones
     private ToneGenerator mSignalInfoToneGenerator;
+
+    private static SuppServiceNotification suppSvcNotification;
 
     // The tone volume relative to other sounds in the stream SignalInfo
     private static final int TONE_RELATIVE_VOLUME_SIGNALINFO = 80;
@@ -184,6 +194,8 @@ public class CallNotifier extends Handler
 
     // Cached AudioManager
     private AudioManager mAudioManager;
+
+    private Vibrator mVibrator;
 
     /**
      * Initialize the singleton CallNotifier instance.
@@ -210,6 +222,8 @@ public class CallNotifier extends Handler
 
         mAudioManager = (AudioManager) mApplication.mContext.getSystemService(
                 Context.AUDIO_SERVICE);
+        mVibrator = (Vibrator) mApplication.mContext.getSystemService(
+                Context.VIBRATOR_SERVICE);
 
         registerForNotifications();
 
@@ -364,14 +378,168 @@ public class CallNotifier extends Handler
                 mApplication.notificationMgr.updateInCallNotification();
                 break;
 
+            case VIBRATE_45_SEC:
+                vibrate(70, 0, 0);
+                sendEmptyMessageDelayed(VIBRATE_45_SEC, 60000);
+                break;
+
             case PHONE_AUTO_ANSWER:
                 // Called after auto answer timer expires
                 onPhoneAutoAnswer();
+            case SUPP_SERVICE_NOTIFY:
+                if (DBG) log("Received Supplementary Notification");
+
+                if (msg.obj != null && ((AsyncResult) msg.obj).result != null) {
+                    suppSvcNotification = (SuppServiceNotification)((AsyncResult) msg.obj).result;
+                    String callForwardText = getSuppSvcNotificationText(suppSvcNotification);
+                    Toast.makeText(mApplication.mContext, callForwardText, Toast.LENGTH_LONG).show();
+                }
                 break;
 
             default:
                 // super.handleMessage(msg);
         }
+    }
+
+    private String getSuppSvcNotificationText(SuppServiceNotification suppSvcNotification) {
+
+        String callForwardTxt = "";
+        if (suppSvcNotification != null) {
+            switch (suppSvcNotification.notificationType) {
+                // The Notification is for MO call
+                case 0:
+                    switch (suppSvcNotification.code) {
+                        case SuppServiceNotification.MO_CODE_UNCONDITIONAL_CF_ACTIVE :
+                            // This message is displayed when an outgoing call is made
+                            // and unconditional forwarding is enabled.
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_unconditionalCF);
+                            break;
+
+                        case SuppServiceNotification.MO_CODE_SOME_CF_ACTIVE:
+                            // This message is displayed when an outgoing call is made
+                            // and conditional forwarding is enabled.
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_conditionalCF);
+                            break;
+
+                        case SuppServiceNotification.MO_CODE_CALL_FORWARDED:
+                            //This message is displayed on A when the outgoing call actually gets forwarded to C
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_MOcall_forwarding);
+                            break;
+
+                        case SuppServiceNotification.MO_CODE_CALL_IS_WAITING:
+                            //This message is displayed on A when the B is busy on another call and Call waiting
+                            //is enabled on B
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_calliswaiting);
+                            break;
+
+                        case SuppServiceNotification.MO_CODE_CUG_CALL:
+                            //This message is displayed on A, when A makes call to B, both A & B
+                            //belong to a CUG group
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_cugcall);
+                            break;
+                        case SuppServiceNotification.MO_CODE_OUTGOING_CALLS_BARRED:
+                            //This message is displayed on A when outging is barred on A
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_outgoing_barred);
+                            break;
+
+                        case SuppServiceNotification.MO_CODE_INCOMING_CALLS_BARRED:
+                            //This message is displayed on A, when A is calling B & incoming is barred on B
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_incoming_barred);
+                            break;
+
+                        case SuppServiceNotification.MO_CODE_CLIR_SUPPRESSION_REJECTED:
+                            //This message is displayed on A, when CLIR suppression is rejected
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_clir_suppression_rejected);
+                            break;
+
+                        case SuppServiceNotification.MO_CODE_CALL_DEFLECTED:
+                            //This message is displayed on A, when the outgoing call gets deflected to C from B
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_call_deflected);
+                            break;
+
+                        default:
+                            log("Received unsupported MO SS Notification :" + suppSvcNotification.code);
+                            break;
+                    }
+                    break;
+                // The Notification is for MT call
+                case 1:
+                    switch (suppSvcNotification.code) {
+                        case SuppServiceNotification.MT_CODE_FORWARDED_CALL:
+                            //This message is displayed on C when the incoming call is forwarded from B
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_forwarded_MTcall);
+                            break;
+
+                        case SuppServiceNotification.MT_CODE_CUG_CALL:
+                            //This message is displayed on B, when A makes call to B, both A & B
+                            //belong to a CUG group
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_cugcall);
+                            break;
+
+                        case SuppServiceNotification.MT_CODE_CALL_ON_HOLD:
+                            //This message is displayed on B,when A makes call to B & puts it on hold
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_callonhold);
+                            break;
+
+                        case SuppServiceNotification.MT_CODE_CALL_RETRIEVED:
+                            //This message is displayed on B,when A makes call to B, puts it on hold & retrives it back.
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_callretrieved);
+                            break;
+
+                        case SuppServiceNotification.MT_CODE_MULTI_PARTY_CALL:
+                            //This message is displayed on B when the the call is changed as multiparty
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_multipartycall);
+                            break;
+
+                        case SuppServiceNotification.MT_CODE_ON_HOLD_CALL_RELEASED:
+                            //This message is displayed on B, when A makes call to B, puts it on hold & then releases it.
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_callonhold_released);
+                            break;
+                        case SuppServiceNotification.MT_CODE_FORWARD_CHECK_RECEIVED:
+                            //This message is displayed on C when the incoming call is forwarded from B
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_forwardcheckreceived);
+                            break;
+
+                        case SuppServiceNotification.MT_CODE_CALL_CONNECTING_ECT:
+                            //This message is displayed on B,when Call is connecting through Explicit Cold Transfer
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_callconnectingect);
+                            break;
+
+                        case SuppServiceNotification.MT_CODE_CALL_CONNECTED_ECT:
+                            //This message is displayed on B,when Call is connected through Explicit Cold Transfer
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_callconnectedect);
+                            break;
+
+                        case SuppServiceNotification.MT_CODE_DEFLECTED_CALL:
+                            //This message is displayed on B when the incoming call is deflected call
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_deflectedcall);
+                            break;
+
+                        case SuppServiceNotification.MT_CODE_ADDITIONAL_CALL_FORWARDED:
+                            // This message is displayed on B when it is busy and the incoming call gets forwarded to C
+                            callForwardTxt = mApplication.mContext.getString(R.string.card_title_MTcall_forwarding);
+                            break;
+
+                        default :
+                            log("Received unsupported MT SS Notification :" + suppSvcNotification.code);
+                            break;
+                    }
+                    break;
+
+                default:
+                    Log.e(LOG_TAG, "Received invalid Notification Type :" + suppSvcNotification.notificationType);
+                    break;
+            }
+        }
+        return callForwardTxt;
+    }
+
+    public static SuppServiceNotification getSuppSvcNotification() {
+        return suppSvcNotification;
+    }
+
+    public static void clearSuppSvcNotification() {
+        suppSvcNotification = null;
     }
 
     PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
@@ -482,6 +650,9 @@ public class CallNotifier extends Handler
             }
         } else {
             if (VDBG) log("- starting call waiting tone...");
+            if (PhoneUtils.PhoneSettings.vibCallWaiting(mApplication.mContext)) {
+                vibrate(200, 300, 500);
+            }
             if (mCallWaitingTonePlayer == null) {
                 mCallWaitingTonePlayer = new InCallTonePlayer(InCallTonePlayer.TONE_CALL_WAITING);
                 mCallWaitingTonePlayer.start();
@@ -797,18 +968,20 @@ public class CallNotifier extends Handler
                 .enableNotificationAlerts(state == Phone.State.IDLE);
 
         Phone fgPhone = mCM.getFgPhone();
-        if (fgPhone.getPhoneType() == Phone.PHONE_TYPE_CDMA) {
-            if ((fgPhone.getForegroundCall().getState() == Call.State.ACTIVE)
-                    && ((mPreviousCdmaCallState == Call.State.DIALING)
-                    ||  (mPreviousCdmaCallState == Call.State.ALERTING))) {
-                if (mIsCdmaRedialCall) {
-                    int toneToPlay = InCallTonePlayer.TONE_REDIAL;
-                    new InCallTonePlayer(toneToPlay).start();
-                }
-                // Stop any signal info tone when call moves to ACTIVE state
+        if (fgPhone != null) {
+            if (fgPhone.getPhoneType() == Phone.PHONE_TYPE_CDMA) {
+                if ((fgPhone.getForegroundCall().getState() == Call.State.ACTIVE)
+                        && ((mPreviousCdmaCallState == Call.State.DIALING)
+                        ||  (mPreviousCdmaCallState == Call.State.ALERTING))) {
+                    if (mIsCdmaRedialCall) {
+                        int toneToPlay = InCallTonePlayer.TONE_REDIAL;
+                        new InCallTonePlayer(toneToPlay).start();
+                    }
+                    // Stop any signal info tone when call moves to ACTIVE state
                 stopSignalInfoTone();
+                }
+                mPreviousCdmaCallState = fgPhone.getForegroundCall().getState();
             }
-            mPreviousCdmaCallState = fgPhone.getForegroundCall().getState();
         }
 
         // Have the PhoneApp recompute its mShowBluetoothIndication
@@ -830,6 +1003,28 @@ public class CallNotifier extends Handler
             }
 
             if (VDBG) log("onPhoneStateChanged: OFF HOOK");
+
+            Call call = PhoneUtils.getCurrentCall(fgPhone);
+            Connection c = PhoneUtils.getConnection(fgPhone, call);
+            if (VDBG) PhoneUtils.dumpCallState(fgPhone);
+            Call.State cstate = call.getState();
+
+            if (cstate == Call.State.ACTIVE && !c.isIncoming()) {
+                long callDurationMsec = c.getDurationMillis();
+                if (VDBG) Log.v(LOG_TAG, "duration is " + callDurationMsec);
+
+                boolean vibOut = PhoneUtils.PhoneSettings.vibOutgoing(mApplication.mContext);
+                if (vibOut && callDurationMsec < 200) {
+                    vibrate(100, 0, 0);
+                }
+
+                boolean vib45 = PhoneUtils.PhoneSettings.vibOn45Secs(mApplication.mContext);
+                if (vib45) {
+                    callDurationMsec = callDurationMsec % 60000;
+                    start45SecondVibration(callDurationMsec);
+                }
+            }
+
             // make sure audio is in in-call mode now
             PhoneUtils.setAudioMode(mCM);
 
@@ -870,45 +1065,47 @@ public class CallNotifier extends Handler
                                     IN_CALL_NOTIFICATION_UPDATE_DELAY);
         }
 
-        if (fgPhone.getPhoneType() == Phone.PHONE_TYPE_CDMA) {
-            Connection c = fgPhone.getForegroundCall().getLatestConnection();
-            if ((c != null) && (PhoneNumberUtils.isLocalEmergencyNumber(c.getAddress(),
+        if (fgPhone != null) {
+            if (fgPhone.getPhoneType() == Phone.PHONE_TYPE_CDMA) {
+                Connection c = fgPhone.getForegroundCall().getLatestConnection();
+                if ((c != null) && (PhoneNumberUtils.isLocalEmergencyNumber(c.getAddress(),
                                                                         mApplication.mContext))) {
-                if (VDBG) log("onPhoneStateChanged: it is an emergency call.");
-                Call.State callState = fgPhone.getForegroundCall().getState();
-                if (mEmergencyTonePlayerVibrator == null) {
-                    mEmergencyTonePlayerVibrator = new EmergencyTonePlayerVibrator();
-                }
-
-                if (callState == Call.State.DIALING || callState == Call.State.ALERTING) {
-                    mIsEmergencyToneOn = Settings.System.getInt(
-                            mApplication.mContext.getContentResolver(),
-                            Settings.System.EMERGENCY_TONE, EMERGENCY_TONE_OFF);
-                    if (mIsEmergencyToneOn != EMERGENCY_TONE_OFF &&
-                        mCurrentEmergencyToneState == EMERGENCY_TONE_OFF) {
-                        if (mEmergencyTonePlayerVibrator != null) {
-                            mEmergencyTonePlayerVibrator.start();
-                        }
+                    if (VDBG) log("onPhoneStateChanged: it is an emergency call.");
+                    Call.State callState = fgPhone.getForegroundCall().getState();
+                    if (mEmergencyTonePlayerVibrator == null) {
+                        mEmergencyTonePlayerVibrator = new EmergencyTonePlayerVibrator();
                     }
-                } else if (callState == Call.State.ACTIVE) {
-                    if (mCurrentEmergencyToneState != EMERGENCY_TONE_OFF) {
-                        if (mEmergencyTonePlayerVibrator != null) {
-                            mEmergencyTonePlayerVibrator.stop();
+
+                    if (callState == Call.State.DIALING || callState == Call.State.ALERTING) {
+                        mIsEmergencyToneOn = Settings.System.getInt(
+                                mApplication.mContext.getContentResolver(),
+                                Settings.System.EMERGENCY_TONE, EMERGENCY_TONE_OFF);
+                        if (mIsEmergencyToneOn != EMERGENCY_TONE_OFF &&
+                            mCurrentEmergencyToneState == EMERGENCY_TONE_OFF) {
+                            if (mEmergencyTonePlayerVibrator != null) {
+                                mEmergencyTonePlayerVibrator.start();
+                            }
+                        }
+                    } else if (callState == Call.State.ACTIVE) {
+                        if (mCurrentEmergencyToneState != EMERGENCY_TONE_OFF) {
+                            if (mEmergencyTonePlayerVibrator != null) {
+                                mEmergencyTonePlayerVibrator.stop();
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if ((fgPhone.getPhoneType() == Phone.PHONE_TYPE_GSM)
-                || (fgPhone.getPhoneType() == Phone.PHONE_TYPE_SIP)) {
-            Call.State callState = mCM.getActiveFgCallState();
-            if (!callState.isDialing()) {
-                // If call get activated or disconnected before the ringback
-                // tone stops, we have to stop it to prevent disturbing.
-                if (mInCallRingbackTonePlayer != null) {
-                    mInCallRingbackTonePlayer.stopTone();
-                    mInCallRingbackTonePlayer = null;
+            if ((fgPhone.getPhoneType() == Phone.PHONE_TYPE_GSM)
+                    || (fgPhone.getPhoneType() == Phone.PHONE_TYPE_SIP)) {
+                Call.State callState = mCM.getActiveFgCallState();
+                if (!callState.isDialing()) {
+                    // If call get activated or disconnected before the ringback
+                    // tone stops, we have to stop it to prevent disturbing.
+                    if (mInCallRingbackTonePlayer != null) {
+                        mInCallRingbackTonePlayer.stopTone();
+                        mInCallRingbackTonePlayer = null;
+                    }
                 }
             }
         }
@@ -928,6 +1125,7 @@ public class CallNotifier extends Handler
         mCM.unregisterForCdmaOtaStatusChange(this);
         mCM.unregisterForRingbackTone(this);
         mCM.unregisterForResendIncallMute(this);
+        mCM.unregisterForSuppServiceNotification(this);
 
         // Release the ToneGenerator used for playing SignalInfo and CallWaiting
         if (mSignalInfoToneGenerator != null) {
@@ -961,6 +1159,7 @@ public class CallNotifier extends Handler
         mCM.registerForInCallVoicePrivacyOff(this, PHONE_ENHANCED_VP_OFF, null);
         mCM.registerForRingbackTone(this, PHONE_RINGBACK_TONE, null);
         mCM.registerForResendIncallMute(this, PHONE_RESEND_MUTE, null);
+        mCM.registerForSuppServiceNotification(this, SUPP_SERVICE_NOTIFY, null);
     }
 
     /**
@@ -1088,6 +1287,14 @@ public class CallNotifier extends Handler
             removeMessages(CALLWAITING_ADDCALL_DISABLE_TIMEOUT);
         }
 
+        if (c != null) {
+            boolean vibHangup = PhoneUtils.PhoneSettings.vibHangup(mApplication.mContext);
+            if (vibHangup && c.getDurationMillis() > 0) {
+                vibrate(50, 100, 50);
+            }
+            removeMessages(VIBRATE_45_SEC);
+        }
+
         // Stop the ringer if it was ringing (for an incoming call that
         // either disconnected by itself, or was rejected by the user.)
         //
@@ -1170,6 +1377,9 @@ public class CallNotifier extends Handler
                 toneToPlay = InCallTonePlayer.TONE_CALL_ENDED;
             }
         }
+
+        // disable noise suppression
+        PhoneUtils.turnOnNoiseSuppression(mApplication.mContext, false);
 
         // If we don't need to play BUSY or CONGESTION, then play the
         // "call ended" tone if this was a "regular disconnect" (i.e. a
@@ -1355,6 +1565,15 @@ public class CallNotifier extends Handler
             // *should* be blocked at the telephony layer on non-voice-capable
             // capable devices.)
             Log.w(LOG_TAG, "Got onMwiChanged() on non-voice-capable device! Ignoring...");
+            return;
+        }
+
+        boolean notifProp = mApplication.getResources().getBoolean(R.bool.sprint_mwi_quirk);
+        boolean notifOption = Settings.System.getInt(mApplication.getPhone().getContext().getContentResolver(), Settings.System.ENABLE_MWI_NOTIFICATION, 0) == 1;
+        if (notifProp && !notifOption) {
+            // sprint_mwi_quirk is true, and ENABLE_MWI_NOTIFICATION is unchecked or unset (false)
+            // ignore the mwi event, but log if we're debugging.
+            if (VDBG) log("onMwiChanged(): mwi_notification is disabled. Ignoring...");
             return;
         }
 
@@ -1974,7 +2193,9 @@ public class CallNotifier extends Handler
                 new long[] { EMG_VIBRATE_LENGTH, EMG_VIBRATE_PAUSE };
 
         private ToneGenerator mToneGenerator;
-        private Vibrator mEmgVibrator;
+        // We don't rely on getSystemService(Context.VIBRATOR_SERVICE) to make sure this vibrator
+        // object will be isolated from others.
+        private Vibrator mEmgVibrator = new SystemVibrator();
         private int mInCallVolume;
 
         /**
@@ -2005,7 +2226,6 @@ public class CallNotifier extends Handler
                 }
             } else if (mIsEmergencyToneOn == EMERGENCY_TONE_VIBRATE) {
                 log("EmergencyTonePlayerVibrator.start(): emergency vibrate...");
-                mEmgVibrator = (Vibrator)mApplication.getSystemService(Context.VIBRATOR_SERVICE);
                 if (mEmgVibrator != null) {
                     mEmgVibrator.vibrate(mVibratePattern, 0);
                     mCurrentEmergencyToneState = EMERGENCY_TONE_VIBRATE;
@@ -2156,6 +2376,30 @@ public class CallNotifier extends Handler
         }
         if (DBG) log("- getPresentation: presentation: " + presentation);
         return presentation;
+    }
+
+    private void start45SecondVibration(long callDurationMsec) {
+        if (VDBG) Log.v(LOG_TAG, "vibrate start @" + callDurationMsec);
+
+        removeMessages(VIBRATE_45_SEC);
+
+        long timer;
+        if (callDurationMsec > 45000) {
+            // Schedule the alarm at the next minute + 45 secs
+            timer = 45000 + 60000 - callDurationMsec;
+        } else {
+            // Schedule the alarm at the first 45 second mark
+            timer = 45000 - callDurationMsec;
+        }
+
+        sendEmptyMessageDelayed(VIBRATE_45_SEC, timer);
+    }
+
+    public void vibrate(int v1, int p1, int v2) {
+        long[] pattern = new long[] {
+            0, v1, p1, v2
+        };
+        mVibrator.vibrate(pattern, -1);
     }
 
     private void log(String msg) {

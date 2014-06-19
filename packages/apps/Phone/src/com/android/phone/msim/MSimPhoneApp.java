@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (c) 2011-2012 Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2011-2013 The Linux Foundation. All rights reserved.
  *
  * Not a Contribution, Apache license notifications and license are retained
  * for attribution purposes only
@@ -46,6 +46,7 @@ import android.telephony.ServiceState;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import android.telephony.TelephonyManager;
 import android.telephony.MSimTelephonyManager;
 import com.android.internal.telephony.Call;
 import com.android.internal.telephony.CallManager;
@@ -91,7 +92,7 @@ public class MSimPhoneApp extends PhoneApp {
     private static final boolean VDBG = (PhoneApp.DBG_LEVEL >= 2);
 
     // Message codes; see mHandler below.
-    static final int EVENT_SIM_NETWORK_LOCKED = 3;
+    private static final int EVENT_PERSO_LOCKED = 3;
     private static final int EVENT_WIRED_HEADSET_PLUG = 7;
     private static final int EVENT_SIM_STATE_CHANGED = 8;
     private static final int EVENT_UPDATE_INCALL_NOTIFICATION = 9;
@@ -220,7 +221,8 @@ public class MSimPhoneApp extends PhoneApp {
             // before registering for phone state changes
             PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
             mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
-                    | PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                    | PowerManager.ACQUIRE_CAUSES_WAKEUP
+                    | PowerManager.ON_AFTER_RELEASE,
                     LOG_TAG);
             // lock used to keep the processor awake, when we don't care for the display.
             mPartialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK
@@ -272,12 +274,15 @@ public class MSimPhoneApp extends PhoneApp {
             // launching the incoming-call UI when an incoming call comes
             // in.)
             notifier = MSimCallNotifier.init(this, phone, ringer, mBtHandsfree, new CallLogAsync());
+            XDivertUtility.init(this, phone, (MSimCallNotifier)notifier, mContext);
 
             // register for ICC status
-            IccCard sim = phone.getIccCard();
-            if (sim != null) {
-                if (VDBG) Log.v(LOG_TAG, "register for ICC status");
-                sim.registerForNetworkLocked(mHandler, EVENT_SIM_NETWORK_LOCKED, null);
+            for (int i = 0; i < MSimTelephonyManager.getDefault().getPhoneCount(); i++) {
+                IccCard sim = getPhone(i).getIccCard();
+                if (sim != null) {
+                    if (VDBG) Log.v(LOG_TAG, "register for ICC status on subscription: " + i);
+                    sim.registerForPersoLocked(mHandler, EVENT_PERSO_LOCKED, new Integer(i));
+                }
             }
 
             // register for MMI/USSD
@@ -374,6 +379,16 @@ public class MSimPhoneApp extends PhoneApp {
                                       CallFeaturesSetting.HAC_VAL_OFF);
         }
 
+    }
+
+    @Override
+    void initIccDepersonalizationPanel(AsyncResult ar) {
+        int subtype = (Integer)ar.result;
+        int subscription = (Integer)ar.userObj;
+        Log.i(LOG_TAG, "show sim depersonal panel subscription: " + subscription);
+        IccDepersonalizationPanel dpPanel =
+                new IccDepersonalizationPanel(mContext, subtype, subscription);
+        dpPanel.show();
     }
 
     /**
@@ -506,15 +521,6 @@ public class MSimPhoneApp extends PhoneApp {
         if (mInCallScreen != null) {
             mInCallScreen.updateAfterRadioTechnologyChange();
         }
-
-        // Update registration for ICC status after radio technology change
-        IccCard sim = phone.getIccCard();
-        if (sim != null) {
-            if (DBG) Log.d(LOG_TAG, "Update registration for ICC status...");
-
-            //Register all events new to the new active phone
-            sim.registerForNetworkLocked(mHandler, EVENT_SIM_NETWORK_LOCKED, null);
-        }
     }
 
     /**
@@ -526,18 +532,36 @@ public class MSimPhoneApp extends PhoneApp {
             String action = intent.getAction();
             Log.v(LOG_TAG,"Action intent recieved:"+action);
             //gets the subscription information ( "0" or "1")
-            int subscription = intent.getIntExtra("phone_subscription", getDefaultSubscription());
+            int subscription = intent.getIntExtra(SUBSCRIPTION_KEY, getDefaultSubscription());
             if (action.equals(Intent.ACTION_AIRPLANE_MODE_CHANGED)) {
-                // When airplane mode is selected/deselected from settings
-                // AirplaneModeEnabler sets the value of extra "state" to
-                // true if airplane mode is enabled and false if it is
-                // disabled and broadcasts the intent. setRadioPower uses
-                // true if airplane mode is disabled and false if enabled.
-                boolean enabled = intent.getBooleanExtra("state",false);
+                boolean enabled = System.getInt(mContext.getContentResolver(),
+                        System.AIRPLANE_MODE_ON, 0) == 0;
+                // Set the airplane mode property for RIL to read on boot up
+                // to know if the phone is in airplane mode so that RIL can
+                // power down the ICC card.
+                Log.d(LOG_TAG, "Setting property " + PROPERTY_AIRPLANE_MODE_ON);
+                // enabled here implies airplane mode is OFF from above condition.
+                SystemProperties.set(PROPERTY_AIRPLANE_MODE_ON, (enabled ? "0" : "1"));
                 for (int i = 0; i < MSimTelephonyManager.getDefault().getPhoneCount(); i++) {
-                    getPhone(i).setRadioPower(!enabled);
+                    getPhone(i).setRadioPower(enabled);
                 }
 
+            } else if ((action.equals(TelephonyIntents.ACTION_SIM_STATE_CHANGED)) &&
+                    (mPUKEntryActivity != null)) {
+                // if an attempt to un-PUK-lock the device was made, while we're
+                // receiving this state change notification, notify the handler.
+                // NOTE: This is ONLY triggered if an attempt to un-PUK-lock has
+                // been attempted.
+                mHandler.sendMessage(mHandler.obtainMessage(EVENT_SIM_STATE_CHANGED,
+                        intent.getStringExtra(IccCard.INTENT_KEY_ICC_STATE)));
+                String reason = intent.getStringExtra(IccCard.INTENT_KEY_LOCKED_REASON);
+                if (IccCard.INTENT_VALUE_LOCKED_ON_PUK.equals(reason)) {
+                    Log.d(LOG_TAG, "Setting mIsSimPukLocked:true on sub :" + subscription);
+                    getMSPhone(subscription).mIsSimPukLocked = true;
+                } else {
+                    Log.d(LOG_TAG, "Setting mIsSimPukLocked:false on sub :" + subscription);
+                    getMSPhone(subscription).mIsSimPukLocked = false;
+                }
             } else if (action.equals(TelephonyIntents.ACTION_RADIO_TECHNOLOGY_CHANGED)) {
                 String newPhone = intent.getStringExtra(Phone.PHONE_NAME_KEY);
                 Log.d(LOG_TAG, "Radio technology switched. Now " + newPhone + " is active.");
@@ -553,7 +577,7 @@ public class MSimPhoneApp extends PhoneApp {
                     // Start Emergency Callback Mode service
                     if (intent.getBooleanExtra("phoneinECMState", false)) {
                         Intent ecbmIntent = new Intent(context, EmergencyCallbackModeService.class);
-                        ecbmIntent.putExtra("Subscription", subscription);
+                        ecbmIntent.putExtra(SUBSCRIPTION_KEY, subscription);
                         context.startService(ecbmIntent);
                     }
                 } else {
@@ -585,7 +609,35 @@ public class MSimPhoneApp extends PhoneApp {
     private class MSimMediaButtonBroadcastReceiver extends PhoneApp.MediaButtonBroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            super.onReceive(context, intent);
+            KeyEvent event = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+            Log.d(LOG_TAG, "MediaButtonBroadcastReceiver.onReceive() event = " + event);
+            if ((event != null)
+                && (event.getKeyCode() == KeyEvent.KEYCODE_HEADSETHOOK)) {
+                if (VDBG) Log.d(LOG_TAG, "MediaButtonBroadcastReceiver: HEADSETHOOK");
+
+                for (int i = 0; i < MSimTelephonyManager.getDefault().getPhoneCount(); i++) {
+                    boolean consumed = PhoneUtils.handleHeadsetHook(getPhone(i), event);
+                    Log.d(LOG_TAG, "handleHeadsetHook(): consumed = " + consumed +
+                        " on SUB ["+i+"]");
+                    if (consumed) {
+                        // If a headset is attached and the press is consumed, also update
+                        // any UI items (such as an InCallScreen mute button) that may need to
+                        // be updated if their state changed.
+                        updateInCallScreen();  // Has no effect if the InCallScreen isn't visible
+                        abortBroadcast();
+                        break;
+                    }
+                }
+            } else {
+                if (mCM.getState() != Phone.State.IDLE) {
+                    // If the phone is anything other than completely idle,
+                    // then we consume and ignore any media key events,
+                    // Otherwise it is too easy to accidentally start
+                    // playing music while a phone call is in progress.
+                    if (VDBG) Log.d(LOG_TAG, "MediaButtonBroadcastReceiver: consumed");
+                    abortBroadcast();
+                }
+            }
         }
     }
 
@@ -652,19 +704,19 @@ public class MSimPhoneApp extends PhoneApp {
         }
     }
 
+    boolean isSimPukLocked(int subscription) {
+        return getMSPhone(subscription).mIsSimPukLocked;
+    }
+
     /**
       * Get the subscription that has service
       * Following are the conditions applicable when deciding the subscription for dial
-      * 1. If both subs are provisioned (activated) and both are in_service  -
-           choose default voice preferred sub for placing E911 call
-      * 2. If both subs are provisioned (activated) and only one sub is in_service  -
-      *    choose the sub, which is in_service
-      * 3. If both subs are provisioned (activated) and both are out_of_service  -
-      *    choose first phone to place E911 call
-      * 4. If both subs are deactivated or slots are absent i.e. No SIMs -
-      *    choose first phone to place E911 call
-      * 5. If one sub is deactivated/slot empty i.e. No SIM and the second sub is provisioned -
-      *    no matter whether that sub is in_service, place E911 call on that sub.
+      * 1. If both subs are activated, ir-respective of the service status of sub1 and sub2
+      *    choose default voice preferred sub for placing E911 call.
+      * 2. If one sub is activated and other sub is not activated(i.e NO SIM/PIN/PUK lock state)
+      *    then choose the activated sub to place E911 calls, even if it is out of service.
+      * 3. If both subs are not activated(i.e NO SIM/PIN/PUK lock state) then choose
+      *    the first sub by default for placing E911 call.
       */
     @Override
     public int getVoiceSubscriptionInService() {
@@ -672,25 +724,19 @@ public class MSimPhoneApp extends PhoneApp {
         //Emergency Call should always go on 1st sub .i.e.0
         //when both the subscriptions are out of service
         int sub = 0;
-        int count = MSimTelephonyManager.getDefault().getPhoneCount();
+        MSimTelephonyManager tm = MSimTelephonyManager.getDefault();
+        int count = tm.getPhoneCount();
         SubscriptionManager subManager = SubscriptionManager.getInstance();
 
-        if (subManager.getActiveSubscriptionsCount() == 1) {
-            for (int i = 0; i < count; i++) {
-                if (subManager.isSubActive(i)) {
-                    sub = i;
-                    break;
-                }
-            }
-        } else {
-            for (int i = 0; i < count; i++) {
-                Phone phone = getPhone(i);
-                int ss = phone.getServiceState().getState();
-                if ((ss == ServiceState.STATE_IN_SERVICE)
-                        || (ss == ServiceState.STATE_EMERGENCY_ONLY)) {
-                    sub = i;
-                    if (sub == voiceSub) break;
-                }
+        for (int i = 0; i < count; i++) {
+            Phone phone = getPhone(i);
+            int ss = phone.getServiceState().getState();
+            if ((ss == ServiceState.STATE_IN_SERVICE)
+                    || (phone.getServiceState().isEmergencyOnly())
+                    || ((ss == ServiceState.STATE_OUT_OF_SERVICE)
+                    && (tm.getSimState(i) == TelephonyManager.SIM_STATE_READY))) {
+                sub = i;
+                if (sub == voiceSub) break;
             }
         }
         return sub;

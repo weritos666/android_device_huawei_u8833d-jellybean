@@ -93,7 +93,6 @@ public class MmsSmsProvider extends ContentProvider {
     private static final int URI_FIRST_LOCKED_MESSAGE_ALL          = 16;
     private static final int URI_FIRST_LOCKED_MESSAGE_BY_THREAD_ID = 17;
     private static final int URI_MESSAGE_ID_TO_THREAD              = 18;
-    private static final int URI_THREADS_BYNUM             = 19;//add by shenduliuchuan
 
     /**
      * the name of the table that is used to store the queue of
@@ -112,7 +111,8 @@ public class MmsSmsProvider extends ContentProvider {
     // These are the columns that appear in both the MMS ("pdu") and
     // SMS ("sms") message tables.
     private static final String[] MMS_SMS_COLUMNS =
-            { BaseColumns._ID, Mms.DATE, Mms.DATE_SENT, Mms.READ, Mms.THREAD_ID, Mms.LOCKED };
+            { BaseColumns._ID, Mms.DATE, Mms.DATE_SENT, Mms.READ, Mms.THREAD_ID,
+              Mms.LOCKED, Mms.SUB_ID };
 
     // These are the columns that appear only in the MMS message
     // table.
@@ -212,7 +212,6 @@ public class MmsSmsProvider extends ContentProvider {
         URI_MATCHER.addURI(AUTHORITY, "conversations", URI_CONVERSATIONS);
         URI_MATCHER.addURI(AUTHORITY, "complete-conversations", URI_COMPLETE_CONVERSATIONS);
 
-        URI_MATCHER.addURI(AUTHORITY, "conversationsbynum", URI_THREADS_BYNUM);//add by shendu liuchuan
         // In these patterns, "#" is the thread ID.
         URI_MATCHER.addURI(
                 AUTHORITY, "conversations/#", URI_CONVERSATIONS_MESSAGES);
@@ -461,10 +460,6 @@ public class MmsSmsProvider extends ContentProvider {
             }
             case URI_FIRST_LOCKED_MESSAGE_ALL: {
                 cursor = getFirstLockedMessage(projection, selection, sortOrder);
-                break;
-            }
-            case URI_THREADS_BYNUM: {
-                cursor = mOpenHelper.getReadableDatabase().query("threads", null, null, null, null, null, sortOrder);
                 break;
             }
             default:

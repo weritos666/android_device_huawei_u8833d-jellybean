@@ -46,7 +46,7 @@ import static android.telephony.SmsManager.STATUS_ON_ICC_FREE;
  */
 public class SimSmsInterfaceManager extends IccSmsInterfaceManager {
     static final String LOG_TAG = "GSM";
-    static final boolean DBG = false;
+    static final boolean DBG = true;
 
     private final Object mLock = new Object();
     private boolean mSuccess;

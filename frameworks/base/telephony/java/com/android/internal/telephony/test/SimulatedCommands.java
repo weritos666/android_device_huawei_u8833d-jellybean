@@ -18,7 +18,6 @@
 package com.android.internal.telephony.test;
 
 import android.os.AsyncResult;
-import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
@@ -431,7 +430,7 @@ public final class SimulatedCommands extends BaseCommands
         unimplemented(result);
     }
 
-    public void supplyNetworkDepersonalization(String netpin, Message result)  {
+    public void supplyDepersonalization(String netpin, int type, Message result)  {
         unimplemented(result);
     }
 
@@ -1196,6 +1195,20 @@ public final class SimulatedCommands extends BaseCommands
     }
 
     /**
+     * Simulates an Stk Call Control Alpha message
+     * @param alphaString Alpha string to send.
+     */
+    public void triggerIncomingStkCcAlpha(String alphaString) {
+        if (mCatCcAlphaRegistrant != null) {
+            mCatCcAlphaRegistrant.notifyResult(alphaString);
+        }
+    }
+
+    public void sendStkCcAplha(String alphaString) {
+        triggerIncomingStkCcAlpha(alphaString);
+    }
+
+    /**
      * Simulates an incoming USSD message
      * @param statusCode  Status code string. See <code>setOnUSSD</code>
      * in CommandsInterface.java
@@ -1554,6 +1567,8 @@ public final class SimulatedCommands extends BaseCommands
         unimplemented(response);
     }
 
+    public boolean needsOldRilFeature(String feature) { return false; }
+
     public void getDataCallProfile(int appType, Message response){
         unimplemented(response);
     }
@@ -1571,6 +1586,10 @@ public final class SimulatedCommands extends BaseCommands
             int retry, int messageRef, Message response){
     }
 
+    public void setTransmitPower(int powerLevel, Message result) {
+        unimplemented(result);
+    }
+
     public void setUiccSubscription(int slotId, int appIndex, int subId, int subStatus,
             Message response) {
         unimplemented(response);
@@ -1583,28 +1602,4 @@ public final class SimulatedCommands extends BaseCommands
     public void setSubscriptionMode(int subscriptionMode, Message response) {
         unimplemented(response);
     }
-
-	@Override
-	public int getLteOnGsmMode() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public boolean needsOldRilFeature(String feature) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void setOnCatSendSmsResult(Handler h, int what, Object obj) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void unSetOnCatSendSmsResult(Handler h) {
-		// TODO Auto-generated method stub
-		
-	}
 }

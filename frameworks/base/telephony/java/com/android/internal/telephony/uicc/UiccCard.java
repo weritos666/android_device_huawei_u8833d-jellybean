@@ -16,10 +16,14 @@
 
 package com.android.internal.telephony.uicc;
 
+import static android.Manifest.permission.READ_PHONE_STATE;
+import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.os.AsyncResult;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
@@ -29,10 +33,19 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.android.internal.telephony.CommandsInterface;
+import com.android.internal.telephony.PhoneBase;
+import com.android.internal.telephony.CommandsInterface.RadioState;
+import com.android.internal.telephony.IccCard.State;
+import com.android.internal.telephony.gsm.GSMPhone;
 import com.android.internal.telephony.uicc.IccCardApplicationStatus.AppType;
 import com.android.internal.telephony.uicc.IccCardStatus.CardState;
 import com.android.internal.telephony.uicc.IccCardStatus.PinState;
 import com.android.internal.telephony.cat.CatService;
+import com.android.internal.telephony.cdma.CDMALTEPhone;
+import com.android.internal.telephony.cdma.CDMAPhone;
+import com.android.internal.telephony.cdma.CdmaSubscriptionSourceManager;
+
+import android.os.SystemProperties;
 
 import com.android.internal.R;
 
@@ -60,24 +73,26 @@ public class UiccCard {
     private static final int EVENT_CARD_REMOVED = 13;
     private static final int EVENT_CARD_ADDED = 14;
 
-    UiccCard(Context c, CommandsInterface ci, IccCardStatus ics) {
+    UiccCard(Context c, CommandsInterface ci, IccCardStatus ics, int slotId) {
         if (DBG) log("Creating");
-        update(c, ci, ics);
+        update(c, ci, ics, slotId);
     }
 
     void dispose() {
         if (DBG) log("Disposing card");
-        if (mCatService != null) mCatService.dispose();
         for (UiccCardApplication app : mUiccApplications) {
             if (app != null) {
                 app.dispose();
             }
         }
+        if (mCatService != null) {
+            mCatService.dispose();
+        }
         mCatService = null;
         mUiccApplications = null;
     }
 
-    void update(Context c, CommandsInterface ci, IccCardStatus ics) {
+    void update(Context c, CommandsInterface ci, IccCardStatus ics, int slotId) {
         if (mDestroyed) {
             loge("Updated after destroyed! Fix me!");
             return;
@@ -109,16 +124,21 @@ public class UiccCard {
             }
         }
 
-        if (mUiccApplications.length > 0 && mUiccApplications[0] != null) {
-            // Initialize or Reinitialize CatService
-            mCatService = CatService.getInstance(mCi,
-                                                 mContext,
-                                                 this);
-        } else {
-            if (mCatService != null) {
-                mCatService.dispose();
+        if (mCatService == null) {
+                // Create CatService
+                mCatService = new CatService(mCi, mContext, slotId);
+        }
+
+        if (mCatService != null) {
+            if (mUiccApplications.length > 0 && mUiccApplications[0] != null) {
+                // Initialize or Reinitialize CatService
+                mCatService.update(mUiccApplications[0], mCardState);
+            } else {
+                mCatService.update(null, mCardState);
             }
-            mCatService = null;
+        } else {
+            // This is an error case.
+            loge("CatService is null");
         }
 
         sanitizeApplicationIndexes();
@@ -310,6 +330,10 @@ public class UiccCard {
             }
         }
         return count;
+    }
+
+    public CatService getCatService() {
+        return mCatService;
     }
 
     private void log(String msg) {

@@ -728,6 +728,18 @@
     <string name="sim_lock_failed" msgid="5651596916127873626">"无法更改 SIM 卡锁定状态。"\n"PIN 可能不正确。"</string>
     <string name="sim_enter_ok" msgid="6475946836899218919">"确定"</string>
     <string name="sim_enter_cancel" msgid="6240422158517208036">"取消"</string>
+
+    <!-- SIM password can't be changed as SIM LOCK is not enabled: -->
+    <string name="sim_change_failed_enable_sim_lock">更改PIN码前,\n 需要锁定SIM/RUIM卡.</string>
+    <!-- SIM lock can't be changed - not supported -->
+    <string name="sim_lock_change_not_supported">无法更改SIM/RUIM卡状态.\n SIM/RUIM不支持.</string>
+    <!-- SIM card lock settings screen, toast displayed on wrong PIN1: -->
+    <string name="sim_pin_attempts">\nAttempts Remaining :</string>
+    <!-- SIM card lock settings screen, toast displayed on PIN1 enable: -->
+    <string name="sim_pin_enabled">PIN1 已启用!</string>
+    <!-- SIM card lock settings screen, toast displayed on PIN1 disable: -->
+    <string name="sim_pin_disabled">PIN1 已禁用!</string>
+
     <string name="device_info_settings" product="tablet" msgid="1119755927536987178">"平板电脑状态"</string>
     <string name="device_info_settings" product="default" msgid="475872867864762157">"手机状态"</string>
     <string name="firmware_version" msgid="4801135784886859972">"Android 版本"</string>
@@ -1768,14 +1780,14 @@
     <string name="multi_sim_settings_summary">建立多SIM卡设置为语音，数据和短信</string>
 
     <!-- Multi Sim Settings screen, Voice box label -->
-    <string name="voice_title">默认功能使用SIM卡</string>
+    <string name="voice_title">默认电话功能使用SIM卡</string>
     <!-- Multi Sim Settings screen, Voice Summary label -->
     <string name="voice_summary">为语音电话选择SIM卡</string>
 
     <!-- Multi Sim Settings screen, Data box label -->
-    <string name="data_title">电话</string>
+    <string name="data_title">移动数据</string>
     <!-- Multi Sim Settings screen, Voice Summary label -->
-    <string name="data_summary">选择拨打电话SIM卡</string>
+    <string name="data_summary">选择移动数据SIM卡</string>
 
     <!-- Multi Sim Settings screen, SMS box label -->
     <string name="sms_title">短信</string>
@@ -1783,11 +1795,11 @@
     <string name="sms_summary">选择发送短信的SIM卡</string>
 
     <!-- Multi Sim Settings screen, Set DDS progress dialog message -->
-    <string name="set_data_subscription_progress">集数据服务在进步</string>
+    <string name="set_data_subscription_progress">切换移动数据服务</string>
     <!-- Multi Sim Settings screen, Set DDS success message -->
-    <string name="set_dds_success">集数据服务的成功</string>
+    <string name="set_dds_success">切换移动数据服务成功</string>
     <!-- Multi Sim Settings screen, Set DDS failure message -->
-    <string name="set_dds_failed">集数据服务中的错误。清理所有现有的数据连接，然后再试一次。</string>
+    <string name="set_dds_failed">切换移动数据服务错误。清理所有现有的数据连接，然后再试一次。</string>
     <!-- Multi Sim Settings screen, Set DDS error message -->
     <string name="set_dds_error">错误。</string>
     <!-- Multi Sim Settings screen, Set SMS error message -->

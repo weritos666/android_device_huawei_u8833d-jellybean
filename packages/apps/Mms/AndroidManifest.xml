@@ -63,10 +63,10 @@
             android:allowTaskReparenting="true">
 
         <service android:name=".transaction.TransactionService"
-                 android:exported="true" />
+                 android:exported="false" />
 
         <service android:name=".transaction.SmsReceiverService"
-                 android:exported="true" />
+                 android:exported="false" />
 
         <activity android:name=".ui.ConversationList"
                   android:label="@string/app_label"
@@ -227,6 +227,10 @@
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
+
+        <service android:name=".ui.SelectMmsSubscription"
+            android:exported="true">
+        </service>
 
         <!-- Require sender permissions to prevent SMS spoofing -->
         <receiver android:name=".transaction.PrivilegedSmsReceiver"

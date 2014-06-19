@@ -37,6 +37,7 @@ import android.util.Log;
 
 import com.android.internal.telephony.cdma.CDMAPhone;
 import com.android.internal.telephony.gsm.GSMPhone;
+import com.android.internal.telephony.test.SimulatedRadioControl;
 import com.android.internal.telephony.uicc.IccCardProxy;
 import com.android.internal.telephony.uicc.IsimRecords;
 import com.android.internal.telephony.uicc.UsimServiceTable;
@@ -152,9 +153,9 @@ public class PhoneProxy extends Handler implements Phone {
     public void updatePhoneObject(int newVoiceRadioTech) {
 
         if (mActivePhone != null) {
-            if(mRilVersion == 6 && getLteOnCdmaMode() == Phone.LTE_ON_CDMA_TRUE) {
+            if(mRilVersion >= 6 && getLteOnCdmaMode() == Phone.LTE_ON_CDMA_TRUE) {
                 /*
-                 * On v6 RIL, when LTE_ON_CDMA is TRUE, always create CDMALTEPhone
+                 * On v6 or greater RIL, when LTE_ON_CDMA is TRUE, always create CDMALTEPhone
                  * irrespective of the voice radio tech reported.
                  */
                 if (mActivePhone.getPhoneType() == PHONE_TYPE_CDMA) {
@@ -480,6 +481,14 @@ public class PhoneProxy extends Handler implements Phone {
         mActivePhone.unregisterForResendIncallMute(h);
     }
 
+    public void registerForSimRecordsLoaded(Handler h, int what, Object obj) {
+        mActivePhone.registerForSimRecordsLoaded(h,what,obj);
+    }
+
+    public void unregisterForSimRecordsLoaded(Handler h) {
+        mActivePhone.unregisterForSimRecordsLoaded(h);
+    }
+
     public boolean getIccRecordsLoaded() {
         return mIccCardProxy.getIccRecordsLoaded();
     }
@@ -761,7 +770,9 @@ public class PhoneProxy extends Handler implements Phone {
         mActivePhone.setCdmaSubscription(cdmaSubscriptionType, response);
     }
 
-    
+    public SimulatedRadioControl getSimulatedRadioControl() {
+        return mActivePhone.getSimulatedRadioControl();
+    }
 
     public int enableApnType(String type) {
         return mActivePhone.enableApnType(type);
@@ -1003,6 +1014,14 @@ public class PhoneProxy extends Handler implements Phone {
         return mActivePhone.getLteOnCdmaMode();
     }
 
+    /**
+     * {@hide}
+     */
+    @Override
+    public int getLteOnGsmMode() {
+        return mActivePhone.getLteOnGsmMode();
+    }
+
     @Override
     public UsimServiceTable getUsimServiceTable() {
         return mActivePhone.getUsimServiceTable();
@@ -1017,6 +1036,10 @@ public class PhoneProxy extends Handler implements Phone {
     public void removeReferences() {
         mActivePhone = null;
         mCommandsInterface = null;
+    }
+
+    public void setTransmitPower(int powerLevel, Message onCompleted) {
+        mCommandsInterface.setTransmitPower(powerLevel, onCompleted);
     }
 
     public void setDataReadinessChecks(

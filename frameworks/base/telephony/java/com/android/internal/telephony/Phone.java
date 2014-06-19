@@ -29,6 +29,7 @@ import android.telephony.ServiceState;
 import android.telephony.SignalStrength;
 
 import com.android.internal.telephony.DataConnection;
+import com.android.internal.telephony.test.SimulatedRadioControl;
 import com.android.internal.telephony.QosSpec;
 import com.android.internal.telephony.uicc.IsimRecords;
 import com.android.internal.telephony.uicc.UsimServiceTable;
@@ -690,6 +691,20 @@ public interface Phone {
      * @param h Handler to be removed from the registrant list.
      */
     public void unregisterForSubscriptionInfoReady(Handler h);
+
+    /**
+     * Registration point for Sim records loaded
+     * @param h handler to notify
+     * @param what what code of message when delivered
+     * @param obj placed in Message.obj
+     */
+    public void registerForSimRecordsLoaded(Handler h, int what, Object obj);
+
+    /**
+     * Unregister for notifications for Sim records loaded
+     * @param h Handler to be removed from the registrant list.
+     */
+    public void unregisterForSimRecordsLoaded(Handler h);
 
     /**
      * Returns SIM record load state. Use
@@ -1387,7 +1402,7 @@ public interface Phone {
      * @ return A SimulatedRadioControl if this is a simulated interface;
      * otherwise, null.
      */
-    //SimulatedRadioControl getSimulatedRadioControl();
+    SimulatedRadioControl getSimulatedRadioControl();
 
     /**
      * Enables the specified APN type. Only works for "special" APN types,
@@ -1824,6 +1839,12 @@ public interface Phone {
     public int getLteOnCdmaMode();
 
     /**
+     * Return if the current radio is LTE on GSM
+     * @hide
+     */
+    public int getLteOnGsmMode();
+
+    /**
      * TODO: Adding a function for each property is not good.
      * A fucntion of type getPhoneProp(propType) where propType is an
      * enum of GSM+CDMA+LTE props would be a better approach.
@@ -1873,6 +1894,15 @@ public interface Phone {
      * Remove references to external object stored in this object.
      */
     void removeReferences();
+
+    /**
+     * Sets the transmit power
+     *
+     * @param powerLevel Transmit power level to set
+     * @param onCompleted Callback message contains the information of
+     *            SUCCESS/FAILURE
+     */
+    void setTransmitPower(int powerLevel, Message onCompleted);
 
     /**
      * Returns the subscription id.

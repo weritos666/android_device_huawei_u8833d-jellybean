@@ -26,14 +26,13 @@ import android.util.Log;
 
 import com.android.internal.telephony.CommandsInterface;
 import com.android.internal.telephony.MSimConstants;
-import com.android.internal.telephony.cat.CatService;
 
 /* This class is responsible for keeping all knowledge about
  * ICCs in the system. It is also used as API to get appropriate
  * applications to pass them to phone and service trackers.
  */
 public class UiccController extends Handler {
-    private static final boolean DBG = false;
+    private static final boolean DBG = true;
     private static final String LOG_TAG = "RIL_UiccController";
 
     public static final int APP_FAM_3GPP =  1;
@@ -44,11 +43,8 @@ public class UiccController extends Handler {
     private static final int EVENT_GET_ICC_STATUS_DONE = 2;
     private static final int EVENT_RADIO_UNAVAILABLE = 3;
 
-    private static final int EVENT_UICC_MGR_INIT_COMPLETE = 4;
-    
     private static UiccController mInstance;
-    private CatService[] mCatService;
-    
+
     private Context mContext;
     private CommandsInterface[] mCi;
     private UiccCard[] mUiccCards = new UiccCard[MSimConstants.RIL_MAX_CARDS];
@@ -59,7 +55,6 @@ public class UiccController extends Handler {
         if (mInstance != null) {
             throw new RuntimeException("UiccController.make() should only be called once");
         }
-        //Log.e(LOG_TAG, " ------------------- > UiccController.make() .... ");
         mInstance = new UiccController(c, ci);
         return mInstance;
     }
@@ -162,33 +157,20 @@ public class UiccController extends Handler {
 
         switch (msg.what) {
             case EVENT_ICC_STATUS_CHANGED:
-                Log.e("RIL_UiccController", "Received EVENT_ICC_STATUS_CHANGED, calling getIccCardStatus" + " on index " + index);
+                if (DBG) log("Received EVENT_ICC_STATUS_CHANGED, calling getIccCardStatus"
+                        + "on index " + index);
                 mCi[index].getIccCardStatus(obtainMessage(EVENT_GET_ICC_STATUS_DONE, index));
                 break;
             case EVENT_GET_ICC_STATUS_DONE:
                 if (DBG) log("Received EVENT_GET_ICC_STATUS_DONE on index " + index);
-                Log.e("RIL_UiccController", "Received EVENT_GET_ICC_STATUS_DONE on index " + index);
                 AsyncResult ar = (AsyncResult)msg.obj;
                 onGetIccCardStatusDone(ar, index);
                 break;
             case EVENT_RADIO_UNAVAILABLE:
                 if (DBG) log("EVENT_RADIO_UNAVAILABLE ");
-                Log.e("RIL_UiccController", "EVENT_RADIO_UNAVAILABLE ");
                 disposeCard(index);
                 break;
-            case EVENT_UICC_MGR_INIT_COMPLETE:
-            	 if (DBG) log("EVENT_UICC_MGR_INIT_COMPLETE ");
-            	 Log.e("RIL_UiccController", "EVENT_UICC_MGR_INIT_COMPLETE ");
-            	for (int i = 0; i < this.mCi.length; i++){
-                   Log.d("RIL_UiccManager", "Creating CatService on " + i);
-                   this.mCatService[i] = new CatService(this.mCi[i], this.mContext, i);
-                   if (this.mCatService[i] == null){
-                	   Log.e("RIL_UiccManager", "Couldn't create CatService on " + i);
-                   }
-                 }
-            	break;
             default:
-            	 Log.e("RIL_UiccController", "Unknown Event " + msg.what);
                 Log.e(LOG_TAG, " Unknown Event " + msg.what);
         }
     }
@@ -207,17 +189,12 @@ public class UiccController extends Handler {
         if (DBG) log("Creating UiccController");
         mContext = c;
         mCi = ci;
-        mCatService = new CatService[this.mCi.length];
         for (int i = 0; i < mCi.length; i++) {
-        	Log.e(LOG_TAG, "new UiccController() ....registerForIccStatusChanged()....mCi[i] = " + mCi[i]);
             Integer index = new Integer(i);
             mCi[i].registerForIccStatusChanged(this, EVENT_ICC_STATUS_CHANGED, index);
-            mCi[i].registerForNotAvailable(this, EVENT_RADIO_UNAVAILABLE, index);
             // TODO remove this once modem correctly notifies the unsols
             mCi[i].registerForOn(this, EVENT_ICC_STATUS_CHANGED, index);
         }
-        
-       // obtainMessage(EVENT_UICC_MGR_INIT_COMPLETE).sendToTarget();
     }
 
     private Integer getCiIndex(Message msg) {
@@ -249,15 +226,15 @@ public class UiccController extends Handler {
                     + "never return an error", ar.exception);
             return;
         }
-        
+
         IccCardStatus status = (IccCardStatus)ar.result;
 
         if (mUiccCards[index] == null) {
             if (DBG) log("Creating a new card");
-            mUiccCards[index] = new UiccCard(mContext, mCi[index], status);
+            mUiccCards[index] = new UiccCard(mContext, mCi[index], status, index);
         } else {
             if (DBG) log("Update already existing card");
-            mUiccCards[index].update(mContext, mCi[index] , status);
+            mUiccCards[index].update(mContext, mCi[index] , status, index);
         }
 
         if (DBG) log("Notifying IccChangedRegistrants");

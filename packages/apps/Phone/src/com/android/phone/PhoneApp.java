@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (c) 2011-2012 Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2011-2013 The Linux Foundation. All rights reserved.
  *
  * Not a Contribution, Apache license notifications and license are retained
  * for attribution purposes only
@@ -99,10 +99,10 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
     private static final boolean DBG =
             (PhoneApp.DBG_LEVEL >= 1) && (SystemProperties.getInt("ro.debuggable", 0) == 1);
     private static final boolean VDBG = (PhoneApp.DBG_LEVEL >= 2);
-    private static final String PROPERTY_AIRPLANE_MODE_ON = "persist.radio.airplane_mode_on";
+    protected static final String PROPERTY_AIRPLANE_MODE_ON = "persist.radio.airplane_mode_on";
 
     // Message codes; see mHandler below.
-    static final int EVENT_SIM_NETWORK_LOCKED = 3;
+    private static final int EVENT_PERSO_LOCKED = 3;
     private static final int EVENT_WIRED_HEADSET_PLUG = 7;
     private static final int EVENT_SIM_STATE_CHANGED = 8;
     private static final int EVENT_UPDATE_INCALL_NOTIFICATION = 9;
@@ -189,6 +189,7 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
     boolean mShowBluetoothIndication = false;
     static int mDockState = Intent.EXTRA_DOCK_STATE_UNDOCKED;
     static boolean sVoiceCapable = true;
+    public boolean mIsSimPukLocked;
 
     // Internal PhoneApp Call state tracker
     CdmaPhoneCallState cdmaPhoneCallState;
@@ -316,22 +317,19 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
                     SipService.start(mContext);
                     break;
 
-                // TODO: This event should be handled by the lock screen, just
-                // like the "SIM missing" and "Sim locked" cases (bug 1804111).
-                case EVENT_SIM_NETWORK_LOCKED:
-                    if (mContext.getResources().getBoolean(
-                            R.bool.ignore_sim_network_locked_events)) {
+                case EVENT_PERSO_LOCKED:
+                    if (getResources().getBoolean(R.bool.ignore_sim_perso_locked_events)) {
                         // Some products don't have the concept of a "SIM network lock"
                         Log.i(LOG_TAG, "Ignoring EVENT_PERSO_LOCKED event; "
                               + "not showing 'SIM network unlock' PIN entry screen");
                     } else {
-                        // Normal case: show the "SIM network unlock" PIN entry screen.
+                        // Normal case: show the "perso unlock" PIN entry screen.
                         // The user won't be able to do anything else until
-                        // they enter a valid SIM network PIN.
-                        Log.i(LOG_TAG, "show sim depersonal panel");
-                        IccNetworkDepersonalizationPanel ndpPanel =
-                                new IccNetworkDepersonalizationPanel(PhoneApp.getInstance());
-                        ndpPanel.show();
+                        // they enter a valid PIN.
+                        AsyncResult ar = (AsyncResult) msg.obj;
+                        if (ar.result != null) {
+                            initIccDepersonalizationPanel(ar);
+                        }
                     }
                     break;
 
@@ -454,6 +452,14 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
         }
     };
 
+    void initIccDepersonalizationPanel(AsyncResult ar) {
+        Log.i(LOG_TAG, "show sim depersonal panel");
+        int subtype = (Integer)ar.result;
+        IccDepersonalizationPanel dpPanel =
+                new IccDepersonalizationPanel(PhoneApp.getInstance(), subtype);
+        dpPanel.show();
+    }
+
     static MSimPhoneApp msApp;
     Context mContext;
     public PhoneApp() {
@@ -483,13 +489,13 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
             msApp.onCreate();
         } else {
         if (phone == null) {
+            Log.d(LOG_TAG, "non dsds PhoneApp:");
             // Initialize the telephony framework
-        	if (VDBG) Log.v(LOG_TAG, "1111111111111111------------------onCreate()...");
             PhoneFactory.makeDefaultPhones(this);
-            if (VDBG) Log.v(LOG_TAG, "2222222222222222------------------onCreate()...");
+
             // Get the default phone
             phone = PhoneFactory.getDefaultPhone();
-            if (VDBG) Log.v(LOG_TAG, "333333333333333------------------onCreate()..." + phone);
+
             // Start TelephonyDebugService After the default phone is created.
             Intent intent = new Intent(this, TelephonyDebugService.class);
             startService(intent);
@@ -532,7 +538,8 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
             // before registering for phone state changes
             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
-                    | PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                    | PowerManager.ACQUIRE_CAUSES_WAKEUP
+                    | PowerManager.ON_AFTER_RELEASE,
                     LOG_TAG);
             // lock used to keep the processor awake, when we don't care for the display.
             mPartialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK
@@ -587,7 +594,7 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
             IccCard sim = phone.getIccCard();
             if (sim != null) {
                 if (VDBG) Log.v(LOG_TAG, "register for ICC status");
-                sim.registerForNetworkLocked(mHandler, EVENT_SIM_NETWORK_LOCKED, null);
+                sim.registerForPersoLocked(mHandler, EVENT_PERSO_LOCKED, null);
             }
 
             // register for MMI/USSD
@@ -674,7 +681,6 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
                     phone.getContext().getContentResolver(),
                     android.provider.Settings.Secure.PREFERRED_TTY_MODE,
                     Phone.TTY_MODE_OFF);
-            mHandler.sendMessage(mHandler.obtainMessage(EVENT_TTY_PREFERRED_MODE_CHANGED, 0));
         }
         // Read HAC settings and configure audio hardware
         if (getResources().getBoolean(R.bool.hac_enabled)) {
@@ -846,6 +852,10 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
 
     void setInCallScreenInstance(InCallScreen inCallScreen) {
         mInCallScreen = inCallScreen;
+    }
+
+    InCallScreen getInCallScreen() {
+        return mInCallScreen;
     }
 
     /**
@@ -1335,6 +1345,7 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
      * 2) If a wired headset is connected
      * 3) if the speaker is ON
      * 4) If the slider is open(i.e. the hardkeyboard is *not* hidden)
+     * 5) If it was configured to stay on on Phone > Settings > Keep proximity sensor on
      *
      * @param state current state of the phone (see {@link Phone#State})
      */
@@ -1344,11 +1355,13 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
         if (proximitySensorModeEnabled()) {
             synchronized (mProximityWakeLock) {
                 // turn proximity sensor off and turn screen on immediately if
-                // we are using a headset, the keyboard is open, or the device
+                // we are using a headset and is not configured to keep sensor on
+                // the keyboard is open, or the device
                 // is being held in a horizontal position.
-                boolean screenOnImmediately = (isHeadsetPlugged()
+                boolean keepOn = PhoneUtils.PhoneSettings.keepProximitySensorOn(this.mContext);
+                boolean screenOnImmediately = ((!keepOn && isHeadsetPlugged())
                             || PhoneUtils.isSpeakerOn(this.mContext)
-                            || ((mBtHandsfree != null) && mBtHandsfree.isAudioOn())
+                            || (!keepOn && (mBtHandsfree != null) && mBtHandsfree.isAudioOn())
                             || mIsHardKeyboardOpen);
 
                 // We do not keep the screen off when the user is outside in-call screen and we are
@@ -1522,15 +1535,6 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
         if (mInCallScreen != null) {
             mInCallScreen.updateAfterRadioTechnologyChange();
         }
-
-        // Update registration for ICC status after radio technology change
-        IccCard sim = phone.getIccCard();
-        if (sim != null) {
-            if (DBG) Log.d(LOG_TAG, "Update registration for ICC status...");
-
-            //Register all events new to the new active phone
-            sim.registerForNetworkLocked(mHandler, EVENT_SIM_NETWORK_LOCKED, null);
-        }
     }
 
 
@@ -1644,7 +1648,9 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
                 // to know if the phone is in airplane mode so that RIL can
                 // power down the ICC card.
                 Log.d(LOG_TAG, "Setting property " + PROPERTY_AIRPLANE_MODE_ON);
-                SystemProperties.set(PROPERTY_AIRPLANE_MODE_ON, (enabled ? "1" : "0"));
+                // enabled here implies airplane mode is OFF from above
+                // condition.
+                SystemProperties.set(PROPERTY_AIRPLANE_MODE_ON, (enabled ? "0" : "1"));
 
                 phone.setRadioPower(enabled);
             } else if (action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
@@ -1691,6 +1697,14 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
                 // been attempted.
                 mHandler.sendMessage(mHandler.obtainMessage(EVENT_SIM_STATE_CHANGED,
                         intent.getStringExtra(IccCard.INTENT_KEY_ICC_STATE)));
+                String reason = intent.getStringExtra(IccCard.INTENT_KEY_LOCKED_REASON);
+                if (IccCard.INTENT_VALUE_LOCKED_ON_PUK.equals(reason)) {
+                    Log.d(LOG_TAG, "Setting mIsSimPukLocked:true");
+                    mIsSimPukLocked = true;
+                } else {
+                    Log.d(LOG_TAG, "Setting mIsSimPukLocked:false");
+                    mIsSimPukLocked = false;
+                }
             } else if (action.equals(TelephonyIntents.ACTION_RADIO_TECHNOLOGY_CHANGED)) {
                 String newPhone = intent.getStringExtra(Phone.PHONE_NAME_KEY);
                 Log.d(LOG_TAG, "Radio technology switched. Now " + newPhone + " is active.");
@@ -2073,6 +2087,10 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
     /* Gets User preferred Voice subscription setting*/
     public int getVoiceSubscription() {
         return DEFAULT_SUBSCRIPTION;
+    }
+
+    boolean isSimPukLocked(int subscription) {
+        return mIsSimPukLocked;
     }
 
     public int getVoiceSubscriptionInService() {

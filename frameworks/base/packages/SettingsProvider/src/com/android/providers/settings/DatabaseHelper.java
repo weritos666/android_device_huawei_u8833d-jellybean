@@ -34,8 +34,8 @@ import android.net.ConnectivityManager;
 import android.os.SystemProperties;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
-import android.telephony.MSimTelephonyManager;
 import android.text.TextUtils;
+import android.telephony.MSimTelephonyManager;
 import android.util.Log;
 
 import com.android.internal.content.PackageHelper;
@@ -1485,6 +1485,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             loadBooleanSetting(stmt, Settings.System.DIM_SCREEN,
                     R.bool.def_dim_screen);
+            loadSetting(stmt, Settings.System.AUTO_ANSWER_TIMEOUT, -1);
             loadSetting(stmt, Settings.System.STAY_ON_WHILE_PLUGGED_IN,
                     ("1".equals(SystemProperties.get("ro.kernel.qemu")) ||
                         mContext.getResources().getBoolean(R.bool.def_stay_on_while_plugged_in))
@@ -1641,19 +1642,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             // Set the preferred network mode to 0 = Global, CDMA default
             int type;
-            if (BaseCommands.getLteOnCdmaModeStatic() == Phone.LTE_ON_CDMA_TRUE) {
-                type = Phone.NT_MODE_GLOBAL;
-            } else {
-                type = SystemProperties.getInt("ro.telephony.default_network",
+            type = SystemProperties.getInt("ro.telephony.default_network",
                         RILConstants.PREFERRED_NETWORK_MODE);
-            }
-            //loadSetting(stmt, Settings.Secure.PREFERRED_NETWORK_MODE, type);
+
             String val = Integer.toString(type);
             if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
-                   val = type + "," + type;
+                val = type + "," + type;
             }
             loadSetting(stmt, Settings.Secure.PREFERRED_NETWORK_MODE, val);
-            
+
             // Enable or disable Cell Broadcast SMS
             loadSetting(stmt, Settings.Secure.CDMA_CELL_BROADCAST_SMS,
                     RILConstants.CDMA_CELL_BROADCAST_SMS_DISABLED);

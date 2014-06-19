@@ -19,6 +19,7 @@
 
 package com.android.internal.telephony.msim;
 
+
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Telephony.Sms.Intents;
@@ -33,46 +34,41 @@ import com.android.internal.telephony.ImsSMSDispatcher;
 
 final class MSimCdmaSMSDispatcher extends CdmaSMSDispatcher {
 
-	MSimCdmaSMSDispatcher(PhoneBase phone, SmsStorageMonitor storageMonitor,
-			SmsUsageMonitor usageMonitor, ImsSMSDispatcher imsSMSDispatcher) {
-		super(phone, storageMonitor, usageMonitor, imsSMSDispatcher);
-		Log.d(TAG, "MSimCdmaSMSDispatcher created");
-	}
+    MSimCdmaSMSDispatcher(PhoneBase phone, SmsStorageMonitor storageMonitor,
+            SmsUsageMonitor usageMonitor, ImsSMSDispatcher imsSMSDispatcher) {
+        super(phone, storageMonitor, usageMonitor, imsSMSDispatcher);
+        Log.d(TAG, "MSimCdmaSMSDispatcher created");
+    }
 
-	/**
-	 * Dispatches standard PDUs to interested applications
-	 * 
-	 * @param pdus
-	 *            The raw PDUs making up the message
-	 */
-	@Override
-	protected void dispatchPdus(byte[][] pdus) {
-		Intent intent = new Intent(Intents.SMS_RECEIVED_ACTION);
-		intent.putExtra("pdus", pdus);
-		intent.putExtra("format", getFormat());
-		intent.putExtra(MSimConstants.SUBSCRIPTION_KEY,
-				mPhone.getSubscription()); // Subscription information to be
-											// passed in an intent
-		dispatch(intent, RECEIVE_SMS_PERMISSION);
-	}
+    /**
+     * Dispatches standard PDUs to interested applications
+     *
+     * @param pdus The raw PDUs making up the message
+     */
+    @Override
+    protected void dispatchPdus(byte[][] pdus) {
+        Intent intent = new Intent(Intents.SMS_RECEIVED_ACTION);
+        intent.putExtra("pdus", pdus);
+        intent.putExtra("format", getFormat());
+        intent.putExtra(MSimConstants.SUBSCRIPTION_KEY,
+                 mPhone.getSubscription()); //Subscription information to be passed in an intent
+        dispatch(intent, RECEIVE_SMS_PERMISSION);
+    }
 
-	/**
-	 * Dispatches port addressed PDUs to interested applications
-	 * 
-	 * @param pdus
-	 *            The raw PDUs making up the message
-	 * @param port
-	 *            The destination port of the messages
-	 */
-	@Override
-	protected void dispatchPortAddressedPdus(byte[][] pdus, int port) {
-		Uri uri = Uri.parse("sms://localhost:" + port);
-		Intent intent = new Intent(Intents.DATA_SMS_RECEIVED_ACTION, uri);
-		intent.putExtra("pdus", pdus);
-		intent.putExtra("format", getFormat());
-		intent.putExtra(MSimConstants.SUBSCRIPTION_KEY,
-				mPhone.getSubscription()); // Subscription information to be
-											// passed in an intent
-		dispatch(intent, RECEIVE_SMS_PERMISSION);
-	}
+    /**
+     * Dispatches port addressed PDUs to interested applications
+     *
+     * @param pdus The raw PDUs making up the message
+     * @param port The destination port of the messages
+     */
+    @Override
+    protected void dispatchPortAddressedPdus(byte[][] pdus, int port) {
+        Uri uri = Uri.parse("sms://localhost:" + port);
+        Intent intent = new Intent(Intents.DATA_SMS_RECEIVED_ACTION, uri);
+        intent.putExtra("pdus", pdus);
+        intent.putExtra("format", getFormat());
+        intent.putExtra(MSimConstants.SUBSCRIPTION_KEY,
+                 mPhone.getSubscription()); //Subscription information to be passed in an intent
+        dispatch(intent, RECEIVE_SMS_PERMISSION);
+    }
 }

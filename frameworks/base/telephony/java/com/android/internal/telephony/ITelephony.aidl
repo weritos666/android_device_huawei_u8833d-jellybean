@@ -48,6 +48,12 @@ interface ITelephony {
     void call(String number);
 
     /**
+     * Toggle between 3G and LTE (NT_MODE_CDMA, NT_MODE_GLOBAL)
+     * @param boolean to turn on and off LTE
+     */
+    void toggleLTE(boolean on);
+
+    /**
      * If there is currently a call in progress, show the call screen.
      * The DTMF dialpad may or may not be visible initially, depending on
      * whether it was up when the user last exited the InCallScreen.
@@ -162,9 +168,9 @@ interface ITelephony {
      * Returns a specific success/error code.
      * @param pin The pin to check.
      * @return Phone.PIN_RESULT_SUCCESS on success. Otherwise error code
-     
+     */
     int supplyPinReportResult(String pin);
-*/
+
     /**
      * Supply puk to unlock the SIM and set SIM pin to new pin.
      * Blocks until a result is determined.
@@ -172,9 +178,9 @@ interface ITelephony {
      * @param puk The puk to check
      *        pin The pin to check.
      * @return Phone.PIN_RESULT_SUCCESS on success. Otherwise error code
-     
+     */
     int supplyPukReportResult(String puk, String pin);
-*/
+
     /**
      * Handles PIN MMI commands (PIN/PIN2/PUK/PUK2), which are initiated
      * without SEND (so <code>dial</code> is not appropriate).
@@ -225,49 +231,49 @@ interface ITelephony {
      * @param type Type of data connection (any of Phone.APN_TYPE_*)
      * @return Phone.QOS_REQUEST_SUCCESS - success, else failure
      * {@hide}
-    
+     */
     int enableQos(in QosSpec qosSpec, String type);
- */
+
     /**
      * Disable QoS
      * @param qosId QoS Identifier
      * @return Phone.QOS_REQUEST_SUCCESS - success, else failure
      * {@hide}
-    
+     */
     int disableQos(int qosId);
- */
+
     /**
      * Modify QoS
      * @param qosId QoS Identifier
      * @return Phone.QOS_REQUEST_SUCCESS - success, else failure
      * {@hide}
-    
+     */
     int modifyQos(int qosId, in QosSpec qosSpec);
- */
+
     /**
      * Suspend QoS
      * @param qosId QoS Identifier
      * @return Phone.QOS_REQUEST_SUCCESS - success, else failure
      * {@hide}
-    
+     */
     int suspendQos(int qosId);
- */
+
     /**
      * Resume QoS
      * @param qosId QoS Identifier
      * @return Phone.QOS_REQUEST_SUCCESS - success, else failure
      * {@hide}
-     
+     */
     int resumeQos(int qosId);
-*/
+
     /**
      * Get QoS
      * @param qosId QoS Identifier
      * @return Phone.QOS_REQUEST_SUCCESS - success, else failure
      * {@hide}
-     
+     */
     int getQosStatus(int qosId);
-*/
+
     /**
      * Allow mobile data connections.
      */
@@ -304,15 +310,15 @@ interface ITelephony {
     /**
      * Sends a OEM request to the RIL and returns the response back to the
      * Caller. The returnValue is negative on failure. 0 or length of response on SUCCESS
-     
+     */
     int sendOemRilRequestRaw(in byte[] request, out byte[] response);
-*/
+
     /**
      * Sends a OEM request to the RIL asynchronously. An OemHook callback is invoked
      * with the response bytes
-     
+     */
     void sendOemRilRequestRawAsync(in byte[] request, in IOemHookCallback oemHookCb);
-*/
+
     /**
      * Returns the CDMA ERI icon index to display
      */
@@ -354,9 +360,9 @@ interface ITelephony {
 
     /**
      * Gets the number of attempts remaining for PIN1/PUK1 unlock.
-     
+     */
     int getIccPin1RetryCount();
-*/
+
     /**
      * Return if the current radio is LTE on CDMA. This
      * is a tri-state return value as for a period of time
@@ -372,6 +378,19 @@ interface ITelephony {
      */
     List<CellInfo> getAllCellInfo();
 
+    int getLteOnGsmMode();
+
+    /**
+      * Sets the transmit power
+      *
+      * @param powerLevel Transmit power level to set. One of:
+      *            TRANSMIT_POWER_DEFAULT      -  restore default transmit power
+      *            TRANSMIT_POWER_WIFI_HOTSPOT -  reduce transmit power as per FCC
+      *                                regulations (CFR47 2.1093) for WiFi hotspot
+      * @return true if success
+      */
+     boolean setTransmitPower(int powerLevel);
+
     /**
      * Modify data readiness checks performed during data call setup
      *
@@ -380,9 +399,8 @@ interface ITelephony {
      * @param checkSubscription - check for icc/nv ready and icc records loaded.
      * @param tryDataCalls - set to true to attempt data calls if data call is not already active.
      *
-     
+     */
     void setDataReadinessChecks(
             boolean checkConnectivity, boolean checkSubscription, boolean tryDataCalls);
-	*/
 }
 

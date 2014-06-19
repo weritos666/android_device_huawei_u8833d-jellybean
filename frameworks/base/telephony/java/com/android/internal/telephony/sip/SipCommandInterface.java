@@ -66,7 +66,7 @@ class SipCommandInterface extends BaseCommands implements CommandsInterface {
             String newPwd, Message result) {
     }
 
-    public void supplyNetworkDepersonalization(String netpin, Message result) {
+    public void supplyDepersonalization(String netpin, int type,  Message result) {
     }
 
     public void getCurrentCalls(Message result) {
@@ -458,6 +458,11 @@ class SipCommandInterface extends BaseCommands implements CommandsInterface {
     public void getVoiceRadioTechnology(Message result) {
     }
 
+    public boolean needsOldRilFeature(String feature) { return false; }
+
+    public void setTransmitPower(int powerLevel, Message result) {
+    }
+
     public void getDataCallProfile(int appType, Message result) {
     }
 
@@ -470,28 +475,4 @@ class SipCommandInterface extends BaseCommands implements CommandsInterface {
 
     public void setDataSubscription(Message response) {
     }
-
-	@Override
-	public int getLteOnGsmMode() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public boolean needsOldRilFeature(String feature) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void setOnCatSendSmsResult(Handler h, int what, Object obj) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void unSetOnCatSendSmsResult(Handler h) {
-		// TODO Auto-generated method stub
-		
-	}
 }

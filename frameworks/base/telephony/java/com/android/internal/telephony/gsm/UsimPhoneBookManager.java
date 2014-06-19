@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class UsimPhoneBookManager extends Handler implements IccConstants {
     private static final String LOG_TAG = "GSM";
-    private static final boolean DBG = false;
+    private static final boolean DBG = true;
     private PbrFile mPbrFile;
     private Boolean mIsPbrPresent;
     private IccFileHandler mFh;
@@ -149,7 +149,11 @@ public class UsimPhoneBookManager extends Handler implements IccConstants {
 
     private void readEmailFileAndWait(int recNum) {
         Map <Integer,Integer> fileIds;
-        fileIds = mPbrFile.mFileIds.get(recNum);
+        if (mPbrFile == null) {
+            return;
+        } else {
+            fileIds = mPbrFile.mFileIds.get(recNum);
+        }
         if (fileIds == null) return;
 
         if (fileIds.containsKey(USIM_EFEMAIL_TAG)) {
@@ -303,7 +307,11 @@ public class UsimPhoneBookManager extends Handler implements IccConstants {
 
     private void readAdnFileAndWait(int recNum) {
         Map <Integer,Integer> fileIds;
-        fileIds = mPbrFile.mFileIds.get(recNum);
+        if (mPbrFile == null) {
+            return;
+        } else {
+            fileIds = mPbrFile.mFileIds.get(recNum);
+        }
         if (fileIds == null || fileIds.isEmpty()) return;
 
 

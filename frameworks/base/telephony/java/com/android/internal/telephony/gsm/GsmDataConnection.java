@@ -96,13 +96,9 @@ public class GsmDataConnection extends DataConnection {
         } else {
             protocol = mApn.protocol;
         }
-        String str2 = Integer.toString(getRilRadioTechnology(RILConstants.SETUP_DATA_TECH_GSM));
-        if (this.phone.getServiceState().getRadioTechnology() == 13){
-        	str2 = Integer.toString(getRilRadioTechnology(0));
-        }
-        
-        phone.mCM.setupDataCall(str2
-                ,
+
+        phone.mCM.setupDataCall(
+                Integer.toString(getRilRadioTechnology(RILConstants.SETUP_DATA_TECH_GSM)),
                 Integer.toString(mProfileId),
                 mApn.apn, mApn.user, mApn.password,
                 Integer.toString(mApn.authType),

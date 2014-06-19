@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2011-2012, The Linux Foundation. All rights reserved.
  *
  * Not a Contribution, Apache license notifications and license are retained
  * for attribution purposes only
@@ -70,8 +70,11 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
     private static final int CMD_INVOKE_OEM_RIL_REQUEST = 7;
     private static final int EVENT_INVOKE_OEM_RIL_REQUEST = 8;
     private static final int EVENT_UNSOL_OEM_HOOK_EXT_APP = 9;
+    private static final int CMD_SET_TRANSMIT_POWER = 10;
+    private static final int EVENT_SET_TRANSMIT_POWER_DONE = 11;
     private static final int CMD_INVOKE_OEM_RIL_REQUEST_ASYNC = 12;
     private static final int EVENT_INVOKE_OEM_RIL_REQUEST_ASYNC_DONE = 13;
+    private static final int CMD_TOGGLE_LTE = 14; // not used yet
 
     /** The singleton instance. */
     private static PhoneInterfaceManager sInstance;
@@ -238,6 +241,28 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
                     broadcastUnsolOemHookIntent((byte[])(ar.result));
                     break;
 
+                case CMD_SET_TRANSMIT_POWER:
+                    request = (MainThreadRequest) msg.obj;
+                    onCompleted = obtainMessage(EVENT_SET_TRANSMIT_POWER_DONE, request);
+                    mPhone.setTransmitPower((Integer) request.argument, onCompleted);
+                    break;
+
+                case EVENT_SET_TRANSMIT_POWER_DONE:
+                    boolean retStatus = false;
+                    ar = (AsyncResult)msg.obj;
+                    request = (MainThreadRequest)ar.userObj;
+
+                    if (ar.exception == null) {
+                        retStatus = true;
+                    }
+                    request.result = retStatus;
+
+                    // Wake up the requesting thread
+                    synchronized (request) {
+                        request.notifyAll();
+                    }
+                    break;
+
                 default:
                     Log.w(LOG_TAG, "MainThreadHandler: unexpected message code: " + msg.what);
                     break;
@@ -373,6 +398,27 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse(url));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mApp.mContext.startActivity(intent);
+    }
+
+    public void toggleLTE(boolean on) {
+        int network = -1;
+        if (getLteOnCdmaMode() == Phone.LTE_ON_CDMA_TRUE) {
+            if (on) {
+                network = Phone.NT_MODE_GLOBAL;
+            } else {
+                network = Phone.NT_MODE_CDMA;
+            }
+        } else if (getLteOnGsmMode() != 0) {
+            if (on) {
+                network = Phone.NT_MODE_LTE_GSM_WCDMA;
+            } else {
+                network = Phone.NT_MODE_WCDMA_PREF;
+            }
+        }
+        mPhone.setPreferredNetworkType(network,
+                mMainThreadHandler.obtainMessage(CMD_TOGGLE_LTE));
+        android.provider.Settings.Secure.putInt(mApp.getContentResolver(),
+                android.provider.Settings.Secure.PREFERRED_NETWORK_MODE, network);
     }
 
     private boolean showCallScreenInternal(boolean specifyInitialDialpadState,
@@ -793,13 +839,13 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
 
     public List<CellInfo> getAllCellInfo() {
         try {
-            mApp.enforceCallingOrSelfPermission(
+            mApp.mContext.enforceCallingOrSelfPermission(
                 android.Manifest.permission.ACCESS_FINE_LOCATION, null);
         } catch (SecurityException e) {
             // If we have ACCESS_FINE_LOCATION permission, skip the check for ACCESS_COARSE_LOCATION
             // A failure should throw the SecurityException from ACCESS_COARSE_LOCATION since this
             // is the weaker precondition
-            mApp.enforceCallingOrSelfPermission(
+            mApp.mContext.enforceCallingOrSelfPermission(
                 android.Manifest.permission.ACCESS_COARSE_LOCATION, null);
         }
 
@@ -817,7 +863,8 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
      * @throws SecurityException if the caller does not have the required permission
      */
     private void enforceReadPermission() {
-        mApp.enforceCallingOrSelfPermission(android.Manifest.permission.READ_PHONE_STATE, null);
+        mApp.mContext.enforceCallingOrSelfPermission(
+                android.Manifest.permission.READ_PHONE_STATE, null);
     }
 
     /**
@@ -963,6 +1010,23 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
      */
     public int getLteOnCdmaMode() {
         return mPhone.getLteOnCdmaMode();
+    }
+
+    public int getLteOnGsmMode() {
+        return mPhone.getLteOnGsmMode();
+    }
+
+    /**
+     * Sets the transmit power
+     *
+     * @param power - Specifies the transmit power that is allowed. One of
+     *            TRANSMIT_POWER_DEFAULT      - restore default transmit power
+     *            TRANSMIT_POWER_WIFI_HOTSPOT - reduce transmit power as per FCC
+     *                               regulations (CFR47 2.1093) for WiFi hotspot
+     */
+    public boolean setTransmitPower(int powerLevel) {
+        enforceModifyPermission();
+        return (Boolean) sendRequest(CMD_SET_TRANSMIT_POWER, powerLevel);
     }
 
     /**

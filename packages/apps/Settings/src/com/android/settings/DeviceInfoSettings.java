@@ -111,15 +111,15 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
             getPreferenceScreen().removePreference(findPreference(KEY_DEVICE_MEMORY));
         }
 
-        // Remove Safety information preference if PROPERTY_URL_SAFETYLEGAL is not set
-        removePreferenceIfPropertyMissing(getPreferenceScreen(), "safetylegal",
-                PROPERTY_URL_SAFETYLEGAL);
-
-		   
         if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
             findPreference(KEY_STATUS).getIntent().setClassName(
                     "com.android.settings","com.android.settings.deviceinfo.MSimStatus");
         }
+
+        // Remove Safety information preference if PROPERTY_URL_SAFETYLEGAL is not set
+        removePreferenceIfPropertyMissing(getPreferenceScreen(), "safetylegal",
+                PROPERTY_URL_SAFETYLEGAL);
+
         // Remove Equipment id preference if FCC ID is not set by RIL
         removePreferenceIfPropertyMissing(getPreferenceScreen(), KEY_EQUIPMENT_ID,
                 PROPERTY_EQUIPMENT_ID);

@@ -40,6 +40,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Profile;
 import android.provider.Telephony.Sms;
+import android.provider.Telephony.Mms;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.MSimTelephonyManager;
 import android.telephony.TelephonyManager;
@@ -252,7 +253,20 @@ public class MessageListItem extends LinearLayout implements
                         intent.putExtra(TransactionBundle.URI, mMessageItem.mMessageUri.toString());
                         intent.putExtra(TransactionBundle.TRANSACTION_TYPE,
                                 Transaction.RETRIEVE_TRANSACTION);
-                        mContext.startService(intent);
+                        if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
+                            Log.d(TAG, "Download button pressed for sub=" + mMessageItem.mSubscription);
+                            intent.putExtra(Mms.SUB_ID, mMessageItem.mSubscription);
+
+                            Log.d(TAG, "Manual download is always silent transaction");
+                            Intent silentIntent = new Intent(mContext,
+                                    com.android.mms.ui.SelectMmsSubscription.class);
+                            silentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            silentIntent.putExtras(intent); //copy all extras
+                            mContext.startService(silentIntent);
+                        } else {
+                            mContext.startService(intent);
+                        }
+
                     }
                 });
                 break;
@@ -509,6 +523,10 @@ public class MessageListItem extends LinearLayout implements
                                        String contentType) {
         SpannableStringBuilder buf = new SpannableStringBuilder();
 
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(mContext);
+        boolean enableEmojis = prefs.getBoolean(MessagingPreferenceActivity.ENABLE_EMOJIS, false);
+
         if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
             buf.append( (subId == 0) ? "SUB1:" : "SUB2:");
             buf.append("\n");
@@ -518,6 +536,10 @@ public class MessageListItem extends LinearLayout implements
         SmileyParser parser = SmileyParser.getInstance();
         if (hasSubject) {
             CharSequence smilizedSubject = parser.addSmileySpans(subject);
+            if (enableEmojis) {
+                EmojiParser emojiParser = EmojiParser.getInstance();
+                smilizedSubject = emojiParser.addEmojiSpans(smilizedSubject);
+            }
             // Can't use the normal getString() with extra arguments for string replacement
             // because it doesn't preserve the SpannableText returned by addSmileySpans.
             // We have to manually replace the %s with our text.
@@ -534,7 +556,12 @@ public class MessageListItem extends LinearLayout implements
                 if (hasSubject) {
                     buf.append(" - ");
                 }
-                buf.append(parser.addSmileySpans(body));
+                CharSequence smileyBody = parser.addSmileySpans(body);
+                if (enableEmojis) {
+                    EmojiParser emojiParser = EmojiParser.getInstance();
+                    smileyBody = emojiParser.addEmojiSpans(smileyBody);
+                }
+                buf.append(smileyBody);
             }
         }
 

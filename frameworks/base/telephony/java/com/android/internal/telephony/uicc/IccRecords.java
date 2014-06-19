@@ -127,6 +127,20 @@ public abstract class IccRecords extends Handler implements IccConstants {
     protected abstract void onReady();
 
     //***** Public Methods
+
+    /*
+     * Called to indicate that anyone could request records
+     * in the future after this call, once records are loaded and registrants
+     * have been notified. This indication could be used
+     * to optimize when to actually fetch records from the card. We
+     * don't need to fetch records from the card if it is of no use
+     * to anyone
+     *
+     */
+    void recordsRequired() {
+        return;
+    }
+
     public AdnRecordCache getAdnCache() {
         return adnCache;
     }
@@ -381,6 +395,14 @@ public abstract class IccRecords extends Handler implements IccConstants {
      */
     public String getOperatorNumeric() {
         return null;
+    }
+
+    /**
+     * Check if call forward info is stored on SIM
+     * @return true if call forward info is stored on SIM.
+     */
+    public boolean isCallForwardStatusStored() {
+        return false;
     }
 
     /**

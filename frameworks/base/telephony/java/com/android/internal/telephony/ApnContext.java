@@ -52,6 +52,8 @@ public class ApnContext {
 
     String mReason;
 
+    int mRetryCount;
+
     /**
      * user/app requested connection on this APN
      */
@@ -67,6 +69,7 @@ public class ApnContext {
         mPriority = DataConnectionTracker.mApnPriorities.get(apnType);
         mState = DataConnectionTracker.State.IDLE;
         setReason(Phone.REASON_DATA_ENABLED);
+        setRetryCount(0);
         mDataEnabled = new AtomicBoolean(false);
         mDependencyMet = new AtomicBoolean(true);
         mWaitingApnsPermanentFailureCountDown = new AtomicInteger(0);
@@ -97,12 +100,15 @@ public class ApnContext {
         if (DBG) {
             log("setDataConnectionAc: old dcac=" + mDataConnectionAc + " new dcac=" + dcac);
         }
+        if (mDataConnectionAc == dcac) {
+            // Nothing needs to be done
+            return;
+        }
+        if (mDataConnectionAc != null) {
+            mDataConnectionAc.removeApnContextSync(this);
+        }
         if (dcac != null) {
             dcac.addApnContextSync(this);
-        } else {
-            if (mDataConnectionAc != null) {
-                mDataConnectionAc.removeApnContextSync(this);
-            }
         }
         mDataConnectionAc = dcac;
     }
@@ -201,8 +207,23 @@ public class ApnContext {
         return mReason;
     }
 
+    public synchronized void setRetryCount(int retryCount) {
+        if (DBG) {
+            log("setRetryCount: " + retryCount);
+        }
+        mRetryCount = retryCount;
+        DataConnection dc = mDataConnection;
+        if (dc != null) {
+            dc.setRetryCount(retryCount);
+        }
+    }
+
+    public synchronized int getRetryCount() {
+        return mRetryCount;
+    }
+
     public boolean isReady() {
-        return mDataEnabled.get() && mDependencyMet.get();
+        return mDataEnabled.get() && mDependencyMet.get() && !getTetheredCallOn();
     }
 
     public void setEnabled(boolean enabled) {
@@ -233,8 +254,8 @@ public class ApnContext {
         return "{mApnType=" + mApnType + " mState=" + getState() + " mWaitingApns=" + mWaitingApns +
                 " mWaitingApnsPermanentFailureCountDown=" + mWaitingApnsPermanentFailureCountDown +
                 " mDataProfile =" + mDataProfile  + " mDataConnectionAc=" + mDataConnectionAc +
-                " mReason=" + mReason + " mDataEnabled=" + mDataEnabled +
-                " mDependencyMet=" + mDependencyMet + "}";
+                " mReason=" + mReason + " mRetryCount=" + mRetryCount +
+                " mDataEnabled=" + mDataEnabled + " mDependencyMet=" + mDependencyMet + "}";
     }
 
     protected void log(String s) {
@@ -243,5 +264,13 @@ public class ApnContext {
 
     public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
         pw.println("ApnContext: " + this.toString());
+    }
+
+    public void setTetheredCallOn(boolean tetheredCallOn) {
+        if (mDataProfile != null) mDataProfile.setTetheredCallOn(tetheredCallOn);
+    }
+
+    public boolean getTetheredCallOn() {
+        return mDataProfile == null ? false : mDataProfile.getTetheredCallOn();
     }
 }

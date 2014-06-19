@@ -1157,6 +1157,26 @@ public final class Settings {
          */
         public static final String STAY_ON_WHILE_PLUGGED_IN = "stay_on_while_plugged_in";
 
+
+        /**
+         * @hide
+         * Whether Dual microhpone is enabled.
+         */
+        public static final String DUALMIC = "dualmic";
+
+        /**
+         * @hide
+         * Whether ANC is enabled.
+         */
+        public static final String ANC = "anc";
+
+        /**
+          * Default file manager to show files on extrenal storage media
+          * when it is mounted
+          * @hide
+          */
+        public static final String DEFAULT_FILE_MANAGER = "default_file_manager";
+
         /**
          * What happens when the user presses the end call button if they're not
          * on a call.<br/>
@@ -2025,56 +2045,6 @@ public final class Settings {
          */
         public static final String DTMF_TONE_WHEN_DIALING = "dtmf_tone";
 
-         /**
-          * Auto Answer timeout value. The supported timeout values are 5 sec,
-          * 10 sec, 15 sec and -1 (for disabling).
-          * @hide
-          */
-        public static final String AUTO_ANSWER_TIMEOUT = "auto_answer";
-
-        /**
-          * Subscription to be used for voice call on a multi sim device. The supported values
-          * are 0 = SUB1, 1 = SUB2.
-          * @hide
-          */
-        public static final String MULTI_SIM_VOICE_CALL_SUBSCRIPTION = "multi_sim_voice_call";
-
-        /**
-          * Used to provide option to user to select subscription during dial.
-          * The value is 0 or 1.
-          * @hide
-          */
-        public static final String MULTI_SIM_VOICE_PROMPT = "multi_sim_voice_prompt";
-
-        /**
-          * Subscription to be used for data call on a multi sim device. The supported values
-          * are 0 = SUB1, 1 = SUB2.
-          * @hide
-          */
-        public static final String MULTI_SIM_DATA_CALL_SUBSCRIPTION = "multi_sim_data_call";
-
-        /**
-          * Subscription to be used for SMS on a multi sim device. The supported values
-          * are 0 = SUB1, 1 = SUB2.
-          * @hide
-          */
-        public static final String MULTI_SIM_SMS_SUBSCRIPTION = "multi_sim_sms";
-
-        /**
-          * Default subscription. The supported values are 0 = SUB1 and 1 = SUB2.
-          * @hide
-          */
-        public static final String DEFAULT_SUBSCRIPTION = "default_subscription";
-
-        /** User preferred subscriptions setting.
-          * This holds the details of the user selected subscription from the card and
-          * the activation status. Each settings string have the coma separated values
-          * iccId,appType,appId,activationStatus,3gppIndex,3gpp2Index
-          * @hide
-         */
-        public static final String[] USER_PREFERRED_SUBS = {"user_preferred_sub1",
-                "user_preferred_sub2"};
-
         /**
          * CDMA only settings
          * DTMF tone type played by the dialer when dialing.
@@ -2726,6 +2696,56 @@ public final class Settings {
          */
         public static final String WEATHER_UPDATE_INTERVAL = "weather_update_interval";
 
+         /**
+          * Auto Answer timeout value. The supported timeout values are 5 sec,
+          * 10 sec, 15 sec and -1 (for disabling).
+          * @hide
+          */
+        public static final String AUTO_ANSWER_TIMEOUT = "auto_answer";
+
+        /**
+          * Subscription to be used for voice call on a multi sim device. The supported values
+          * are 0 = SUB1, 1 = SUB2.
+          * @hide
+          */
+        public static final String MULTI_SIM_VOICE_CALL_SUBSCRIPTION = "multi_sim_voice_call";
+
+        /**
+          * Used to provide option to user to select subscription during dial.
+          * The value is 0 or 1.
+          * @hide
+          */
+        public static final String MULTI_SIM_VOICE_PROMPT = "multi_sim_voice_prompt";
+
+        /**
+          * Subscription to be used for data call on a multi sim device. The supported values
+          * are 0 = SUB1, 1 = SUB2.
+          * @hide
+          */
+        public static final String MULTI_SIM_DATA_CALL_SUBSCRIPTION = "multi_sim_data_call";
+
+        /**
+          * Subscription to be used for SMS on a multi sim device. The supported values
+          * are 0 = SUB1, 1 = SUB2.
+          * @hide
+          */
+        public static final String MULTI_SIM_SMS_SUBSCRIPTION = "multi_sim_sms";
+
+        /**
+          * Default subscription. The supported values are 0 = SUB1 and 1 = SUB2.
+          * @hide
+          */
+        public static final String DEFAULT_SUBSCRIPTION = "default_subscription";
+
+        /** User preferred subscriptions setting.
+          * This holds the details of the user selected subscription from the card and
+          * the activation status. Each settings string have the coma separated values
+          * iccId,appType,appId,activationStatus,3gppIndex,3gpp2Index
+          * @hide
+         */
+        public static final String[] USER_PREFERRED_SUBS = {"user_preferred_sub1",
+                "user_preferred_sub2"};
+
         /**
          * Use Metric measurements (celcius, km/h) for weather data
          * @hide
@@ -3073,13 +3093,8 @@ public final class Settings {
             POWER_MENU_AIRPLANE_ENABLED,
             POWER_MENU_SILENT_ENABLED,
             LOCKSCREEN_VIBRATE_ENABLED,
-            MULTI_SIM_VOICE_CALL_SUBSCRIPTION,
-            MULTI_SIM_VOICE_PROMPT,
-            MULTI_SIM_DATA_CALL_SUBSCRIPTION,
-            MULTI_SIM_SMS_SUBSCRIPTION,
-            DEFAULT_SUBSCRIPTION
         };
-        
+
         // Settings moved to Settings.Secure
 
         /**
@@ -4562,14 +4577,6 @@ public final class Settings {
          */
         public static final String CDMA_CELL_BROADCAST_SMS =
                 "cdma_cell_broadcast_sms";
-
-        /**
-         * The cdma subscription 0 = Subscription from RUIM, when available
-         *                       1 = Subscription from NV
-         * @hide
-         */
-        public static final String PREFERRED_CDMA_SUBSCRIPTION =
-                "preferred_cdma_subscription";
 
         /**
          * Whether the enhanced voice privacy mode is enabled.

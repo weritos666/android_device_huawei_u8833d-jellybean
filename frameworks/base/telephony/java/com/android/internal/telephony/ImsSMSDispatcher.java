@@ -76,7 +76,7 @@ public class ImsSMSDispatcher extends SMSDispatcher {
     public void dispose() {
         mCm.unregisterForOn(this);
         mCm.unregisterForImsNetworkStateChanged(this);
-        mPhone.mIccRecords.unregisterForNewSms(this);
+        mPhone.mIccRecords.get().unregisterForNewSms(this);
     }
 
     /**
@@ -194,14 +194,11 @@ public class ImsSMSDispatcher extends SMSDispatcher {
     @Override
     protected void sendText(String destAddr, String scAddr, String text,
             PendingIntent sentIntent, PendingIntent deliveryIntent) {
-        Log.d(TAG, "sendText ========== destAddr = " + destAddr + ",scAddr = " + scAddr + 
-        					",text = " + text + ",sentIntent = " + sentIntent + 
-        					",deliveryIntent = " + deliveryIntent);
-        if (isCdmaMo()) { 
+        Log.d(TAG, "sendText");
+        if (isCdmaMo()) {
             mCdmaDispatcher.sendText(destAddr, scAddr,
                     text, sentIntent, deliveryIntent);
         } else {
-        	 Log.d(TAG, "sendText ========== mGsmDispatcher = " + mGsmDispatcher);
             mGsmDispatcher.sendText(destAddr, scAddr,
                     text, sentIntent, deliveryIntent);
         }

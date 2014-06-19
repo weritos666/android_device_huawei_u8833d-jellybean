@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008, 2011 The Android Open Source Project
- * Copyright (c) 2011-2012 Code Aurora Forum. All rights reserved.
+ * Copyright (c) 2011-2012 The Linux Foundation. All rights reserved.
  *
  * Not a Contribution, Apache license notifications and license are retained
  * for attribution purposes only
@@ -77,8 +77,6 @@ public class GsmUmtsOptions {
     public void enableScreen() {
         if (mPhone.getPhoneType() != Phone.PHONE_TYPE_GSM) {
             log("Not a GSM phone");
-            mButtonAPNExpand.setEnabled(false);
-            mButtonOperatorSelectionExpand.setEnabled(false);
             mButtonPrefer2g.setEnabled(false);
         }
         if (mButtonOperatorSelectionExpand != null) {
@@ -92,8 +90,7 @@ public class GsmUmtsOptions {
                     mButtonOperatorSelectionExpand.setEnabled(true);
                 } else {
                     log("[CSP] Disabling Operator Selection menu.");
-                    mPrefScreen.removePreference(mPrefScreen
-                            .findPreference(BUTTON_OPERATOR_SELECTION_EXPAND_KEY));
+                    mButtonOperatorSelectionExpand.setEnabled(false);
                 }
             }
         }

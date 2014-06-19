@@ -21,6 +21,7 @@ import com.android.internal.telephony.CommandsInterface;
 import com.android.internal.telephony.DataConnectionTracker;
 import com.android.internal.telephony.EventLogTags;
 import com.android.internal.telephony.IccCard;
+import com.android.internal.telephony.IccCard.State;
 import com.android.internal.telephony.MccTable;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.RestrictedState;
@@ -29,7 +30,6 @@ import com.android.internal.telephony.RILConstants;
 import com.android.internal.telephony.ServiceStateTracker;
 import com.android.internal.telephony.TelephonyIntents;
 import com.android.internal.telephony.TelephonyProperties;
-import com.android.internal.telephony.cdma.CdmaSubscriptionSourceManager;
 import com.android.internal.telephony.uicc.IccCardStatus;
 import com.android.internal.telephony.uicc.SIMRecords;
 import com.android.internal.telephony.uicc.UiccCard;
@@ -87,7 +87,7 @@ import java.util.TimeZone;
  */
 public class GsmServiceStateTracker extends ServiceStateTracker {
     static final String LOG_TAG = "GSM";
-    static final boolean DBG = false;
+    static final boolean DBG = true;
 
     protected GSMPhone phone;
     GsmCellLocation cellLoc;
@@ -171,8 +171,6 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
     private boolean mEonsEnabled =
             SystemProperties.getBoolean(TelephonyProperties.PROPERTY_EONS_ENABLED, true);
 
-    private boolean mIsMultimodeCdmaPhone = SystemProperties.getBoolean("ro.config.multimode_cdma", false);
-    
     /** Notification type. */
     static final int PS_ENABLED = 1001;            // Access Control blocks data service
     static final int PS_DISABLED = 1002;           // Access Control enables data service
@@ -229,7 +227,6 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
         cm.registerForRadioStateChanged(this, EVENT_RADIO_STATE_CHANGED, null);
 
         cm.registerForVoiceNetworkStateChanged(this, EVENT_NETWORK_STATE_CHANGED, null);
-        cm.registerForDataNetworkStateChanged(this, EVENT_NETWORK_STATE_CHANGED, null);
         cm.setOnNITZTime(this, EVENT_NITZ_TIME, null);
         cm.setOnSignalStrengthUpdate(this, EVENT_SIGNAL_STRENGTH_UPDATE, null);
         cm.setOnRestrictedStateChanged(this, EVENT_RESTRICTED_STATE_CHANGED, null);
@@ -257,13 +254,6 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
 
         // Gsm doesn't support OTASP so its not needed
         phone.notifyOtaspChanged(OTASP_NOT_NEEDED);
-        
-        if (this.mIsMultimodeCdmaPhone)
-        {
-          this.mCdmaSSM = CdmaSubscriptionSourceManager.getInstance(phone.getContext(), this.cm, this, 39, null);
-          this.cm.registerForCdmaPrlChanged(this, 40, null);
-        }
-        
         Log.i(LOG_TAG,"Is EONS enabled: " + mEonsEnabled);
     }
 
@@ -310,7 +300,7 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
         switch (msg.what) {
             case EVENT_RADIO_AVAILABLE:
                 //this is unnecessary
-                setPowerStateToDesired();
+                //setPowerStateToDesired();
                 break;
 
             case EVENT_SIM_READY:
@@ -584,8 +574,8 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
             boolean showSpn = !mEmergencyOnly && !TextUtils.isEmpty(spn)
                 && (rule & SIMRecords.SPN_RULE_SHOW_SPN) == SIMRecords.SPN_RULE_SHOW_SPN
                 && (ss.getState() == ServiceState.STATE_IN_SERVICE);
-            boolean showPlmn = !TextUtils.isEmpty(plmn) &&
-                (rule & SIMRecords.SPN_RULE_SHOW_PLMN) == SIMRecords.SPN_RULE_SHOW_PLMN;
+            boolean showPlmn = !TextUtils.isEmpty(plmn) && (mEmergencyOnly ||
+                ((rule & SIMRecords.SPN_RULE_SHOW_PLMN) == SIMRecords.SPN_RULE_SHOW_PLMN));
 
             if (DBG) {
                 log(String.format("updateSpnDisplay: changed sending intent" + " rule=" + rule +
@@ -816,6 +806,7 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
         switch (cm.getRadioState()) {
             case RADIO_UNAVAILABLE:
                 newSS.setStateOutOfService();
+                newGPRSState = ServiceState.STATE_OUT_OF_SERVICE;
                 newCellLoc.setStateInvalid();
                 setSignalStrengthDefaultValues();
                 mGotCountryCode = false;
@@ -825,6 +816,7 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
 
             case RADIO_OFF:
                 newSS.setStateOff();
+                newGPRSState = ServiceState.STATE_POWER_OFF;
                 newCellLoc.setStateInvalid();
                 setSignalStrengthDefaultValues();
                 mGotCountryCode = false;
@@ -957,7 +949,9 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
             mNitzUpdatedTime = false;
         }
 
-         if (mEonsEnabled) {
+        IccCard iccCard = phone.getIccCard();
+        if (mEonsEnabled && (iccCard != null) &&
+                    (iccCard.getIccCardState() == State.READY)) {
             Log.i(LOG_TAG,"Network State Changed, get EONS and update operator name display");
             updateEons();
         } else {
@@ -983,8 +977,8 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
                 mGotCountryCode = false;
                 mNitzUpdatedTime = false;
             } else {
+                String mcc = "000";
                 String iso = "";
-                String mcc = "";
                 try{
                     mcc = operatorNumeric.substring(0, 3);
                     iso = MccTable.countryCodeForMcc(Integer.parseInt(mcc));
@@ -1364,7 +1358,9 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
         } catch (Exception e){
         }
 
-        return gsmRoaming && !(equalsMcc && (equalsOnsl || equalsOnss));
+        boolean mvnoRoaming = Settings.System.getInt(phone.getContext().getContentResolver(),
+            Settings.System.MVNO_ROAMING, 0) == 1;
+        return gsmRoaming && !(equalsMcc && (equalsOnsl || equalsOnss || mvnoRoaming));
     }
 
     private static int twoDigitsAt(String s, int offset) {
@@ -1374,6 +1370,7 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
         b = Character.digit(s.charAt(offset+1), 10);
 
         if (a < 0 || b < 0) {
+
             throw new RuntimeException("invalid format");
         }
 
@@ -1495,8 +1492,10 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
             // As a special extension, the Android emulator appends the name of
             // the host computer's timezone to the nitz string. this is zoneinfo
             // timezone name of the form Area!Location or Area!Location!SubLocation
-            // so we need to convert the ! into /
-            if (nitzSubs.length >= 9) {
+            // so we need to convert the ! into /.  If there's no "!", then maybe
+            // the carrier is appending something extra (as AT&T does) and it
+            // should be ignored
+            if ((nitzSubs.length >= 9) && (nitzSubs[8].indexOf('!') != -1)) {
                 String  tzname = nitzSubs[8].replace('!','/');
                 zone = TimeZone.getTimeZone( tzname );
             }
@@ -1754,21 +1753,16 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
         return  mUiccController.getUiccCardApplication(UiccController.APP_FAM_3GPP);
     }
 
-    public void updateIcc(){
-    	onUpdateIccAvailability();
-    }
-    
     @Override
     protected void onUpdateIccAvailability() {
         if (mUiccController == null ) {
             return;
         }
-        //Log.e(LOG_TAG,"****1212********1111***************************************************");
+
         UiccCardApplication newUiccApplication = getUiccCardApplication();
 
         if (mUiccApplcation != newUiccApplication) {
             if (mUiccApplcation != null) {
-            	  //Log.e(LOG_TAG,"****1212********2222***************************************************");
                 log("Removing stale icc objects.");
                 mUiccApplcation.unregisterForReady(this);
                 if (mIccRecords != null) {
@@ -1780,7 +1774,6 @@ public class GsmServiceStateTracker extends ServiceStateTracker {
             }
             if (newUiccApplication != null) {
                 log("New card found");
-                //Log.e(LOG_TAG,"****1212********3333***************************************************");
                 mUiccApplcation = newUiccApplication;
                 mIccRecords = mUiccApplcation.getIccRecords();
                 mUiccApplcation.registerForReady(this, EVENT_SIM_READY, null);
