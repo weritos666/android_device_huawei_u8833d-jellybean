@@ -28,12 +28,11 @@ TARGET_CPU_ABI2 := armeabi
 TARGET_ARCH_VARIANT := armv7-a-neon
 TARGET_CPU_SMP := true
 
-TARGET_GLOBAL_CFLAGS += -mtune=cortex-a5 -mfpu=neon -mfloat-abi=softfp
-TARGET_GLOBAL_CPPFLAGS += -mtune=cortex-a5 -mfpu=neon -mfloat-abi=softfp
+TARGET_GLOBAL_CFLAGS += -mfpu=neon -mfloat-abi=softfp
+TARGET_GLOBAL_CPPFLAGS += -mfpu=neon -mfloat-abi=softfp
 
 TARGET_CORTEX_CACHE_LINE_32 := true
 TARGET_USE_SPARROW_BIONIC_OPTIMIZATION := true
-ARCH_ARM_HAVE_32_BYTE_CACHE_LINES := true
 ARCH_ARM_HAVE_TLS_REGISTER := true
 
 # Kernel 
@@ -50,11 +49,11 @@ TARGET_SPECIFIC_HEADER_PATH := device/huawei/u8833d/include
 # Graphics
 BOARD_EGL_CFG := device/huawei/u8833d/prebuilt/system/lib/egl/egl.cfg
 USE_OPENGL_RENDERER := true
-TARGET_USES_ION := true
 BOARD_ADRENO_DECIDE_TEXTURE_TARGET := true
+TARGET_USES_ION := true
 
 # Video
-COMMON_GLOBAL_CFLAGS += -DQCOM_NO_SECURE_PLAYBACK -DQCOM_BSP
+COMMON_GLOBAL_CFLAGS += -DQCOM_BSP
 
 # Qualcomm hardware
 BOARD_USES_QCOM_HARDWARE := true
@@ -73,6 +72,7 @@ WIFI_DRIVER_FW_PATH_STA          := "sta"
 WIFI_DRIVER_FW_PATH_AP           := "ap"
 WIFI_DRIVER_FW_PATH_P2P          := "p2p"
 BOARD_HAVE_HUAWEI_WIFI := true
+BOARD_HAS_ATH_WLAN := true
 
 # Audio
 TARGET_PROVIDES_LIBAUDIO := true
@@ -85,7 +85,7 @@ BOARD_HAVE_BLUETOOTH := true
 
 # Camera
 USE_CAMERA_STUB := false
-BOARD_NEEDS_MEMORYHEAPPMEM := true
+
 # FM Radio
 BOARD_HAVE_QCOM_FM := true
 COMMON_GLOBAL_CFLAGS += -DQCOM_FM_ENABLED
@@ -132,13 +132,12 @@ BOARD_DATA_FILESYSTEM := ext4
 BOARD_DATA_FILESYSTEM_OPTIONS := rw
 
 # Partition sizes
-BOARD_BOOTIMAGE_PARTITION_SIZE := 0x00C00000
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x00C00000
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 314572800
-BOARD_USERDATAIMAGE_PARTITION_SIZE := 183500800
+BOARD_BOOTIMAGE_PARTITION_SIZE := 0x800000
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x1400000
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1058320384
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 1190596608
 BOARD_FLASH_BLOCK_SIZE := 131072
-#
-# In build/tools/releasetools/edify_generator.py to set this : 
-#\0'.join(['getprop("ro.product.device") == "hwG510-0010" || getprop("ro.build.product") == "hwG510-0010" || getprop("ro.build.product") == #"u8951d" || getprop("ro.build.device") == "msm7627a" || getprop("ro.build.product") == "msm7627a" || getprop("ro.build.device") == "u8833d" #|| getprop("ro.build.product") == "u8833d" || getprop("ro.product.device") == "%s" || getprop("ro.build.product") == "%s"
-#
-TARGET_OTA_ASSERT_DEVICE := hwY300-0000
+
+
+#use more config from build/tools/releasetools/edify_generator.py
+TARGET_OTA_ASSERT_DEVICE := u8833,hwu8833,msm7x27a,msm7627a,u8833d,U8833D,u8951,u8951d
