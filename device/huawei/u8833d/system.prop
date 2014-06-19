@@ -1,23 +1,22 @@
 #
 # system.prop for u8833d
 #
-
+ 
 # Camcorder
-debug.camcorder.disablemeta=1
+debug.camcorder.disablemeta=0
 
 # CWM
 ro.cwm.enable_key_repeat=true
 
 # Dalvik
+dalvik.vm.debug.alloc=0
 dalvik.vm.heapstartsize=5m
 dalvik.vm.heapgrowthlimit=48m
 dalvik.vm.heapsize=128m
 
 # Display
-debug.sf.hw=1
-debug.hwc.dynThreshold=1.91
-debug.sf.swaprect=1
-debug.composition.type=mdp
+debug.hwc.dynThreshold=1.9
+debug.composition.type=dyn
 ro.max.fling_velocity=4000
 ro.opengles.version=131072
 ro.sf.lcd_density=240
@@ -28,9 +27,9 @@ ro.fm.transmitter=false
 ro.fm.mulinst.recording.support=false
 
 # Huawei
-ro.confg.hw_appfsversion=Y300-0000V100R001C17B181_SYSIMG
-ro.confg.hw_appsbootversion=Y300-0000V100R001C17B181_APPSBOOT
-ro.confg.hw_appversion=Y300-0000V100R001C17B181_KERNEL
+ro.confg.hw_appfsversion=u8833dVCM10_SYSIMG
+ro.confg.hw_appsbootversion=u8833dVCM10_APPSBOOT
+ro.confg.hw_appversion=u8833dVCM10_KERNEL
 
 # Media
 media.stagefright.enable-player=true
@@ -54,27 +53,9 @@ ro.vendor.extension_library=/system/lib/libqc-opt.so
 persist.thermal.monitor=true
 
 # Telephony
-#by xjljian
-#rild.libargs=-d /dev/smd0
-#rild.libpath=/system/lib/libril-qc-1.so
-#ril.subscription.types=NV,RUIM
-#ro.telephony.call_ring.multiple=false
-#ro.telephony.ril_class=HuaweiQualcommRIL
-ro.telephony.ril_class=QualcommSharedRIL
-
-#
-#ro.telephony.ril.v3=qcomdsds
-
-
-#ro.multi.rild=false
-
-
-
-
-rild.libpath=/system/lib/libril-qc-1.so
 rild.libargs=-d /dev/smd0
-ro.telephony.default_network=0
-#ro.telephony.ril_class=HuaweiQualcommDSDSRIL
+rild.libpath=/system/lib/libril-qc-qmi-1.so
+
 persist.rild.nitz_plmn=
 persist.rild.nitz_long_ons_0=
 persist.rild.nitz_long_ons_1=
@@ -84,133 +65,18 @@ persist.rild.nitz_short_ons_0=
 persist.rild.nitz_short_ons_1=
 persist.rild.nitz_short_ons_2=
 persist.rild.nitz_short_ons_3=
+
 ril.subscription.types=NV,RUIM
-DEVICE_PROVISIONED=1
+ro.telephony.call_ring.multiple=false
+ 
 
-ro.use_data_netmgrd=true
-ro.config.hw_omacp=1
-
-
-persist.sys.usb.config=mass_storage,adb
-
-keyguard.no_require_sim=true
-
-persist.data.ds_fmc_app.mode=0
-
-persist.ims.regmanager.mode=0
-
-#add by xjljian
-
-# add by u8833d
-#ro.config.show_battery_id=false
-ro.config.hw_dsda=false
 persist.multisim.config=dsds
-ro.config.hw_cdmagsm=true
-#persist.radio.force_nw_search=1
-ro.config.powertmg_qpc_umts=true
-ro.config.dsds_mode=umts_gsm
 persist.dsds.enabled=true
-ro.huawei.dsds.signalbarcust=true
-ro.config.hw.logsystem.auto.act=1
-ro.config.hw.lca.show.config=1
-#ro.config.hw_vcardBase64=true
-ro.config.hw.usedtime.statis=1
-ro.dual.sim.phone=true
-#
-debug.composition.8x25.type=mdp
-ro.hw_plat=8x25
-ro.config.hw_addsettingsdbex=1
-ro.config.PopupTwink=false
-ro.config.SetStatusbarText=false
 
-ro.config.hw_GSensorOptimize=true
-ro.config.hw_proximity=true
-ro.config.hw_RemindWifiToPdp=true
-# true : enable device to unlock when PUK lock
-ro.config.hwft_PinPukUnlockscr=true
+gsm.version.baseband=2030
 
-ro.config.xtra_support=true
-ro.config.move_up_display=true
-# af controller enable switcher
-ro.config.camera.afctl.enable=true
-persist.sys.quickpoweron=normal
-ro.config.hw_poanimation=5000
-ro.config.hw_omacp=1
-#ro.config.dualmic=false
-ro.config.hw_eapsim=true
-ro.config.hw_optimizeBoot=true
-ro.config.hw_new_double_signal=1
-ro.config.DOMAIN_ASCII_ONLY=true
-ro.config.showEmergencyNumber=true
-ro.config.hw_tether_dun_enable=0
-debug.enabletr=true
-debug.camcorder.disablemeta=0
-persist.sys.strictmode.disable=true
-ro.config.hw_support_ipcall=false			
-ro.config.hw_voicerecord=true			
-ro.config.hw_cdma_cdg=false
-drm.service.enabled=false
-
-ro.config.widevine_level3=true
-ro.camera.sound.forced=1
-ro.config.hwft_simrefresh=true
-ro.config.hw_nullalpha_act=true
-#
-#
-ro.huawei.dsds.signalbarcust=true
-ro.config.hw.logsystem.auto.act=1
-ro.config.hw.lca.show.config=1
-#ro.config.hw_vcardBase64=true
-ro.config.hw.usedtime.statis=1
-#
-#TCP Fin Aggregation
-net.tcp.fin.aggregation = 1
-#Memory Cache
-net.webkit.cache.mindeadsize = 4194304
-net.webkit.cache.maxdeadsize = 4194304
-net.webkit.cache.size = 12582912
-#DNS Bug Fix and Netstack Priority Fix
-net.webkit.setpri = 1
-#Fling velocity
-ro.max.fling_velocity=4000
-audio.legacy.postproc=true
-#
-debug.camera.landscape=true
-dev.pm.dyn_sample_period=700000
-dev.pm.dyn_samplingrate=1
-httplive.enable.discontinuity=true
-hw.cabl.level=2
-hw.cabl.version=1.0.20120512
-hwui.render_dirty_regions=true
-net.dns.cache_size=512
-net.dns.cache_ttl=600
-net.http.getzip=1
-net.http.idle_cache.shutdown=true
-net.http.idle_cache.size=40
-net.http.threads=10
-net.nw.cache.orderby=weight
-net.nw.cache.prioadvstep=86400000
-net.nw.cache.weightadvstep=3600000
-persist.sys.strictmode.visual=false
-ro.staticwallpaper.pixelformat=RGB_565
-ro.vendor.extension_library=/system/lib/libqc-opt.so
-sys.media.vdec.sw=0
-wlan.driver.status=ok
-ro.config.hw_dts=true
-ro.config.hw_sound_switch = false
-debug.composition.type=mdp
-del.autofill.for.qcom=true
-lpa.decode=true
-ro.huawei.cust.drm.fl_only=true
-ro.config.hw_music_dts=false
-ro.config.hw_dtsmode=true
-ro.config.is_cdma_phone=true
-ro.cfg.hw_ctl_cardactive=true
-
-
-#add by xjljian end
-
-
+# Time services
+persist.timed.enable=true
 
 # USB
 persist.sys.usb.config=mtp,adb
