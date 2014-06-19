@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 #
 # This file is the build configuration for a full Android
 # build for toro hardware. This cleanly combines a set of
@@ -19,7 +18,8 @@
 # product configuration (apps). Except for a few implementation
 # details, it only fundamentally contains two inherit-product
 # lines, full and toro, hence its name.
-#
+# Inherit from those products. Most specific first.
+
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
@@ -37,35 +37,32 @@ PRODUCT_AAPT_PREF_CONFIG := hdpi
 
 # Video
 PRODUCT_PACKAGES += \
+    libstagefrighthw \
     libmm-omxcore \
-    libOmxCore \
-    libstagefrighthw 
-
+    libOmxCore
 
 # Graphics
 PRODUCT_PACKAGES += \
     copybit.msm7x27a \
     gralloc.msm7x27a \
     hwcomposer.msm7x27a \
-    libgenlock \
     libtilerenderer
 
 # Audio
 PRODUCT_PACKAGES += \
+    audio.primary.msm7x27a \
+    audio_policy.msm7x27a \
     audio.a2dp.default \
-    audio.primary.u8833d \
-    audio_policy.u8833d \
     audio.usb.default \
     libaudioutils
 
 # GPS
 PRODUCT_PACKAGES += \
-    gps.u8833d \
-    libloc_api-rpc
+    gps.msm7x27a
 	
-# u8833d specific	
+# Lights	
 PRODUCT_PACKAGES += \
-    lights.u8833d
+    lights.msm7x27a
 
 # FM Radio
 PRODUCT_PACKAGES += \
@@ -75,12 +72,13 @@ PRODUCT_PACKAGES += \
 
 # Live Wallpapers
 PRODUCT_PACKAGES += \
+    LiveWallpapers \
     LiveWallpapersPicker \
-    librs_jni	
-	
+    librs_jni \
+    VisualizationWallpapers   
+
 # Other Packages
 PRODUCT_PACKAGES += \
-    dexpreopt \
     make_ext4fs \
     setup_fs \
     Torch \
@@ -91,16 +89,15 @@ PRODUCT_PACKAGES += \
 #    device/huawei/u8833d/ramdisk/tp/1191601.img:root/tp/1191601.img \
 #    device/huawei/u8833d/ramdisk/tp/1294018.img:root/tp/1294018.img 
 
+# For userdebug builds
+ADDITIONAL_DEFAULT_PROPERTIES += \
+    ro.secure=0
+
+# root filesystem
 PRODUCT_COPY_FILES += \
-    device/huawei/u8833d/ramdisk/init.qcom.class_main.sh:root/init.qcom.class_main.sh \
-    device/huawei/u8833d/ramdisk/init.huawei.rc:root/init.huawei.rc \
-    device/huawei/u8833d/ramdisk/init.huawei.usb.rc:root/init.huawei.usb.rc \
-    device/huawei/u8833d/ramdisk/fstab.huawei:root/fstab.huawei \
-    device/huawei/u8833d/ramdisk/ueventd.huawei.rc:root/ueventd.huawei.rc \
-    device/huawei/u8833d/ramdisk/init.qcom.ril.path.sh:root/init.qcom.ril.path.sh \
-    device/huawei/u8833d/ramdisk/wifi/ar6000.ko:root/wifi/ar6000.ko \
-    device/huawei/u8833d/ramdisk/wifi/cfg80211.ko:root/wifi/cfg80211.ko
-	
+  $(call find-copy-subdir-files,*,device/huawei/u8833d/ramdisk,root)
+
+# system
 PRODUCT_COPY_FILES += \
   $(call find-copy-subdir-files,*,device/huawei/u8833d/prebuilt/system,system)
 
@@ -114,19 +111,23 @@ PRODUCT_COPY_FILES += \
 
 # Install the features available on this device.
 PRODUCT_COPY_FILES += \
-    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
-    frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
+    frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
+    frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
     frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
+    frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
     frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
     frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml \
-    frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
+    frameworks/native/data/etc/android.hardware.sensor.compass.xml:system/etc/permissions/android.hardware.sensor.compass.xml \
     frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml \
-    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.distinct.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.distinct.xml \
-    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.distinct.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
+    frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
+    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
+    frameworks/native/data/etc/android.hardware.telephony.cdma.xml:system/etc/permissions/android.hardware.telephony.cdma.xml \
+    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
-    frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
-    packages/wallpapers/LivePicker/android.software.live_wallpaper.xml:system/etc/permissions/android.software.live_wallpaper.xml
+    frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
+    packages/wallpapers/LivePicker/android.software.live_wallpaper.xml:/system/etc/permissions/android.software.live_wallpaper.xml
+
 
 # Bluetooth
 PRODUCT_COPY_FILES += \
@@ -135,6 +136,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_TAGS += dalvik.gc.type-precise
 
 $(call inherit-product, build/target/product/full.mk)
+
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
 PRODUCT_NAME := full_u8833d
