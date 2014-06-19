@@ -27,13 +27,17 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 $(call inherit-product, device/common/gps/gps_as_supl.mk)
 
 $(call inherit-product, vendor/huawei/u8833d/u8833d-vendor.mk)
-#use more change from framework
-#FRAMEWORKS_BASE_SUBDIRS += ../../$(LOCAL_PATH)/ril/
 
 DEVICE_PACKAGE_OVERLAYS += device/huawei/u8833d/overlay
 
 PRODUCT_AAPT_CONFIG := normal hdpi
 PRODUCT_AAPT_PREF_CONFIG := hdpi
+
+#RIL
+PRODUCT_PACKAGES += \
+       libreference-ril.so \
+       libril.so \
+       rild
 
 # Video
 PRODUCT_PACKAGES += \

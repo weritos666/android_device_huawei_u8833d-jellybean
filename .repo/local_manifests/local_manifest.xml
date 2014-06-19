@@ -3,6 +3,7 @@
   <!-- local_manifest.xml for building HuaWei U8833D cm-10 -->
            
   <!-- CM replacements -->
+  <remove-project name="CyanogenMod/android_hardware_ril" />
   <remove-project name="CyanogenMod/android_frameworks_base" />
   <remove-project name="CyanogenMod/android_packages_apps_Mms" />
   <remove-project name="CyanogenMod/android_packages_apps_Phone" />
